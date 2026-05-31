@@ -1,16 +1,33 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Rnd } from "react-rnd";
 import { motion } from "framer-motion";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  SquarePen,
+  Trash2,
+} from "lucide-react";
 import wallpaper from "./assets/wallpaper.png";
-import contacts from "./assets/contacts.png";
+import mail from "./assets/mail.png";
 import notes from "./assets/notes.png";
 import photos from "./assets/photos.png";
+import trash from "./assets/trash.png";
 import hero from "./assets/hero.png";
 import folder from "./assets/folder.png";
+import calendar from "./assets/calendar.png";
+import quicktimeGif from "./assets/quicktime-video.gif";
+import appleLogo from "./assets/apple_logo.svg.png";
+import mojaveDay from "./assets/wallpaper.png";
+import mojaveNight from "./assets/wallpaper.png";
 
 const galleryPhotos = [
   { src: wallpaper, alt: "Colorful macOS wallpaper", position: "center" },
-  { src: wallpaper, alt: "Blue and pink wallpaper detail", position: "18% 42%" },
+  {
+    src: wallpaper,
+    alt: "Blue and pink wallpaper detail",
+    position: "18% 42%",
+  },
   { src: wallpaper, alt: "Orange wallpaper detail", position: "74% 45%" },
   { src: wallpaper, alt: "Purple wallpaper detail", position: "52% 72%" },
   { src: hero, alt: "Portrait photo", position: "center" },
@@ -47,78 +64,307 @@ const socialLinks = [
   },
 ];
 
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(query);
+    const updateMatches = () => setMatches(mediaQuery.matches);
+
+    updateMatches();
+    mediaQuery.addEventListener("change", updateMatches);
+
+    return () => mediaQuery.removeEventListener("change", updateMatches);
+  }, [query]);
+
+  return matches;
+}
+
+function useViewportSize() {
+  const getViewportSize = () => ({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  const [viewportSize, setViewportSize] = useState(getViewportSize);
+
+  useEffect(() => {
+    const updateViewportSize = () => setViewportSize(getViewportSize());
+
+    window.addEventListener("resize", updateViewportSize);
+
+    return () => window.removeEventListener("resize", updateViewportSize);
+  }, []);
+
+  return viewportSize;
+}
+
 export default function App() {
   const folderWasDragged = useRef(false);
+  const folderDragStart = useRef({ x: 0, y: 0 });
+  const folderPointerStart = useRef({ x: 0, y: 0 });
+  const viewportSize = useViewportSize();
+  const isMobile = useMediaQuery(
+    "(max-width: 640px), (max-width: 1100px) and (max-height: 560px)",
+  );
+  const [now, setNow] = useState(() => new Date());
   const [photosOpen, setPhotosOpen] = useState(false);
   const [contactsOpen, setContactsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
+  const [trashOpen, setTrashOpen] = useState(false);
   const [finderOpen, setFinderOpen] = useState(false);
   const [contactSent, setContactSent] = useState(false);
+  const [quicktimeSize, setQuicktimeSize] = useState({
+    width: 360,
+    height: 240,
+  });
+  const [quicktimePosition, setQuicktimePosition] = useState({
+    x: isMobile ? 16 : 80,
+    y: isMobile ? 160 : 180,
+  });
+
+  useEffect(() => {
+    setQuicktimeSize(isMobile ? { width: 250, height: 250 } : { width: 400, height: 400 });
+    setQuicktimePosition(isMobile ? { x: 16, y: 50 } : { x: 80, y: 50 });
+  }, [isMobile]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => setNow(new Date()), 60_000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   function handleContactSubmit(event) {
     event.preventDefault();
     setContactSent(true);
   }
 
+  function openFinderFromIcon() {
+    if (folderWasDragged.current) {
+      folderWasDragged.current = false;
+      return;
+    }
+
+    setFinderOpen(true);
+  }
+
+  const isNight = now.getHours() < 6 || now.getHours() >= 18;
+  // const isNight = true;
+
+  const menuDateTime = now.toLocaleString([], {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  const calendarMonth = now
+    .toLocaleString([], { month: "short" })
+    .toUpperCase();
+  const calendarDay = now.getDate();
+
+  const calendarIconWidth = 150;
+  const calendarIconHeight = 150;
+  const calendarIconMargin = isMobile ? 16 : 24;
+  const calendarIconRightMargin = isMobile ? 16 : 64;
+  const calendarDefaultX = Math.max(
+    calendarIconMargin,
+    viewportSize.width - calendarIconWidth - calendarIconRightMargin,
+  );
+  const calendarDefaultY = isMobile ? 12 : 72;
+
+  function getWindowProps({ x, y, width, height, minWidth, minHeight }) {
+    const margin = isMobile ? 20 : 24;
+    const bottomReserve = isMobile ? 132 : 96;
+    const availableWidth = Math.max(240, viewportSize.width - margin * 2);
+    const availableHeight = Math.max(
+      240,
+      viewportSize.height - margin - bottomReserve,
+    );
+    const windowWidth = Math.min(isMobile ? 360 : width, availableWidth);
+    const windowHeight = Math.min(isMobile ? 380 : height, availableHeight);
+    const maxX = Math.max(margin, viewportSize.width - windowWidth - margin);
+    const maxY = Math.max(
+      margin,
+      viewportSize.height - windowHeight - bottomReserve,
+    );
+
+    return {
+      default: {
+        x: isMobile ? margin : Math.min(x, maxX),
+        y: isMobile ? 34 : Math.min(y, maxY),
+        width: windowWidth,
+        height: windowHeight,
+      },
+      minWidth: Math.min(isMobile ? 0 : minWidth, availableWidth),
+      minHeight: Math.min(isMobile ? 0 : minHeight, availableHeight),
+      maxWidth: availableWidth,
+      maxHeight: availableHeight,
+      disableDragging: false,
+      enableResizing: !isMobile,
+    };
+  }
+
   return (
-    <div className="w-screen h-screen overflow-hidden bg-zinc-950 text-white relative">
+    <div className="relative h-[100dvh] w-screen overflow-hidden bg-zinc-950 text-white">
       {/* Background */}
       <div
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
         style={{
-          backgroundImage: `url(${wallpaper})`,
+          backgroundImage: `url(${mojaveDay})`,
         }}
       />
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
+        style={{
+          backgroundImage: `url(${mojaveNight})`,
+          opacity: isNight ? 1 : 0,
+        }}
+      />
+
+      <div className="absolute inset-x-0 top-0 z-50 flex h-8 items-center justify-between border-b border-white/10 bg-zinc-950/35 px-4 text-sm font-medium text-white shadow-sm backdrop-blur-2xl">
+        <div className="flex min-w-0 items-center gap-5">
+          <div className="flex items-center gap-2 font-semibold">
+            <img
+              src={appleLogo}
+              alt=""
+              aria-hidden="true"
+              className="h-4 w-4 object-contain"
+            />
+            <span>tripodvawn</span>
+          </div>
+        </div>
+        <time
+          className="shrink-0 tabular-nums text-white/90"
+          dateTime={now.toISOString()}
+        >
+          {menuDateTime}
+        </time>
+      </div>
 
       {/* Desktop Icon (Draggable) */}
       <Rnd
         default={{
-          x: 80,
-          y: 80,
-          width: 90,
-          height: 110,
+          x: 200,
+          y: 500,
+          width: 80,
+          height: 80,
         }}
         bounds="parent"
+        disableDragging={false}
         enableResizing={false}
-        onDrag={() => {
-          folderWasDragged.current = true;
+        onDragStart={(_event, data) => {
+          folderWasDragged.current = false;
+          folderDragStart.current = { x: data.x, y: data.y };
+        }}
+        onDrag={(_event, data) => {
+          const deltaX = data.x - folderDragStart.current.x;
+          const deltaY = data.y - folderDragStart.current.y;
+
+          if (Math.hypot(deltaX, deltaY) > 8) {
+            folderWasDragged.current = true;
+          }
         }}
       >
         <button
           type="button"
           aria-label="Open Socials Folder"
-          onClick={() => {
-            if (folderWasDragged.current) {
-              folderWasDragged.current = false;
-              return;
-            }
-
-            setFinderOpen(true);
+          onPointerDown={(event) => {
+            folderPointerStart.current = {
+              x: event.clientX,
+              y: event.clientY,
+            };
           }}
-          className="flex flex-col items-center gap-2 cursor-pointer select-none"
+          onPointerUp={(event) => {
+            const deltaX = event.clientX - folderPointerStart.current.x;
+            const deltaY = event.clientY - folderPointerStart.current.y;
+
+            if (Math.hypot(deltaX, deltaY) <= 8) {
+              folderWasDragged.current = false;
+              setFinderOpen(true);
+            }
+          }}
+          onClick={openFinderFromIcon}
+          className="flex touch-none cursor-pointer select-none flex-col items-center gap-2"
         >
           <img
             src={folder}
             className="w-20 h-auto max-h-16 object-contain drop-shadow-xl pointer-events-none"
           />
 
-          <span className="rounded-md px-1.5 py-0.5 text-sm text-white shadow-sm">
+          <span className="rounded-md px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm">
             Socials
           </span>
         </button>
       </Rnd>
 
+      <Rnd
+        default={{
+          x: calendarDefaultX,
+          y: calendarDefaultY,
+          width: calendarIconWidth,
+          height: calendarIconHeight,
+        }}
+        bounds="parent"
+        disableDragging={false}
+        enableResizing={false}
+      >
+        <button
+          type="button"
+          aria-label={`Calendar ${calendarMonth} ${calendarDay}`}
+          className="flex touch-none cursor-pointer select-none flex-col items-center gap-1.5"
+        >
+          <span className="relative block h-40 w-40 drop-shadow-xl">
+            <img
+              src={calendar}
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none h-full w-full object-contain"
+            />
+            {/* <span className="pointer-events-none absolute left-[12px] top-[24px] -rotate-[10deg] text-[7px] font-bold leading-none tracking-wide text-white">
+              {calendarMonth}
+            </span>
+            <span className="pointer-events-none absolute inset-x-0 top-[30px] -rotate-[11deg] text-center text-[30px] font-bold leading-none tracking-normal text-zinc-800">
+              {calendarDay}
+            </span> */}
+          </span>
+
+          <span className="rounded-md px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm">
+          Click 2 Book A Shoot
+          </span>
+        </button>
+      </Rnd>
+
+      {/* QuickTime Window (Movable, non-closable) */}
+      <Rnd
+        position={quicktimePosition}
+        size={{ width: quicktimeSize.width, height: quicktimeSize.height }}
+        bounds="parent"
+        enableResizing={false}
+        dragHandleClassName="quicktime-drag-handle"
+        onDragStop={(_event, data) => setQuicktimePosition({ x: data.x, y: data.y })}
+      >
+        <div
+          className="quicktime-drag-handle h-full w-full cursor-grab active:cursor-grabbing"
+          style={{ width: quicktimeSize.width, height: quicktimeSize.height }}
+        >
+          <img
+            src={quicktimeGif}
+            alt="QuickTime video"
+            className="block w-full h-full object-contain pointer-events-none"
+          />
+        </div>
+      </Rnd>
+
       {finderOpen && (
         <Rnd
-          default={{
+          {...getWindowProps({
             x: 160,
             y: 120,
             width: 620,
             height: 390,
-          }}
-          minWidth={380}
-          minHeight={300}
-          bounds="parent"
+            minWidth: 380,
+            minHeight: 300,
+          })}
           dragHandleClassName="finder-title-bar"
           cancel=".window-control, a"
         >
@@ -126,9 +372,9 @@ export default function App() {
             initial={{ opacity: 0, y: 16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="w-full h-full rounded-2xl overflow-hidden backdrop-blur-2xl bg-zinc-950/65 border border-white/20 shadow-2xl flex flex-col"
+            className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-white/20 bg-zinc-950/65 shadow-2xl backdrop-blur-2xl sm:rounded-2xl"
           >
-            <div className="finder-title-bar h-11 border-b border-white/10 bg-white/10 flex items-center px-4 gap-2 cursor-grab active:cursor-grabbing">
+            <div className="finder-title-bar flex h-11 touch-none cursor-grab items-center gap-2 border-b border-white/10 bg-white/10 px-4 active:cursor-grabbing">
               <button
                 type="button"
                 aria-label="Close Socials Folder"
@@ -172,8 +418,14 @@ export default function App() {
                     <a
                       key={social.name}
                       href={social.href}
-                      target={social.href.startsWith("mailto:") ? undefined : "_blank"}
-                      rel={social.href.startsWith("mailto:") ? undefined : "noreferrer"}
+                      target={
+                        social.href.startsWith("mailto:") ? undefined : "_blank"
+                      }
+                      rel={
+                        social.href.startsWith("mailto:")
+                          ? undefined
+                          : "noreferrer"
+                      }
                       className="grid grid-cols-[1fr_78px] items-center gap-3 border-b border-zinc-200 px-4 py-3 text-sm transition hover:bg-blue-50 sm:grid-cols-[1fr_170px_78px]"
                     >
                       <div className="flex min-w-0 items-center gap-3">
@@ -204,15 +456,14 @@ export default function App() {
 
       {photosOpen && (
         <Rnd
-          default={{
+          {...getWindowProps({
             x: 190,
             y: 90,
             width: 680,
             height: 460,
-          }}
-          minWidth={380}
-          minHeight={300}
-          bounds="parent"
+            minWidth: 380,
+            minHeight: 300,
+          })}
           dragHandleClassName="photos-title-bar"
           cancel=".window-control, .photos-gallery"
         >
@@ -220,9 +471,9 @@ export default function App() {
             initial={{ opacity: 0, y: 16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="w-full h-full rounded-2xl overflow-hidden backdrop-blur-2xl bg-zinc-950/65 border border-white/20 shadow-2xl flex flex-col"
+            className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-white/20 bg-zinc-950/65 shadow-2xl backdrop-blur-2xl sm:rounded-2xl"
           >
-            <div className="photos-title-bar h-11 border-b border-white/10 bg-white/10 flex items-center px-4 gap-2 cursor-grab active:cursor-grabbing">
+            <div className="photos-title-bar flex h-11 touch-none cursor-grab items-center gap-2 border-b border-white/10 bg-white/10 px-4 active:cursor-grabbing">
               <button
                 type="button"
                 aria-label="Close Photos"
@@ -239,7 +490,9 @@ export default function App() {
                 aria-label="Zoom Photos"
                 className="window-control w-3.5 h-3.5 rounded-full bg-green-500 border border-green-300/50"
               />
-              <div className="ml-3 text-sm font-medium text-white/85">Photos</div>
+              <div className="ml-3 text-sm font-medium text-white/85">
+                Photos
+              </div>
             </div>
 
             <div className="flex min-h-0 flex-1 bg-zinc-100 text-zinc-900">
@@ -253,7 +506,9 @@ export default function App() {
 
               <main className="min-w-0 flex-1 overflow-auto p-5">
                 <div className="mb-4 flex items-center justify-between gap-3">
-                  <h1 className="text-xl font-semibold tracking-normal">Library</h1>
+                  <h1 className="text-xl font-semibold tracking-normal">
+                    Library
+                  </h1>
                   <div className="rounded-full bg-zinc-200 px-3 py-1 text-xs font-medium text-zinc-600">
                     {galleryPhotos.length} Photos
                   </div>
@@ -283,15 +538,14 @@ export default function App() {
 
       {contactsOpen && (
         <Rnd
-          default={{
+          {...getWindowProps({
             x: 250,
             y: 120,
             width: 560,
             height: 520,
-          }}
-          minWidth={360}
-          minHeight={420}
-          bounds="parent"
+            minWidth: 360,
+            minHeight: 420,
+          })}
           dragHandleClassName="contacts-title-bar"
           cancel=".window-control, input, textarea, button"
         >
@@ -299,28 +553,26 @@ export default function App() {
             initial={{ opacity: 0, y: 16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="w-full h-full rounded-2xl overflow-hidden backdrop-blur-2xl bg-zinc-950/65 border border-white/20 shadow-2xl flex flex-col"
+            className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-white/20 bg-zinc-950/65 shadow-2xl backdrop-blur-2xl sm:rounded-2xl"
           >
-            <div className="contacts-title-bar h-11 border-b border-white/10 bg-white/10 flex items-center px-4 gap-2 cursor-grab active:cursor-grabbing">
+            <div className="contacts-title-bar flex h-11 touch-none cursor-grab items-center gap-2 border-b border-white/10 bg-white/10 px-4 active:cursor-grabbing">
               <button
                 type="button"
-                aria-label="Close Contacts"
+                aria-label="Close Mail"
                 onClick={() => setContactsOpen(false)}
                 className="window-control w-3.5 h-3.5 rounded-full bg-red-500 border border-red-300/50 hover:bg-red-400"
               />
               <button
                 type="button"
-                aria-label="Minimize Contacts"
+                aria-label="Minimize Mail"
                 className="window-control w-3.5 h-3.5 rounded-full bg-yellow-400 border border-yellow-200/50"
               />
               <button
                 type="button"
-                aria-label="Zoom Contacts"
+                aria-label="Zoom Mail"
                 className="window-control w-3.5 h-3.5 rounded-full bg-green-500 border border-green-300/50"
               />
-              <div className="ml-3 text-sm font-medium text-white/85">
-                Contact
-              </div>
+              <div className="ml-3 text-sm font-medium text-white/85">Mail</div>
             </div>
 
             <div className="min-h-0 flex-1 overflow-auto bg-zinc-100 text-zinc-900">
@@ -402,7 +654,9 @@ export default function App() {
 
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm text-green-700">
-                        {contactSent ? "Message ready. Thanks for reaching out." : ""}
+                        {contactSent
+                          ? "Message ready. Thanks for reaching out."
+                          : ""}
                       </p>
                       <button
                         type="submit"
@@ -421,15 +675,14 @@ export default function App() {
 
       {notesOpen && (
         <Rnd
-          default={{
+          {...getWindowProps({
             x: 300,
             y: 80,
             width: 560,
             height: 540,
-          }}
-          minWidth={360}
-          minHeight={360}
-          bounds="parent"
+            minWidth: 360,
+            minHeight: 360,
+          })}
           dragHandleClassName="notes-title-bar"
           cancel=".window-control"
         >
@@ -437,9 +690,9 @@ export default function App() {
             initial={{ opacity: 0, y: 16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="w-full h-full rounded-2xl overflow-hidden backdrop-blur-2xl bg-zinc-950/65 border border-white/20 shadow-2xl flex flex-col"
+            className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-white/20 bg-zinc-950/65 shadow-2xl backdrop-blur-2xl sm:rounded-2xl"
           >
-            <div className="notes-title-bar h-11 border-b border-white/10 bg-white/10 flex items-center px-4 gap-2 cursor-grab active:cursor-grabbing">
+            <div className="notes-title-bar flex h-11 touch-none cursor-grab items-center gap-2 border-b border-white/10 bg-white/10 px-4 active:cursor-grabbing">
               <button
                 type="button"
                 aria-label="Close Notes"
@@ -456,46 +709,157 @@ export default function App() {
                 aria-label="Zoom Notes"
                 className="window-control w-3.5 h-3.5 rounded-full bg-green-500 border border-green-300/50"
               />
-              <div className="ml-3 text-sm font-medium text-white/85">Notes</div>
+              <div className="ml-3 text-sm font-medium text-white/85">
+                Notes
+              </div>
             </div>
 
-            <div className="min-h-0 flex-1 overflow-auto bg-[#f8f1d8] text-zinc-900">
-              <div className="mx-auto max-w-xl p-6">
-                <div className="mb-5 text-sm text-zinc-500">Today</div>
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#f8ed87] text-[#241506]">
+              <div className="flex h-10 shrink-0 items-center justify-between border-b border-[#5d361e] bg-gradient-to-b from-[#8a6645] to-[#4b2a1b] px-2 text-white shadow-inner">
+                <button
+                  type="button"
+                  className="rounded-md border border-black/35 bg-gradient-to-b from-[#8b6b4d] to-[#3f2518] px-2 py-1 text-xs font-semibold shadow-sm"
+                >
+                  Notes
+                </button>
+                <div className="text-sm font-semibold drop-shadow">
+                  About Evan
+                </div>
+                <button
+                  type="button"
+                  aria-label="New Note"
+                  className="rounded-md border border-black/35 bg-gradient-to-b from-[#8b6b4d] to-[#3f2518] p-1 shadow-sm"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
 
-                <article className="space-y-5 leading-relaxed">
-                  <header>
-                    <h1 className="text-3xl font-semibold tracking-normal">
-                      About Evan
-                    </h1>
-                    <p className="mt-2 text-zinc-700">
-                      Evan is a photographer focused on honest, cinematic images
-                      for people, gatherings, and brands. His work blends quiet
-                      direction with a documentary eye, keeping sessions relaxed
-                      while still making every frame feel intentional.
-                    </p>
-                  </header>
+              <div className="min-h-0 flex-1 overflow-auto bg-[#fff58f]">
+                <div className="flex h-8 items-center justify-between border-b border-[#d6c96b] px-11 text-xs font-semibold text-[#b2622a]">
+                  <span>Today</span>
+                  <span>
+                    {now.toLocaleDateString([], {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>
+                </div>
 
-                  <section>
-                    <h2 className="mb-2 text-lg font-semibold">Services</h2>
-                    <ul className="space-y-2 text-zinc-700">
-                      <li>Portrait sessions for artists, couples, graduates, and professionals</li>
-                      <li>Event coverage for weddings, parties, launches, and live moments</li>
-                      <li>Editorial and lifestyle shoots for creative projects and small brands</li>
-                      <li>Photo selection, color editing, and web-ready delivery galleries</li>
-                    </ul>
-                  </section>
+                <div
+                  className="min-h-[720px]"
+                  style={{
+                    backgroundColor: "#fff58f",
+                    backgroundImage:
+                      "linear-gradient(90deg, transparent 0 34px, rgba(188, 76, 63, 0.42) 35px, transparent 36px), repeating-linear-gradient(180deg, transparent 0 28px, rgba(150, 130, 62, 0.36) 28px 29px)",
+                    backgroundPosition: "0 0, 0 0",
+                    backgroundRepeat: "no-repeat, repeat",
+                    backgroundSize: "100% 100%, 100% 29px",
+                  }}
+                >
+                  <article className="space-y-0 px-11 pb-8 pt-[8px] font-['Marker_Felt','Comic_Sans_MS',cursive] text-[17px] leading-[29px] tracking-normal text-[#160f05]">
+                    <p>Evan is a photographer.</p>
+                    <p>Portraits, events, editorial.</p>
+                    <p>Keep sessions relaxed.</p>
+                    <p>Make every frame intentional.</p>
+                    <p>Available in New York.</p>
+                    <p>Available to travel.</p>
+                    <p>Send project date + location.</p>
+                  </article>
+                </div>
+              </div>
 
-                  <section>
-                    <h2 className="mb-2 text-lg font-semibold">Approach</h2>
-                    <p className="text-zinc-700">
-                      Every shoot starts with a conversation about mood, location,
-                      timing, and the story behind the images. Evan keeps the
-                      process simple: plan the essentials, make the shoot feel
-                      natural, and deliver photographs that still feel like you.
-                    </p>
-                  </section>
-                </article>
+              <div className="flex h-12 shrink-0 items-center justify-around border-t border-[#c6ad4d] bg-[#fff58f] text-[#a95826]">
+                <button
+                  type="button"
+                  aria-label="Previous Note"
+                  className="rounded-full p-2"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Edit Note"
+                  className="rounded-full p-2"
+                >
+                  <SquarePen className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Delete Note"
+                  className="rounded-full p-2"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Next Note"
+                  className="rounded-full p-2"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </Rnd>
+      )}
+
+      {trashOpen && (
+        <Rnd
+          {...getWindowProps({
+            x: 360,
+            y: 110,
+            width: 430,
+            height: 500,
+            minWidth: 320,
+            minHeight: 340,
+          })}
+          dragHandleClassName="trash-title-bar"
+          cancel=".window-control, .trash-list"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 16, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-white/20 bg-zinc-950/65 shadow-2xl backdrop-blur-2xl sm:rounded-2xl"
+          >
+            <div className="trash-title-bar flex h-11 touch-none cursor-grab items-center gap-2 border-b border-white/10 bg-white/10 px-4 active:cursor-grabbing">
+              <button
+                type="button"
+                aria-label="Close Trash"
+                onClick={() => setTrashOpen(false)}
+                className="window-control w-3.5 h-3.5 rounded-full bg-red-500 border border-red-300/50 hover:bg-red-400"
+              />
+              <button
+                type="button"
+                aria-label="Minimize Trash"
+                className="window-control w-3.5 h-3.5 rounded-full bg-yellow-400 border border-yellow-200/50"
+              />
+              <button
+                type="button"
+                aria-label="Zoom Trash"
+                className="window-control w-3.5 h-3.5 rounded-full bg-green-500 border border-green-300/50"
+              />
+              <div className="ml-3 text-sm font-medium text-white/85">
+                Trash
+              </div>
+            </div>
+
+            <div className="trash-list min-h-0 flex-1 overflow-auto bg-zinc-100 text-zinc-900">
+              <div className="grid grid-cols-1 gap-3 p-4">
+                {galleryPhotos.concat(galleryPhotos).map((photo, index) => (
+                  <button
+                    type="button"
+                    key={`${photo.alt}-trash-${index}`}
+                    className="group aspect-square overflow-hidden rounded-lg bg-zinc-200 shadow-sm ring-1 ring-zinc-900/10 transition-transform hover:scale-[1.02] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                  >
+                    <img
+                      src={photo.src}
+                      alt={photo.alt}
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      style={{ objectPosition: photo.position }}
+                    />
+                  </button>
+                ))}
               </div>
             </div>
           </motion.div>
@@ -503,19 +867,19 @@ export default function App() {
       )}
 
       {/* Dock */}
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 px-5 py-3 rounded-3xl bg-white/10 border border-white/10 backdrop-blur-xl flex gap-5 items-end">
-        {/* Contacts */}
+      <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-end gap-4 rounded-3xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-xl sm:bottom-5 sm:gap-5 sm:px-5">
+        {/* Mail */}
 
         <button
           type="button"
-          aria-label="Open Contacts"
+          aria-label="Open Mail"
           onClick={() => {
             setContactsOpen(true);
             setContactSent(false);
           }}
-          className="w-14 h-14 hover:scale-110 transition-transform cursor-pointer"
+          className="h-12 w-12 cursor-pointer transition-transform hover:scale-110 sm:h-14 sm:w-14"
         >
-          <img src={contacts} className="w-full h-full object-contain" />
+          <img src={mail} className="h-full w-full scale-103 object-contain" />
         </button>
 
         {/* Photos */}
@@ -524,9 +888,12 @@ export default function App() {
           type="button"
           aria-label="Open Photos"
           onClick={() => setPhotosOpen(true)}
-          className="w-14 h-14 hover:scale-110 transition-transform cursor-pointer"
+          className="h-12 w-12 cursor-pointer overflow-hidden transition-transform hover:scale-110 sm:h-14 sm:w-14"
         >
-          <img src={photos} className="w-full h-full object-contain" />
+          <img
+            src={photos}
+            className="h-full w-full scale-107 object-contain"
+          />
         </button>
 
         {/* Notes */}
@@ -535,9 +902,25 @@ export default function App() {
           type="button"
           aria-label="Open Notes"
           onClick={() => setNotesOpen(true)}
-          className="w-14 h-14 hover:scale-110 transition-transform cursor-pointer"
+          className="h-12 w-12 cursor-pointer transition-transform hover:scale-110 sm:h-14 sm:w-14"
         >
           <img src={notes} className="w-full h-full object-contain" />
+        </button>
+
+        <div className="mx-1 h-10 w-px self-center bg-white/25 sm:h-12" />
+
+        {/* Trash */}
+
+        <button
+          type="button"
+          aria-label="Open Trash"
+          onClick={() => setTrashOpen(true)}
+          className="h-12 w-12 cursor-pointer overflow-hidden transition-transform hover:scale-110 sm:h-14 sm:w-14"
+        >
+          <img
+            src={trash}
+            className="relative left-[45%] h-[94%] w-auto max-w-none -translate-x-1/2 scale-110 object-contain"
+          />
         </button>
       </div>
     </div>
