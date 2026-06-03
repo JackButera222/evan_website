@@ -39,8 +39,8 @@ const galleryPhotos = [
 const socialLinks = [
   {
     name: "Instagram",
-    detail: "@evanphoto",
-    href: "https://instagram.com/evanphoto",
+    detail: "@tripodvawn",
+    href: "https://www.instagram.com/tripodvawn/?hl=en",
   },
   {
     name: "Portfolio",
@@ -116,9 +116,9 @@ export default function App() {
   const [contactSent, setContactSent] = useState(false);
 
   const mobileLayout = {
-    folder: { x: 16, y: 80, width: 72, height: 92 },
-    calendar: { x: 16, y: 140, width: 120, height: 120 },
-    quicktime: { x: 16, y: 50, width: 250, height: 250 },
+    folder: { x: 16, y: 350, width: 90, height: 90 },
+    calendar: { x: 16, y: 470, width: 120, height: 120 },
+    quicktime: { x: 16, y: 80, width: 250, height: 250 },
   };
 
   const desktopLayout = {
@@ -133,7 +133,6 @@ export default function App() {
   };
 
   const layout = isMobile ? mobileLayout : desktopLayout;
-  const quicktimeSize = layout.quicktime;
 
   useEffect(() => {
     const intervalId = window.setInterval(() => setNow(new Date()), 60_000);
@@ -240,7 +239,13 @@ export default function App() {
 
       {/* Desktop Icon (Draggable) */}
       <Rnd
-        default={layout.folder}
+        key={isMobile ? "mobile-folder" : "desktop-folder"}
+        default={{
+          x: layout.folder.x,
+          y: layout.folder.y,
+          width: layout.folder.width,
+          height: layout.folder.height,
+        }}
         bounds="parent"
         disableDragging={false}
         enableResizing={false}
@@ -276,20 +281,24 @@ export default function App() {
             }
           }}
           onClick={openFinderFromIcon}
-          className="flex touch-none cursor-pointer select-none flex-col items-center gap-2"
+          className="flex h-full w-full touch-none cursor-pointer select-none flex-col items-center justify-between gap-2 px-2 py-2"
+          style={{ width: layout.folder.width, height: layout.folder.height }}
         >
-          <img
-            src={folder}
-            className="w-20 h-auto max-h-16 object-contain drop-shadow-xl pointer-events-none"
-          />
+          <span className="flex h-full w-full items-center justify-center">
+            <img
+              src={folder}
+              className="max-h-full max-w-full object-contain drop-shadow-xl pointer-events-none"
+            />
+          </span>
 
-          <span className="rounded-md px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm">
+          <span className="px-1.5 py-0.5 text-sm font-semibold text-white">
             Socials
           </span>
         </button>
       </Rnd>
 
       <Rnd
+        key={isMobile ? "mobile-calendar" : "desktop-calendar"}
         default={{
           x: layout.calendar.x,
           y: layout.calendar.y,
@@ -303,9 +312,10 @@ export default function App() {
         <button
           type="button"
           aria-label={`Calendar ${calendarMonth} ${calendarDay}`}
-          className="flex touch-none cursor-pointer select-none flex-col items-center gap-1.5"
+          className="flex h-full w-full touch-none cursor-pointer select-none flex-col items-center justify-between gap-2 px-2 py-2"
+          style={{ width: layout.calendar.width, height: layout.calendar.height }}
         >
-          <span className="relative block h-40 w-40 drop-shadow-xl">
+          <span className="relative flex-1 w-full drop-shadow-xl">
             <img
               src={calendar}
               alt=""
@@ -320,7 +330,7 @@ export default function App() {
             </span> */}
           </span>
 
-          <span className="rounded-md px-1.5 py-0.5 text-sm font-semibold text-white shadow-sm">
+          <span className="px-1.5 py-0.5 text-sm font-semibold text-white">
           Click 2 Book A Shoot
           </span>
         </button>
@@ -328,16 +338,20 @@ export default function App() {
 
       {/* QuickTime Window (Movable, non-closable) */}
       <Rnd
-        key={isMobile ? "quicktime-mobile" : "quicktime-desktop"}
-        default={layout.quicktime}
-        size={{ width: quicktimeSize.width, height: quicktimeSize.height }}
+        key={isMobile ? "mobile-quicktime" : "desktop-quicktime"}
+        default={{
+          x: layout.quicktime.x,
+          y: layout.quicktime.y,
+          width: layout.quicktime.width,
+          height: layout.quicktime.height,
+        }}
         bounds="parent"
         enableResizing={false}
         dragHandleClassName="quicktime-drag-handle"
       >
         <div
           className="quicktime-drag-handle h-full w-full cursor-grab active:cursor-grabbing"
-          style={{ width: quicktimeSize.width, height: quicktimeSize.height }}
+          style={{ width: layout.quicktime.width, height: layout.quicktime.height }}
         >
           <img
             src={quicktimeGif}
