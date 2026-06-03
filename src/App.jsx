@@ -164,8 +164,8 @@ export default function App() {
       checkoutWasDragged.current = false;
       return;
     }
-
-    window.top.location.href = "/checkout?pack=photo-pack";
+    window.top.location.href =
+      "https://tripodvawn.com/checkout";
   }
 
   const isNight = now.getHours() < 6 || now.getHours() >= 18;
@@ -327,7 +327,10 @@ export default function App() {
           type="button"
           aria-label={`Calendar ${calendarMonth} ${calendarDay}`}
           className="flex h-full w-full touch-none cursor-pointer select-none flex-col items-center justify-between gap-2 px-2 py-2"
-          style={{ width: layout.calendar.width, height: layout.calendar.height }}
+          style={{
+            width: layout.calendar.width,
+            height: layout.calendar.height,
+          }}
         >
           <span className="relative flex-1 w-full drop-shadow-xl">
             <img
@@ -345,7 +348,7 @@ export default function App() {
           </span>
 
           <span className="px-1.5 py-0.5 text-sm font-semibold text-white">
-          Click 2 Book A Shoot
+            Click 2 Book A Shoot
           </span>
         </button>
       </Rnd>
@@ -379,7 +382,10 @@ export default function App() {
           aria-label="Open Checkout"
           onClick={openGHLCheckout}
           className="flex h-full w-full touch-none cursor-pointer select-none flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 text-white transition hover:bg-white/10"
-          style={{ width: layout.checkout.width, height: layout.checkout.height }}
+          style={{
+            width: layout.checkout.width,
+            height: layout.checkout.height,
+          }}
         >
           <ShoppingCart className="h-10 w-10" />
           <span className="text-xs font-semibold uppercase tracking-[0.12em]">
@@ -403,7 +409,10 @@ export default function App() {
       >
         <div
           className="quicktime-drag-handle h-full w-full cursor-grab active:cursor-grabbing"
-          style={{ width: layout.quicktime.width, height: layout.quicktime.height }}
+          style={{
+            width: layout.quicktime.width,
+            height: layout.quicktime.height,
+          }}
         >
           <img
             src={quicktimeGif}
