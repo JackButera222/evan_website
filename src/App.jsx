@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
+  ShoppingCart,
   SquarePen,
   Trash2,
 } from "lucide-react";
@@ -114,11 +115,14 @@ export default function App() {
   const [trashOpen, setTrashOpen] = useState(false);
   const [finderOpen, setFinderOpen] = useState(false);
   const [contactSent, setContactSent] = useState(false);
+  const checkoutWasDragged = useRef(false);
+  const checkoutDragStart = useRef({ x: 0, y: 0 });
 
   const mobileLayout = {
     folder: { x: 16, y: 350, width: 90, height: 90 },
     calendar: { x: 16, y: 470, width: 120, height: 120 },
     quicktime: { x: 16, y: 80, width: 250, height: 250 },
+    checkout: { x: 130, y: 350, width: 90, height: 90 },
   };
 
   const desktopLayout = {
@@ -130,6 +134,7 @@ export default function App() {
       height: 150,
     },
     quicktime: { x: 80, y: 180, width: 400, height: 400 },
+    checkout: { x: 200, y: 80, width: 90, height: 90 },
   };
 
   const layout = isMobile ? mobileLayout : desktopLayout;
@@ -152,6 +157,15 @@ export default function App() {
     }
 
     setFinderOpen(true);
+  }
+
+  function openGHLCheckout() {
+    if (checkoutWasDragged.current) {
+      checkoutWasDragged.current = false;
+      return;
+    }
+
+    window.top.location.href = "/checkout?pack=photo-pack";
   }
 
   const isNight = now.getHours() < 6 || now.getHours() >= 18;
@@ -332,6 +346,44 @@ export default function App() {
 
           <span className="px-1.5 py-0.5 text-sm font-semibold text-white">
           Click 2 Book A Shoot
+          </span>
+        </button>
+      </Rnd>
+
+      <Rnd
+        key={isMobile ? "mobile-checkout" : "desktop-checkout"}
+        default={{
+          x: layout.checkout.x,
+          y: layout.checkout.y,
+          width: layout.checkout.width,
+          height: layout.checkout.height,
+        }}
+        bounds="parent"
+        disableDragging={false}
+        enableResizing={false}
+        onDragStart={(_event, data) => {
+          checkoutWasDragged.current = false;
+          checkoutDragStart.current = { x: data.x, y: data.y };
+        }}
+        onDrag={(_event, data) => {
+          const deltaX = data.x - checkoutDragStart.current.x;
+          const deltaY = data.y - checkoutDragStart.current.y;
+
+          if (Math.hypot(deltaX, deltaY) > 8) {
+            checkoutWasDragged.current = true;
+          }
+        }}
+      >
+        <button
+          type="button"
+          aria-label="Open Checkout"
+          onClick={openGHLCheckout}
+          className="flex h-full w-full touch-none cursor-pointer select-none flex-col items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 text-white transition hover:bg-white/10"
+          style={{ width: layout.checkout.width, height: layout.checkout.height }}
+        >
+          <ShoppingCart className="h-10 w-10" />
+          <span className="text-xs font-semibold uppercase tracking-[0.12em]">
+            Buy Pack
           </span>
         </button>
       </Rnd>
