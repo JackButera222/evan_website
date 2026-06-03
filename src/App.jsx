@@ -114,19 +114,26 @@ export default function App() {
   const [trashOpen, setTrashOpen] = useState(false);
   const [finderOpen, setFinderOpen] = useState(false);
   const [contactSent, setContactSent] = useState(false);
-  const [quicktimeSize, setQuicktimeSize] = useState({
-    width: 360,
-    height: 240,
-  });
-  const [quicktimePosition, setQuicktimePosition] = useState({
-    x: isMobile ? 16 : 80,
-    y: isMobile ? 160 : 180,
-  });
 
-  useEffect(() => {
-    setQuicktimeSize(isMobile ? { width: 250, height: 250 } : { width: 400, height: 400 });
-    setQuicktimePosition(isMobile ? { x: 16, y: 50 } : { x: 80, y: 50 });
-  }, [isMobile]);
+  const mobileLayout = {
+    folder: { x: 16, y: 80, width: 72, height: 92 },
+    calendar: { x: 16, y: 140, width: 120, height: 120 },
+    quicktime: { x: 16, y: 50, width: 250, height: 250 },
+  };
+
+  const desktopLayout = {
+    folder: { x: 80, y: 80, width: 90, height: 110 },
+    calendar: {
+      x: Math.max(24, viewportSize.width - 150 - 64),
+      y: 72,
+      width: 150,
+      height: 150,
+    },
+    quicktime: { x: 80, y: 180, width: 400, height: 400 },
+  };
+
+  const layout = isMobile ? mobileLayout : desktopLayout;
+  const quicktimeSize = layout.quicktime;
 
   useEffect(() => {
     const intervalId = window.setInterval(() => setNow(new Date()), 60_000);
@@ -161,16 +168,6 @@ export default function App() {
     .toLocaleString([], { month: "short" })
     .toUpperCase();
   const calendarDay = now.getDate();
-
-  const calendarIconWidth = 150;
-  const calendarIconHeight = 150;
-  const calendarIconMargin = isMobile ? 16 : 24;
-  const calendarIconRightMargin = isMobile ? 16 : 64;
-  const calendarDefaultX = Math.max(
-    calendarIconMargin,
-    viewportSize.width - calendarIconWidth - calendarIconRightMargin,
-  );
-  const calendarDefaultY = isMobile ? 12 : 72;
 
   function getWindowProps({ x, y, width, height, minWidth, minHeight }) {
     const margin = isMobile ? 20 : 24;
@@ -243,12 +240,7 @@ export default function App() {
 
       {/* Desktop Icon (Draggable) */}
       <Rnd
-        default={{
-          x: 200,
-          y: 500,
-          width: 80,
-          height: 80,
-        }}
+        default={layout.folder}
         bounds="parent"
         disableDragging={false}
         enableResizing={false}
@@ -299,10 +291,10 @@ export default function App() {
 
       <Rnd
         default={{
-          x: calendarDefaultX,
-          y: calendarDefaultY,
-          width: calendarIconWidth,
-          height: calendarIconHeight,
+          x: layout.calendar.x,
+          y: layout.calendar.y,
+          width: layout.calendar.width,
+          height: layout.calendar.height,
         }}
         bounds="parent"
         disableDragging={false}
@@ -336,12 +328,12 @@ export default function App() {
 
       {/* QuickTime Window (Movable, non-closable) */}
       <Rnd
-        position={quicktimePosition}
+        key={isMobile ? "quicktime-mobile" : "quicktime-desktop"}
+        default={layout.quicktime}
         size={{ width: quicktimeSize.width, height: quicktimeSize.height }}
         bounds="parent"
         enableResizing={false}
         dragHandleClassName="quicktime-drag-handle"
-        onDragStop={(_event, data) => setQuicktimePosition({ x: data.x, y: data.y })}
       >
         <div
           className="quicktime-drag-handle h-full w-full cursor-grab active:cursor-grabbing"
