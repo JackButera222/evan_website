@@ -35,7 +35,7 @@ import QuickTimeWindow from "./components/windows/QuickTimeWindow";
 import AboutWindow from "./components/windows/AboutWindow";
 import wallpaper from "./assets/wallpaper.png?w=2560&format=webp&quality=80";
 import folderIcon from "./assets/folder.png?w=256&format=webp";
-import finderIcon from "./assets/finder.svg";
+import finderIcon from "./assets/finder.png?w=256&format=webp";
 import contentPack from "./assets/content-pack-logo-square.png?w=384&format=webp";
 import mailIcon from "./assets/mail.png";
 import notesIcon from "./assets/notes.png";
