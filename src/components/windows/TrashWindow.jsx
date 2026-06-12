@@ -42,9 +42,10 @@ function TrashWindow({ windowProps, galleryPhotos }) {
                   >
                     <div className="aspect-square w-full overflow-hidden rounded-md bg-zinc-200 opacity-80 shadow-sm ring-1 ring-zinc-900/10 saturate-50">
                       <img
-                        src={item.src}
+                        src={item.thumb ?? item.src}
                         alt={item.alt}
                         loading="lazy"
+                        decoding="async"
                         className="h-full w-full object-cover"
                         style={{ objectPosition: item.position }}
                       />

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Camera, Send } from "lucide-react";
 import Window from "../Window";
-import tripodVawnLogo from "../../assets/TRIPOD VAWN LOGO V3.png";
+import tripodVawnLogo from "../../assets/TRIPOD VAWN LOGO V3.png?w=384&format=webp";
 import { handleBookingSubmit } from "../../utils/handlers";
 
 const tabs = [
