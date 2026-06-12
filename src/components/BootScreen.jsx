@@ -1,8 +1,20 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import AppleLogo from "./AppleLogo";
+import logoUrl from "../assets/TRIPOD VAWN LOGO V3.png?w=512&format=webp";
 
 const SPOKES = Array.from({ length: 12 }, (_, i) => i);
+
+const logoMaskStyle = {
+  backgroundColor: "#4a4a4a",
+  WebkitMaskImage: `url(${logoUrl})`,
+  maskImage: `url(${logoUrl})`,
+  WebkitMaskRepeat: "no-repeat",
+  maskRepeat: "no-repeat",
+  WebkitMaskPosition: "center",
+  maskPosition: "center",
+  WebkitMaskSize: "contain",
+  maskSize: "contain",
+};
 
 function BootScreen({ booting, onDone }) {
   const [visible, setVisible] = useState(booting);
@@ -30,7 +42,11 @@ function BootScreen({ booting, onDone }) {
           onClick={() => setVisible(false)}
           className="fixed inset-0 z-[20000] flex cursor-pointer flex-col items-center justify-center gap-14 bg-[radial-gradient(circle_at_50%_38%,#d6d6d6,#a9a9a9_75%)]"
         >
-          <AppleLogo className="h-24 w-24 text-[#4a4a4a] drop-shadow-[0_1px_0_rgba(255,255,255,0.4)]" />
+          <div
+            aria-hidden="true"
+            className="h-28 w-28 drop-shadow-[0_1px_0_rgba(255,255,255,0.4)]"
+            style={logoMaskStyle}
+          />
           <div className="boot-spinner" aria-label="Loading">
             {SPOKES.map((i) => (
               <span
