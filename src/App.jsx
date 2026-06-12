@@ -35,6 +35,7 @@ import QuickTimeWindow from "./components/windows/QuickTimeWindow";
 import AboutWindow from "./components/windows/AboutWindow";
 import wallpaper from "./assets/wallpaper.png?w=2560&format=webp&quality=80";
 import folderIcon from "./assets/folder.png?w=256&format=webp";
+import finderIcon from "./assets/finder.svg";
 import contentPack from "./assets/content-pack-logo-square.png?w=384&format=webp";
 import mailIcon from "./assets/mail.png";
 import notesIcon from "./assets/notes.png";
@@ -242,6 +243,12 @@ function AppInner() {
 
   const dockItems = [
     {
+      id: "socials",
+      label: "Finder — Socials",
+      icon: finderIcon,
+      isOpen: wm.isOpen("socials"),
+    },
+    {
       id: "photos",
       label: "Photos",
       icon: photosIcon,
@@ -264,15 +271,6 @@ function AppInner() {
       label: "Notes — About Evan",
       icon: notesIcon,
       isOpen: wm.isOpen("notes"),
-    },
-    {
-      id: "socials",
-      label: "Socials",
-      icon: folderIcon,
-      // Wide source image: scale up so it reads the same size as the
-      // square app icons while staying seated on the shelf
-      iconClassName: "scale-[1.24] origin-bottom",
-      isOpen: wm.isOpen("socials"),
     },
     {
       id: "store",
