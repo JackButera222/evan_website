@@ -269,12 +269,16 @@ function AppInner() {
       id: "socials",
       label: "Socials",
       icon: folderIcon,
+      // Wide source image: scale up so it reads the same size as the
+      // square app icons while staying seated on the shelf
+      iconClassName: "scale-[1.24] origin-bottom",
       isOpen: wm.isOpen("socials"),
     },
     {
       id: "store",
       label: "IAC Content Pack",
       icon: contentPack,
+      iconClassName: "rounded-[18%]",
       external: true,
     },
     { divider: true },
@@ -282,6 +286,8 @@ function AppInner() {
       id: "trash",
       label: "Trash",
       icon: trashIcon,
+      // Source has transparent padding baked in
+      iconClassName: "scale-[1.12] origin-bottom",
       isOpen: wm.isOpen("trash"),
     },
   ];
