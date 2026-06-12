@@ -1,125 +1,112 @@
-import { Rnd } from "react-rnd";
-import { motion } from "framer-motion";
+import { Film, Image, LayoutGrid, Play } from "lucide-react";
+import Window from "../Window";
+
+const FILTERS = [
+  { id: "all", label: "Library", icon: LayoutGrid },
+  { id: "photos", label: "Photos", icon: Image },
+  { id: "videos", label: "Videos", icon: Film },
+];
 
 function PhotosWindow({
-  isOpen,
-  onClose,
+  windowProps,
   displayedGallery,
   mediaFilter,
   onFilterChange,
   onPhotoSelect,
-  getWindowProps,
 }) {
-  if (!isOpen) return null;
+  const activeLabel = FILTERS.find((f) => f.id === mediaFilter)?.label;
 
   return (
-    <Rnd
-      {...getWindowProps}
-      dragHandleClassName="photos-title-bar"
-      cancel=".window-control, .photos-gallery"
+    <Window
+      title="Photos"
+      {...windowProps}
+      dragCancel=".photos-gallery, .aqua-sidebar-item"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 16, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
-        className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-white/20 bg-zinc-950/65 shadow-2xl backdrop-blur-2xl sm:rounded-2xl"
-      >
-        <div className="photos-title-bar flex h-11 touch-none cursor-grab items-center gap-2 border-b border-white/10 bg-white/10 px-4 active:cursor-grabbing">
-          <button
-            type="button"
-            aria-label="Close Photos"
-            onClick={onClose}
-            className="window-control w-3.5 h-3.5 rounded-full bg-red-500 border border-red-300/50 hover:bg-red-400"
-          />
-          <button
-            type="button"
-            aria-label="Minimize Photos"
-            className="window-control w-3.5 h-3.5 rounded-full bg-yellow-400 border border-yellow-200/50"
-          />
-          <button
-            type="button"
-            aria-label="Zoom Photos"
-            className="window-control w-3.5 h-3.5 rounded-full bg-green-500 border border-green-300/50"
-          />
-          <div className="ml-3 text-sm font-medium text-white/85">Photos</div>
-        </div>
-
-        <div className="flex min-h-0 flex-1 bg-zinc-100 text-zinc-900">
-          <aside className="hidden w-36 shrink-0 border-r border-zinc-200 bg-zinc-50/90 p-3 text-sm text-zinc-600 sm:block">
-            <div className="space-y-2">
-              {/* <button
-                type="button"
-                onClick={() => onFilterChange("all")}
-                className={
-                  mediaFilter === "all"
-                    ? "rounded-md bg-blue-500 px-2 py-1.5 font-medium text-white w-full text-left"
-                    : "block w-full text-left px-2 py-1.5 text-zinc-600"
-                }
-              >
-                Library
-              </button> */}
-
+      <div className="flex min-h-0 flex-1 bg-[#fbfbfb] text-zinc-900">
+        <aside className="aqua-sidebar hidden w-40 shrink-0 p-3 text-sm sm:block">
+          <div className="aqua-sidebar-heading">Albums</div>
+          <div className="space-y-0.5">
+            {FILTERS.map((filter) => (
               <button
+                key={filter.id}
                 type="button"
-                onClick={() => onFilterChange("photos")}
-                className={
-                  mediaFilter === "photos"
-                    ? "rounded-md bg-blue-500 px-2 py-1.5 font-medium text-white w-full text-left"
-                    : "block w-full text-left px-2 py-1.5 text-zinc-600"
-                }
+                onClick={() => onFilterChange(filter.id)}
+                className={`aqua-sidebar-item ${
+                  mediaFilter === filter.id ? "active" : ""
+                }`}
               >
-                Photos
+                <filter.icon className="h-4 w-4 shrink-0 opacity-75" />
+                {filter.label}
               </button>
+            ))}
+          </div>
+        </aside>
 
-              {/* <button
+        <main className="flex min-w-0 flex-1 flex-col">
+          {/* Mobile filter row */}
+          <div className="flex gap-1.5 border-b border-zinc-200 px-3 py-2 sm:hidden">
+            {FILTERS.map((filter) => (
+              <button
+                key={filter.id}
                 type="button"
-                onClick={() => onFilterChange("videos")}
+                onClick={() => onFilterChange(filter.id)}
                 className={
-                  mediaFilter === "videos"
-                    ? "rounded-md bg-blue-500 px-2 py-1.5 font-medium text-white w-full text-left"
-                    : "block w-full text-left px-2 py-1.5 text-zinc-600"
+                  mediaFilter === filter.id
+                    ? "rounded-full bg-[#3875d7] px-3 py-1 text-xs font-semibold text-white"
+                    : "rounded-full px-3 py-1 text-xs text-zinc-600"
                 }
               >
-                Videos
-              </button> */}
-            </div>
-          </aside>
+                {filter.label}
+              </button>
+            ))}
+          </div>
 
-          <main className="min-w-0 flex-1 overflow-auto p-5">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h1 className="text-xl font-semibold tracking-normal">Library</h1>
-            </div>
-
-            <div className="photos-gallery grid grid-cols-3 gap-3 sm:grid-cols-3 lg:grid-cols-3">
-              {displayedGallery.map((photo, index) => (
+          <div className="aqua-scroll min-h-0 flex-1 overflow-auto p-4">
+            <div className="photos-gallery grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {displayedGallery.map((item, index) => (
                 <button
                   type="button"
-                  key={`${photo.alt}-${index}`}
-                  className="group aspect-square overflow-hidden rounded-lg bg-zinc-200 shadow-sm ring-1 ring-zinc-900/10 transition-transform hover:scale-[1.02] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-                  onClick={() => onPhotoSelect(photo)}
+                  key={`${item.alt}-${index}`}
+                  className="group relative aspect-square overflow-hidden rounded-md bg-zinc-200 shadow-sm ring-1 ring-zinc-900/10 transition duration-150 hover:ring-2 hover:ring-[#3875d7] focus-visible:ring-2 focus-visible:ring-[#3875d7]"
+                  onClick={() => onPhotoSelect(index)}
                 >
-                  {photo.type === "video" ? (
-                    <video
-                      src={photo.src}
-                      controls
-                      playsInline
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
+                  {item.type === "video" ? (
+                    <>
+                      <video
+                        src={item.src}
+                        muted
+                        playsInline
+                        preload="metadata"
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black/55 text-white shadow-lg backdrop-blur-sm transition group-hover:bg-black/70">
+                          <Play className="ml-0.5 h-5 w-5 fill-current" />
+                        </span>
+                      </span>
+                    </>
                   ) : (
                     <img
-                      src={photo.src}
-                      alt={photo.alt}
+                      src={item.src}
+                      alt={item.alt}
+                      loading="lazy"
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      style={{ objectPosition: photo.position }}
+                      style={{ objectPosition: item.position }}
                     />
                   )}
                 </button>
               ))}
             </div>
-          </main>
-        </div>
-      </motion.div>
-    </Rnd>
+          </div>
+
+          {/* iPhoto-style status bar */}
+          <div className="flex h-7 shrink-0 items-center justify-center border-t border-zinc-300 bg-gradient-to-b from-[#f4f4f4] to-[#dcdcdc] text-xs text-zinc-500">
+            {displayedGallery.length}{" "}
+            {displayedGallery.length === 1 ? "item" : "items"} in {activeLabel}
+          </div>
+        </main>
+      </div>
+    </Window>
   );
 }
 

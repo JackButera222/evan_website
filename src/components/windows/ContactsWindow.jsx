@@ -1,135 +1,126 @@
 import { useState } from "react";
-import { Rnd } from "react-rnd";
-import { motion } from "framer-motion";
+import { Camera, Send } from "lucide-react";
+import Window from "../Window";
 import tripodVawnLogo from "../../assets/TRIPOD VAWN LOGO V3.png";
 import { handleBookingSubmit } from "../../utils/handlers";
 
 const tabs = [
-  { id: "book", label: "Book Shoot" },
-  { id: "general", label: "General Inquiries" },
+  { id: "book", label: "Book a Shoot", icon: Camera },
+  { id: "general", label: "General Inquiries", icon: Send },
 ];
 
 function ContactsWindow({
-  isOpen,
-  onClose,
+  windowProps,
   contactSent,
   setContactSent,
   bookingSent,
   setBookingSent,
-  getWindowProps,
 }) {
   const [activeTab, setActiveTab] = useState("book");
-
-  if (!isOpen) return null;
 
   function handleContactSubmit(event) {
     event.preventDefault();
     setContactSent(true);
-    // Submission handling would go here if needed
   }
 
   return (
-    <Rnd
-      {...getWindowProps}
-      dragHandleClassName="contacts-title-bar"
-      cancel=".window-control, input, textarea, button"
+    <Window
+      title="Mail"
+      {...windowProps}
+      dragCancel="input, textarea, button, .aqua-scroll"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 16, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
-        className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-white/20 bg-zinc-950/65 shadow-2xl backdrop-blur-2xl sm:rounded-2xl"
-      >
-        <div className="contacts-title-bar flex h-11 touch-none cursor-grab items-center gap-2 border-b border-white/10 bg-white/10 px-4 active:cursor-grabbing">
-          <button
-            type="button"
-            aria-label="Close Mail"
-            onClick={onClose}
-            className="window-control w-3.5 h-3.5 rounded-full bg-red-500 border border-red-300/50 hover:bg-red-400"
+      <div className="flex min-h-0 flex-1 bg-[#fbfbfb] text-zinc-900">
+        <aside
+          role="tablist"
+          aria-label="Mail sections"
+          className="aqua-sidebar hidden w-44 shrink-0 p-3 text-sm sm:block"
+        >
+          <img
+            src={tripodVawnLogo}
+            alt="Tripod Vawn"
+            className="mx-auto mb-3 h-28 w-28 rounded object-contain mix-blend-multiply"
           />
-          <button
-            type="button"
-            aria-label="Minimize Mail"
-            className="window-control w-3.5 h-3.5 rounded-full bg-yellow-400 border border-yellow-200/50"
-          />
-          <button
-            type="button"
-            aria-label="Zoom Mail"
-            className="window-control w-3.5 h-3.5 rounded-full bg-green-500 border border-green-300/50"
-          />
-          <div className="ml-3 text-sm font-medium text-white/85">Mail</div>
-        </div>
+          <div className="aqua-sidebar-heading">Mailboxes</div>
+          <div className="space-y-0.5">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`aqua-sidebar-item ${
+                  activeTab === tab.id ? "active" : ""
+                }`}
+              >
+                <tab.icon className="h-4 w-4 shrink-0 opacity-75" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </aside>
 
-        <div className="flex min-h-0 flex-1 bg-zinc-100 text-zinc-900">
-          <aside
+        <main className="aqua-scroll min-w-0 flex-1 overflow-auto p-5">
+          <div
             role="tablist"
             aria-label="Mail sections"
-            className="hidden w-40 shrink-0 border-r border-zinc-200 bg-zinc-50/90 p-3 text-sm text-zinc-600 sm:block"
+            className="mb-4 flex flex-wrap gap-1.5 text-sm sm:hidden"
           >
-            <img
-              src={tripodVawnLogo}
-              alt="Tripod Vawn"
-              className="mb-4 h-36 w-36 rounded object-contain"
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={
+                  activeTab === tab.id
+                    ? "rounded-full bg-[#3875d7] px-3 py-1 text-xs font-semibold text-white"
+                    : "rounded-full px-3 py-1 text-xs text-zinc-600"
+                }
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {activeTab === "book" ? (
+            <BookShootForm
+              bookingSent={bookingSent}
+              setBookingSent={setBookingSent}
             />
-            <div className="space-y-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={
-                    activeTab === tab.id
-                      ? "w-full rounded-md bg-blue-500 px-2 py-1.5 text-left font-medium text-white"
-                      : "block w-full px-2 py-1.5 text-left text-zinc-600"
-                  }
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </aside>
+          ) : (
+            <GeneralInquiriesForm
+              contactSent={contactSent}
+              onSubmit={handleContactSubmit}
+            />
+          )}
+        </main>
+      </div>
+    </Window>
+  );
+}
 
-          <main className="min-w-0 flex-1 overflow-auto p-5">
-            <div
-              role="tablist"
-              aria-label="Mail sections"
-              className="mb-5 flex flex-wrap gap-2 text-sm text-zinc-600 sm:hidden"
-            >
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={
-                    activeTab === tab.id
-                      ? "rounded-md bg-blue-500 px-2 py-1.5 font-medium text-white"
-                      : "px-2 py-1.5 text-zinc-600"
-                  }
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+function FieldLabel({ children }) {
+  return (
+    <span className="mb-1.5 block text-[13px] font-semibold text-zinc-700">
+      {children}
+    </span>
+  );
+}
 
-            {activeTab === "book" ? (
-              <BookShootForm
-                bookingSent={bookingSent}
-                setBookingSent={setBookingSent}
-              />
-            ) : (
-              <GeneralInquiriesForm
-                contactSent={contactSent}
-                onSubmit={handleContactSubmit}
-              />
-            )}
-          </main>
-        </div>
-      </motion.div>
-    </Rnd>
+function RadioRow({ name, value, required }) {
+  return (
+    <label className="flex cursor-pointer items-center gap-3">
+      <input
+        type="radio"
+        name={name}
+        value={value}
+        required={required}
+        className="h-4 w-4 accent-[#2c5fd1]"
+      />
+      {value}
+    </label>
   );
 }
 
@@ -137,9 +128,9 @@ function BookShootForm({ bookingSent, setBookingSent }) {
   return (
     <>
       <div className="mb-5">
-        <h1 className="text-xl font-semibold tracking-normal">Book a Shoot</h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Submit your details and open your email client to send it directly.
+        <h1 className="text-xl font-bold tracking-tight">Book a Shoot</h1>
+        <p className="mt-1 text-[13px] text-zinc-500">
+          Tell me about your project — this opens a ready-to-send email.
         </p>
       </div>
 
@@ -148,121 +139,67 @@ function BookShootForm({ bookingSent, setBookingSent }) {
         onSubmit={(event) => handleBookingSubmit(event, setBookingSent)}
       >
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-zinc-700">
-            Name
-          </span>
+          <FieldLabel>Name</FieldLabel>
           <input
             name="name"
             type="text"
             required
             placeholder="Your name"
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            className="aqua-field"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-zinc-700">
-            Email
-          </span>
+          <FieldLabel>Email</FieldLabel>
           <input
             name="email"
             type="email"
             required
             placeholder="you@example.com"
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            className="aqua-field"
           />
         </label>
-        <span className="mb-1.5 block text-sm font-medium text-zinc-700">
-            What Type of Shoot Are You Interested In?
-        </span>
-        <fieldset className="space-y-3 rounded-lg border border-zinc-300 bg-white/90 p-4 text-sm text-zinc-700">
-          <label className="flex items-center gap-3">
-            <input
-              type="radio"
+
+        <div>
+          <FieldLabel>What type of shoot are you interested in?</FieldLabel>
+          <fieldset className="space-y-2.5 rounded-lg border border-zinc-300 bg-white p-4 text-[13px] text-zinc-700 shadow-[inset_0_1px_2px_rgba(0,0,0,0.06)]">
+            <RadioRow
               name="shootType"
               value="Short Form Content Shoot"
               required
-              className="h-4 w-4 accent-blue-600"
             />
-            Short Form Content Shoot
-          </label>
-          <label className="flex items-center gap-3">
-            <input
-              type="radio"
-              name="shootType"
-              value="Full Music Video Shoot"
-              className="h-4 w-4 accent-blue-600"
-            />
-            Full Music Video Shoot
-          </label>
-        </fieldset>
+            <RadioRow name="shootType" value="Full Music Video Shoot" />
+          </fieldset>
+        </div>
 
-
-        <span className="mb-1.5 block text-sm font-medium text-zinc-700">
-            Your Budget
-        </span>
-        <fieldset className="space-y-3 rounded-lg border border-zinc-300 bg-white/90 p-4 text-sm text-zinc-700">
-          <label className="flex items-center gap-3">
-            <input
-              type="radio"
-              name="budget"
-              value="$450-$900"
-              required
-              className="h-4 w-4 accent-blue-600"
-            />
-            $450-$900
-          </label>
-          <label className="flex items-center gap-3">
-            <input
-              type="radio"
-              name="budget"
-              value="$900-$1,350"
-              className="h-4 w-4 accent-blue-600"
-            />
-            $900-$1,350
-          </label>
-          <label className="flex items-center gap-3">
-            <input
-              type="radio"
-              name="budget"
-              value="$1,350-2,000"
-              className="h-4 w-4 accent-blue-600"
-            />
-            $1,350-2,000
-          </label>
-          <label className="flex items-center gap-3">
-            <input
-              type="radio"
-              name="budget"
-              value="$2,000+"
-              className="h-4 w-4 accent-blue-600"
-            />
-            $2,000+
-          </label>
-        </fieldset>
+        <div>
+          <FieldLabel>Your budget</FieldLabel>
+          <fieldset className="space-y-2.5 rounded-lg border border-zinc-300 bg-white p-4 text-[13px] text-zinc-700 shadow-[inset_0_1px_2px_rgba(0,0,0,0.06)]">
+            <RadioRow name="budget" value="$450-$900" required />
+            <RadioRow name="budget" value="$900-$1,350" />
+            <RadioRow name="budget" value="$1,350-2,000" />
+            <RadioRow name="budget" value="$2,000+" />
+          </fieldset>
+        </div>
 
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-zinc-700">
-            Link To Your Instagram
-          </span>
+          <FieldLabel>Link to your Instagram</FieldLabel>
           <input
             name="instagram"
             type="url"
             required
             placeholder="https://instagram.com/yourhandle"
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            className="aqua-field"
           />
         </label>
 
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-green-700">
+        <div className="flex items-center justify-between gap-3 pt-1">
+          <p className="text-[13px] font-medium text-green-700">
             {bookingSent ? "Email draft opened in your mail client." : ""}
           </p>
-          <button
-            type="submit"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-          >
-            SUBMIT
+          <button type="submit" className="aqua-button">
+            <Send className="h-3.5 w-3.5" />
+            Send Request
           </button>
         </div>
       </form>
@@ -274,59 +211,49 @@ function GeneralInquiriesForm({ contactSent, onSubmit }) {
   return (
     <>
       <div className="mb-5">
-        <h1 className="text-xl font-semibold tracking-normal">
-          General Inquiries
-        </h1>
-        <p className="mt-1 text-sm text-zinc-500">
+        <h1 className="text-xl font-bold tracking-tight">General Inquiries</h1>
+        <p className="mt-1 text-[13px] text-zinc-500">
           Send a note about your project, date, and location.
         </p>
       </div>
 
       <form className="space-y-4" onSubmit={onSubmit}>
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-zinc-700">
-            Email
-          </span>
+          <FieldLabel>Email</FieldLabel>
           <input
             type="email"
             required
             placeholder="you@example.com"
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            className="aqua-field"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-zinc-700">
-            Subject
-          </span>
+          <FieldLabel>Subject</FieldLabel>
           <input
             type="text"
             required
-            placeholder="Wedding inquiry, portrait session, event..."
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            placeholder="Music video, short-form content, event..."
+            className="aqua-field"
           />
         </label>
 
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-zinc-700">
-            Message
-          </span>
+          <FieldLabel>Message</FieldLabel>
           <textarea
             required
             rows={7}
             placeholder="Tell me what you are imagining."
-            className="w-full resize-none rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            className="aqua-field resize-none"
           />
         </label>
 
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-green-700">
+        <div className="flex items-center justify-between gap-3 pt-1">
+          <p className="text-[13px] font-medium text-green-700">
             {contactSent ? "Message ready. Thanks for reaching out." : ""}
           </p>
-          <button
-            type="submit"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-          >
+          <button type="submit" className="aqua-button">
+            <Send className="h-3.5 w-3.5" />
             Send Message
           </button>
         </div>

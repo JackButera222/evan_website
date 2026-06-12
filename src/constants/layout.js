@@ -1,16 +1,22 @@
 export const mobileLayout = {
-  folder: { x: "5%", y: "55%", width: 90, height: 90 },
-  quicktime: { x: "5%", y: "5%", width: 240, height: 240 },
-  checkout: { x: "25%", y: "50%", width: 88, height: 108 },
+  socials: { x: "6%", y: "57%" },
+  checkout: { x: "62%", y: "57%" },
 };
 
 export const desktopLayout = {
-  folder: { x: "6%", y: "8%", width: 90, height: 110 },
-  quicktime: { x: "15%", y: "18%", width: 400, height: 400 },
-  checkout: { x: "50%", y: "50%", width: 100, height: 118 },
+  socials: { x: "86%", y: "10%" },
+  checkout: { x: "86%", y: "32%" },
 };
 
 export const WINDOW_CONFIGS = {
+  quicktime: {
+    x: 110,
+    y: 90,
+    width: 560,
+    height: 345,
+    minWidth: 320,
+    minHeight: 220,
+  },
   photos: {
     x: 190,
     y: 90,
@@ -19,11 +25,11 @@ export const WINDOW_CONFIGS = {
     minWidth: 380,
     minHeight: 300,
   },
-  contacts: {
+  mail: {
     x: 250,
     y: 120,
-    width: 560,
-    height: 520,
+    width: 580,
+    height: 540,
     minWidth: 360,
     minHeight: 420,
   },
@@ -38,17 +44,25 @@ export const WINDOW_CONFIGS = {
   trash: {
     x: 360,
     y: 110,
-    width: 430,
-    height: 500,
+    width: 460,
+    height: 480,
     minWidth: 320,
     minHeight: 340,
   },
-  finder: {
+  socials: {
     x: 160,
     y: 120,
-    width: 620,
-    height: 390,
+    width: 640,
+    height: 400,
     minWidth: 380,
     minHeight: 300,
+  },
+  about: {
+    x: 320,
+    y: 100,
+    width: 440,
+    height: 480,
+    minWidth: 380,
+    minHeight: 440,
   },
 };

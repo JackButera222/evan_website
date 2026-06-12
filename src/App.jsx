@@ -1,25 +1,49 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  AtSign,
+  Camera,
+  Film,
+  Folder,
+  Image,
+  Notebook,
+  ShoppingBag,
+  Trash2,
+} from "lucide-react";
 import { useMediaQuery, useViewportSize } from "./hooks";
+import { useWindowManager } from "./hooks/useWindowManager";
 import {
   galleryPhotos,
   mobileLayout,
   desktopLayout,
   WINDOW_CONFIGS,
+  socialLinks,
 } from "./constants";
 import { getDefaultPosition, getWindowProps } from "./utils/window";
 import ErrorBoundary from "./components/ErrorBoundary";
-import GlobalPreview from "./components/GlobalPreview";
+import BootScreen from "./components/BootScreen";
+import MenuBar from "./components/MenuBar";
 import Dock from "./components/Dock";
-import CheckoutIcon from "./components/desktop-icons/CheckoutIcon";
-import QuickTimeWindow from "./components/desktop-icons/QuickTimeWindow";
+import DesktopIcon from "./components/DesktopIcon";
+import Lightbox from "./components/Lightbox";
 import FinderWindow from "./components/windows/FinderWindow";
 import PhotosWindow from "./components/windows/PhotosWindow";
 import ContactsWindow from "./components/windows/ContactsWindow";
 import NotesWindow from "./components/windows/NotesWindow";
 import TrashWindow from "./components/windows/TrashWindow";
-import appleLogo from "./assets/apple_logo.svg.png";
-import mojaveDay from "./assets/wallpaper.png";
-import mojaveNight from "./assets/wallpaper.png";
+import QuickTimeWindow from "./components/windows/QuickTimeWindow";
+import AboutWindow from "./components/windows/AboutWindow";
+import wallpaper from "./assets/wallpaper.png";
+import folderIcon from "./assets/folder.png";
+import contentPack from "./assets/content-pack-logo-square.png";
+import mailIcon from "./assets/mail.png";
+import notesIcon from "./assets/notes.png";
+import photosIcon from "./assets/photos.png";
+import trashIcon from "./assets/trash.png";
+import quicktimeIcon from "./assets/quicktime.png";
+import showreel from "./assets/portfolio/videos/quicktime-video.mp4";
+
+const STORE_URL = "https://tripodvawn.com/";
 
 function AppInner() {
   const viewportSize = useViewportSize();
@@ -28,15 +52,16 @@ function AppInner() {
   );
   const layout = isMobile ? mobileLayout : desktopLayout;
 
+  const wm = useWindowManager(isMobile ? [] : ["quicktime"]);
+
   // Time state
   const [now, setNow] = useState(() => new Date());
 
-  // Window state
-  const [photosOpen, setPhotosOpen] = useState(false);
-  const [contactsOpen, setContactsOpen] = useState(false);
-  const [notesOpen, setNotesOpen] = useState(false);
-  const [trashOpen, setTrashOpen] = useState(false);
-  const [finderOpen, setFinderOpen] = useState(false);
+  // Boot / power state
+  const [booting, setBooting] = useState(
+    () => !sessionStorage.getItem("tv-booted"),
+  );
+  const [sleeping, setSleeping] = useState(false);
 
   // Form state
   const [contactSent, setContactSent] = useState(false);
@@ -44,181 +69,349 @@ function AppInner() {
 
   // Gallery state
   const [mediaFilter, setMediaFilter] = useState("all");
-  const [selectedMedia, setSelectedMedia] = useState(null);
+  const [lightbox, setLightbox] = useState(null); // { items, index }
 
-  // Drag tracking refs
-  const checkoutWasDraggedRef = useRef(false);
-  const checkoutDragStartRef = useRef({ x: 0, y: 0 });
-  const checkoutPointerStartRef = useRef({ x: 0, y: 0 });
-
-  // Update time every second
   useEffect(() => {
     const intervalId = window.setInterval(() => setNow(new Date()), 1_000);
     return () => window.clearInterval(intervalId);
   }, []);
 
-  // Handle escape key to close preview
-  useEffect(() => {
-    if (!selectedMedia) return undefined;
+  const displayedGallery = useMemo(
+    () =>
+      galleryPhotos.filter((item) => {
+        if (mediaFilter === "photos") return item.type !== "video";
+        if (mediaFilter === "videos") return item.type === "video";
+        return true;
+      }),
+    [mediaFilter],
+  );
 
-    const onKey = (e) => {
-      if (e.key === "Escape") setSelectedMedia(null);
-    };
+  const openStore = () =>
+    window.open(STORE_URL, "_blank", "noopener,noreferrer");
 
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [selectedMedia]);
-
-  // Filtered gallery items
-  const displayedGallery = galleryPhotos.filter((item) => {
-    if (mediaFilter === "all") return true;
-    if (mediaFilter === "photos") return item.type !== "video";
-    if (mediaFilter === "videos") return item.type === "video";
-    return true;
-  });
-
-  // Checkout click handler
-  const openGHLCheckout = () => {
-    if (checkoutWasDraggedRef.current) {
-      checkoutWasDraggedRef.current = false;
-      return;
-    }
-    window.open("https://tripodvawn.com/", "_blank", "noopener,noreferrer");
+  const openMail = () => {
+    wm.openWindow("mail");
+    setContactSent(false);
+    setBookingSent(false);
   };
 
-  // Date/time formatting
-  const isNight = now.getHours() < 6 || now.getHours() >= 18;
-  const menuDateTime = now.toLocaleString([], {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
+  const restart = () => {
+    setSleeping(false);
+    setBooting(true);
+  };
+
+  // Window props per id, shared chrome wiring
+  const windowPropsFor = (id) => ({
+    isOpen: wm.isOpen(id),
+    isMinimized: wm.isMinimized(id),
+    isFocused: wm.isFocused(id),
+    zIndex: wm.zIndexFor(id),
+    onClose: () => wm.closeWindow(id),
+    onMinimize: () => wm.minimizeWindow(id),
+    onFocus: () => wm.focusWindow(id),
+    rndProps: getWindowProps(WINDOW_CONFIGS[id], viewportSize, isMobile),
   });
 
-  // Create window props helper
-  const createWindowProps = (configKey) => {
-    return getWindowProps(WINDOW_CONFIGS[configKey], viewportSize, isMobile);
+  const menus = [
+    {
+      id: "apple",
+      items: [
+        { label: "About This Mac", action: () => wm.openWindow("about") },
+        { separator: true },
+        { label: "Book a Shoot…", action: openMail },
+        { label: "IAC Content Pack…", action: openStore },
+        { separator: true },
+        { label: "Sleep", action: () => setSleeping(true) },
+        { label: "Restart…", action: restart },
+        { label: "Shut Down…", disabled: true },
+      ],
+    },
+    {
+      id: "app",
+      label: "Tripod Vawn",
+      bold: true,
+      items: [
+        { label: "About Evan", action: () => wm.openWindow("notes") },
+        { label: "Watch Showreel", action: () => wm.openWindow("quicktime") },
+        { separator: true },
+        { label: "Hide Everything", action: () => setSleeping(true) },
+      ],
+    },
+    {
+      id: "file",
+      label: "File",
+      items: [
+        {
+          label: "New Booking…",
+          shortcut: "⌘B",
+          action: openMail,
+        },
+        {
+          label: "Open Portfolio",
+          shortcut: "⌘O",
+          action: () => wm.openWindow("photos"),
+        },
+        { separator: true },
+        { label: "Move to Trash", action: () => wm.openWindow("trash") },
+      ],
+    },
+    {
+      id: "go",
+      label: "Go",
+      items: socialLinks.map((social) => ({
+        label: social.name,
+        action: () =>
+          social.href.startsWith("mailto:")
+            ? (window.location.href = social.href)
+            : window.open(social.href, "_blank", "noopener,noreferrer"),
+      })),
+    },
+    {
+      id: "help",
+      label: "Help",
+      items: [
+        { label: "About This Mac", action: () => wm.openWindow("about") },
+        { label: "Contact Evan", action: openMail },
+      ],
+    },
+  ];
+
+  const spotlightItems = [
+    {
+      label: "Photos — Portfolio",
+      kind: "Application",
+      icon: Image,
+      keywords: ["portfolio", "gallery", "pictures", "work"],
+      action: () => wm.openWindow("photos"),
+    },
+    {
+      label: "showreel.mov",
+      kind: "Movie",
+      icon: Film,
+      keywords: ["video", "reel", "showreel", "quicktime"],
+      action: () => wm.openWindow("quicktime"),
+    },
+    {
+      label: "Book a Shoot",
+      kind: "Action",
+      icon: Camera,
+      keywords: ["booking", "hire", "shoot", "mail", "contact"],
+      action: openMail,
+    },
+    {
+      label: "About Evan",
+      kind: "Note",
+      icon: Notebook,
+      keywords: ["notes", "bio", "evan"],
+      action: () => wm.openWindow("notes"),
+    },
+    {
+      label: "Socials",
+      kind: "Folder",
+      icon: Folder,
+      keywords: ["instagram", "tiktok", "links", "social"],
+      action: () => wm.openWindow("socials"),
+    },
+    {
+      label: "Instagram — @tripodvawn",
+      kind: "Link",
+      icon: AtSign,
+      keywords: ["instagram", "ig"],
+      action: () =>
+        window.open(
+          "https://www.instagram.com/tripodvawn/?hl=en",
+          "_blank",
+          "noopener,noreferrer",
+        ),
+    },
+    {
+      label: "IAC Content Pack",
+      kind: "Store",
+      icon: ShoppingBag,
+      keywords: ["pack", "buy", "store", "checkout", "iac"],
+      action: openStore,
+    },
+    {
+      label: "Trash",
+      kind: "Application",
+      icon: Trash2,
+      keywords: ["outtakes", "bloopers"],
+      action: () => wm.openWindow("trash"),
+    },
+  ];
+
+  const dockItems = [
+    {
+      id: "photos",
+      label: "Photos",
+      icon: photosIcon,
+      isOpen: wm.isOpen("photos"),
+    },
+    {
+      id: "quicktime",
+      label: "QuickTime — Showreel",
+      icon: quicktimeIcon,
+      isOpen: wm.isOpen("quicktime"),
+    },
+    {
+      id: "mail",
+      label: "Mail — Book a Shoot",
+      icon: mailIcon,
+      isOpen: wm.isOpen("mail"),
+    },
+    {
+      id: "notes",
+      label: "Notes — About Evan",
+      icon: notesIcon,
+      isOpen: wm.isOpen("notes"),
+    },
+    {
+      id: "socials",
+      label: "Socials",
+      icon: folderIcon,
+      isOpen: wm.isOpen("socials"),
+    },
+    {
+      id: "store",
+      label: "IAC Content Pack",
+      icon: contentPack,
+      external: true,
+    },
+    { divider: true },
+    {
+      id: "trash",
+      label: "Trash",
+      icon: trashIcon,
+      isOpen: wm.isOpen("trash"),
+    },
+  ];
+
+  const handleDockLaunch = (item) => {
+    if (item.id === "store") {
+      openStore();
+      return;
+    }
+    if (item.id === "mail") {
+      openMail();
+      return;
+    }
+    wm.openWindow(item.id);
   };
 
   return (
-    <div className="relative h-[100dvh] w-screen overflow-hidden bg-zinc-950 text-white">
-      {/* Background */}
+    <div className="relative h-[100dvh] w-screen select-none overflow-hidden bg-zinc-950 text-white">
+      {/* Wallpaper */}
       <div
-        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
-        style={{
-          backgroundImage: `url(${mojaveDay})`,
-        }}
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${wallpaper})` }}
       />
-      <div
-        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
-        style={{
-          backgroundImage: `url(${mojaveNight})`,
-          opacity: isNight ? 1 : 0,
-        }}
-      />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.4))]" />
+
       <div
         aria-hidden="true"
-        className="desktop-drag-bounds pointer-events-none absolute inset-x-0 bottom-0 top-8"
+        className="desktop-drag-bounds pointer-events-none absolute inset-x-0 bottom-0 top-7"
       />
 
-      {/* Menu Bar */}
-      <div className="absolute inset-x-0 top-0 z-50 flex h-8 items-center justify-between border-b border-white/10 bg-zinc-950/35 px-4 text-sm font-medium text-white shadow-sm backdrop-blur-2xl">
-        <div className="flex min-w-0 items-center gap-5">
-          <div className="flex items-center gap-2 font-semibold">
-            <img
-              src={appleLogo}
-              alt=""
-              aria-hidden="true"
-              className="h-4 w-4 object-contain"
-            />
-            <span>tripodvawn</span>
-          </div>
-        </div>
-        <time
-          className="shrink-0 tabular-nums text-white/90"
-          dateTime={now.toISOString()}
-        >
-          {menuDateTime}
-        </time>
-      </div>
-
-      {/* Desktop Icons */}
-      <CheckoutIcon
-        layout={layout}
+      <MenuBar
+        now={now}
+        menus={menus}
+        spotlightItems={spotlightItems}
         isMobile={isMobile}
-        getDefaultPosition={getDefaultPosition}
-        viewportSize={viewportSize}
-        onClick={openGHLCheckout}
-        checkoutDragStartRef={checkoutDragStartRef}
-        checkoutPointerStartRef={checkoutPointerStartRef}
-        checkoutWasDraggedRef={checkoutWasDraggedRef}
       />
 
-      {/* QuickTime Window */}
+      {/* Desktop icons */}
+      <DesktopIcon
+        id={`${isMobile ? "m" : "d"}-socials`}
+        label="Socials"
+        icon={folderIcon}
+        defaultPosition={getDefaultPosition(layout.socials, viewportSize)}
+        onOpen={() => wm.openWindow("socials")}
+      />
+      <DesktopIcon
+        id={`${isMobile ? "m" : "d"}-checkout`}
+        label="IAC Pack"
+        icon={contentPack}
+        iconClassName="rounded-xl"
+        defaultPosition={getDefaultPosition(layout.checkout, viewportSize)}
+        onOpen={openStore}
+      />
+
+      {/* Windows */}
       <QuickTimeWindow
-        layout={layout}
-        isMobile={isMobile}
-        getDefaultPosition={getDefaultPosition}
-        viewportSize={viewportSize}
+        windowProps={windowPropsFor("quicktime")}
+        onFullscreen={() =>
+          setLightbox({
+            items: [{ src: showreel, alt: "Showreel", type: "video" }],
+            index: 0,
+          })
+        }
       />
 
-      {/* Window Components */}
-      <FinderWindow
-        isOpen={finderOpen}
-        onClose={() => setFinderOpen(false)}
-        getWindowProps={createWindowProps("finder")}
-      />
+      <FinderWindow windowProps={windowPropsFor("socials")} />
 
       <PhotosWindow
-        isOpen={photosOpen}
-        onClose={() => setPhotosOpen(false)}
+        windowProps={windowPropsFor("photos")}
         displayedGallery={displayedGallery}
         mediaFilter={mediaFilter}
         onFilterChange={setMediaFilter}
-        onPhotoSelect={setSelectedMedia}
-        getWindowProps={createWindowProps("photos")}
+        onPhotoSelect={(index) =>
+          setLightbox({ items: displayedGallery, index })
+        }
       />
 
       <ContactsWindow
-        isOpen={contactsOpen}
-        onClose={() => setContactsOpen(false)}
+        windowProps={windowPropsFor("mail")}
         contactSent={contactSent}
         setContactSent={setContactSent}
         bookingSent={bookingSent}
         setBookingSent={setBookingSent}
-        getWindowProps={createWindowProps("contacts")}
       />
 
-      <NotesWindow
-        isOpen={notesOpen}
-        onClose={() => setNotesOpen(false)}
-        now={now}
-        getWindowProps={createWindowProps("notes")}
-      />
+      <NotesWindow windowProps={windowPropsFor("notes")} now={now} />
 
       <TrashWindow
-        isOpen={trashOpen}
-        onClose={() => setTrashOpen(false)}
+        windowProps={windowPropsFor("trash")}
         galleryPhotos={galleryPhotos}
-        getWindowProps={createWindowProps("trash")}
       />
 
-      {/* Dock */}
-      <Dock
-        onMailClick={() => {
-          setContactsOpen(true);
-          setContactSent(false);
-          setBookingSent(false);
+      <AboutWindow windowProps={windowPropsFor("about")} onBook={openMail} />
+
+      <Dock items={dockItems} isMobile={isMobile} onLaunch={handleDockLaunch} />
+
+      <Lightbox
+        items={lightbox?.items ?? []}
+        index={lightbox?.index ?? null}
+        onNavigate={(index) => setLightbox((lb) => ({ ...lb, index }))}
+        onClose={() => setLightbox(null)}
+      />
+
+      {/* Sleep overlay */}
+      <AnimatePresence>
+        {sleeping && (
+          <motion.button
+            type="button"
+            aria-label="Wake from sleep"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            onClick={() => setSleeping(false)}
+            className="fixed inset-0 z-[19000] block w-full cursor-pointer bg-black"
+          >
+            <span className="absolute bottom-10 left-1/2 -translate-x-1/2 text-xs text-white/25">
+              Click anywhere to wake
+            </span>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      <BootScreen
+        booting={booting}
+        onDone={() => {
+          sessionStorage.setItem("tv-booted", "1");
+          setBooting(false);
         }}
-        onPhotosClick={() => setPhotosOpen(true)}
-        onNotesClick={() => setNotesOpen(true)}
-        onTrashClick={() => setTrashOpen(true)}
       />
-
-      {/* Global Preview Overlay */}
-      <GlobalPreview media={selectedMedia} onClose={() => setSelectedMedia(null)} />
     </div>
   );
 }
