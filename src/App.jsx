@@ -284,8 +284,6 @@ function AppInner() {
       id: "trash",
       label: "Trash",
       icon: trashIcon,
-      // Source has transparent padding baked in
-      iconClassName: "scale-[1.12] origin-bottom",
       isOpen: wm.isOpen("trash"),
     },
   ];
