@@ -18,7 +18,7 @@ function NotesWindow({ windowProps, now }) {
           >
             Notes
           </button>
-          <div className="text-sm font-semibold drop-shadow">About Evan</div>
+          <div className="text-sm font-semibold drop-shadow">About Vawn</div>
           <button
             type="button"
             aria-label="New Note"

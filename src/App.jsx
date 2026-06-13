@@ -132,7 +132,7 @@ function AppInner() {
       label: "Tripod Vawn",
       bold: true,
       items: [
-        { label: "About Evan", action: () => wm.openWindow("notes") },
+        { label: "About Vawn", action: () => wm.openWindow("notes") },
         { label: "Watch Showreel", action: () => wm.openWindow("quicktime") },
         { separator: true },
         { label: "Hide Everything", action: () => setSleeping(true) },
@@ -200,7 +200,7 @@ function AppInner() {
       action: openMail,
     },
     {
-      label: "About Evan",
+      label: "About Vawn",
       kind: "Note",
       icon: Notebook,
       keywords: ["notes", "bio", "evan"],
@@ -268,7 +268,7 @@ function AppInner() {
     },
     {
       id: "notes",
-      label: "Notes — About Evan",
+      label: "Notes — About Vawn",
       icon: notesIcon,
       isOpen: wm.isOpen("notes"),
     },
