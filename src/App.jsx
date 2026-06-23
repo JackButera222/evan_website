@@ -20,6 +20,10 @@ import TrashWindow from "./components/windows/TrashWindow";
 import appleLogo from "./assets/apple_logo.svg.png";
 import mojaveDay from "./assets/wallpaper.png";
 import mojaveNight from "./assets/wallpaper.png";
+import mail from "./assets/mail.png";
+import notes from "./assets/notes.png";
+import photos from "./assets/photos.png";
+import trash from "./assets/trash.png";
 
 function AppInner() {
   const viewportSize = useViewportSize();
