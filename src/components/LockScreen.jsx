@@ -116,7 +116,7 @@ function LockScreen({ now, onUnlock }) {
               if (e.key === "Enter" || e.key === " ") onUnlock();
             }}
             whileTap={{ scale: 0.96 }}
-            className="relative z-10 flex shrink-0 cursor-grab items-center justify-center rounded-full bg-white text-zinc-700 shadow-lg active:cursor-grabbing"
+            className="relative z-10 flex shrink-0 cursor-grab items-center justify-center rounded-full border border-white/40 bg-white/40 text-white shadow-lg backdrop-blur-md active:cursor-grabbing"
           >
             <svg
               viewBox="0 0 24 24"
