@@ -1,12 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMediaQuery, useViewportSize } from "./hooks";
-import {
-  galleryPhotos,
-  mobileLayout,
-  desktopLayout,
-  WINDOW_CONFIGS,
-} from "./constants";
-import { getDefaultPosition, getWindowProps } from "./utils/window";
+import { galleryPhotos, getDesktopLayout, WINDOW_CONFIGS } from "./constants";
+import { getWindowProps } from "./utils/window";
 import ErrorBoundary from "./components/ErrorBoundary";
 import GlobalPreview from "./components/GlobalPreview";
 import Dock from "./components/Dock";
@@ -30,7 +25,7 @@ function AppInner() {
   const isMobile = useMediaQuery(
     "(max-width: 640px), (max-width: 1100px) and (max-height: 560px)",
   );
-  const layout = isMobile ? mobileLayout : desktopLayout;
+  const desktopLayout = getDesktopLayout(viewportSize, isMobile);
 
   // Time state
   const [now, setNow] = useState(() => new Date());
@@ -49,11 +44,6 @@ function AppInner() {
   // Gallery state
   const [mediaFilter, setMediaFilter] = useState("all");
   const [selectedMedia, setSelectedMedia] = useState(null);
-
-  // Drag tracking refs
-  const checkoutWasDraggedRef = useRef(false);
-  const checkoutDragStartRef = useRef({ x: 0, y: 0 });
-  const checkoutPointerStartRef = useRef({ x: 0, y: 0 });
 
   // Update time every second
   useEffect(() => {
@@ -81,12 +71,8 @@ function AppInner() {
     return true;
   });
 
-  // Checkout click handler
+  // Checkout click handler (drag-vs-click is handled inside CheckoutIcon)
   const openGHLCheckout = () => {
-    if (checkoutWasDraggedRef.current) {
-      checkoutWasDraggedRef.current = false;
-      return;
-    }
     window.open("https://tripodvawn.com/", "_blank", "noopener,noreferrer");
   };
 
@@ -194,22 +180,15 @@ function AppInner() {
 
       {/* Desktop Icons */}
       <CheckoutIcon
-        layout={layout}
-        isMobile={isMobile}
-        getDefaultPosition={getDefaultPosition}
-        viewportSize={viewportSize}
+        placement={desktopLayout.checkout}
+        viewport={viewportSize}
         onClick={openGHLCheckout}
-        checkoutDragStartRef={checkoutDragStartRef}
-        checkoutPointerStartRef={checkoutPointerStartRef}
-        checkoutWasDraggedRef={checkoutWasDraggedRef}
       />
 
       {/* QuickTime Window */}
       <QuickTimeWindow
-        layout={layout}
-        isMobile={isMobile}
-        getDefaultPosition={getDefaultPosition}
-        viewportSize={viewportSize}
+        placement={desktopLayout.quicktime}
+        viewport={viewportSize}
       />
 
       {/* Window Components */}

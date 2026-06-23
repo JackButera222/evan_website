@@ -1,14 +1,69 @@
-export const mobileLayout = {
-  folder: { x: "5%", y: "55%", width: 90, height: 90 },
-  quicktime: { x: "5%", y: "5%", width: 240, height: 240 },
-  checkout: { x: "25%", y: "50%", width: 88, height: 108 },
-};
+// Shared glyph size so the dock icons and the desktop icons match.
+export const ICON_SIZE = { desktop: 78, mobile: 60 };
 
-export const desktopLayout = {
-  folder: { x: "6%", y: "8%", width: 90, height: 110 },
-  quicktime: { x: "15%", y: "18%", width: 400, height: 400 },
-  checkout: { x: "50%", y: "50%", width: 100, height: 118 },
-};
+// QuickTime player size (10% smaller than the previous 400 / 240).
+const QUICKTIME_SIZE = { desktop: 360, mobile: 216 };
+
+// Deterministic placement for the draggable desktop items, recomputed from the
+// viewport. The QuickTime player and the IAC Pack icon are laid out as a
+// horizontally-centered pair (the icon beside the player, or stacked beneath it
+// when the window is too narrow), so they default near the middle of the screen
+// and never overlap or drift off-screen across resizes or mobile/desktop switches.
+export function getDesktopLayout(viewportSize, isMobile) {
+  const { width: vw, height: vh } = viewportSize;
+  const margin = isMobile ? 16 : 28;
+  const top = isMobile ? 52 : 56;
+  const iconSize = isMobile ? ICON_SIZE.mobile : ICON_SIZE.desktop;
+  const iconBoxWidth = iconSize + 28; // padding around the glyph for the label
+  const iconBoxHeight = iconSize + 24; // room for the label beneath the glyph
+  const gap = isMobile ? 18 : 48;
+
+  const target = isMobile ? QUICKTIME_SIZE.mobile : QUICKTIME_SIZE.desktop;
+  const quicktimeSize = Math.max(160, Math.min(target, vw - margin * 2));
+
+  const quicktimeY = Math.max(top, Math.round(vh * 0.13));
+  const center = vw / 2;
+
+  // QuickTime sits just left of centre, the IAC Pack icon just right of centre,
+  // with the gap straddling the centre line. Clamped to stay apart and on-screen.
+  let quicktimeX = Math.max(margin, Math.round(center - gap / 2 - quicktimeSize));
+  let checkoutX = Math.round(center + gap / 2);
+  checkoutX = Math.max(checkoutX, quicktimeX + quicktimeSize + gap);
+  checkoutX = Math.min(checkoutX, vw - margin - iconBoxWidth);
+
+  const fitsSideBySide = checkoutX >= quicktimeX + quicktimeSize + gap;
+
+  let checkout;
+  if (fitsSideBySide) {
+    checkout = {
+      x: checkoutX,
+      y: quicktimeY + Math.round((quicktimeSize - iconBoxHeight) / 2),
+    };
+  } else {
+    // Too narrow for side-by-side: centre the player and stack the icon beneath.
+    quicktimeX = Math.max(margin, Math.round((vw - quicktimeSize) / 2));
+    checkout = {
+      x: Math.round(quicktimeX + (quicktimeSize - iconBoxWidth) / 2),
+      y: quicktimeY + quicktimeSize + gap,
+    };
+  }
+
+  return {
+    quicktime: {
+      x: quicktimeX,
+      y: quicktimeY,
+      width: quicktimeSize,
+      height: quicktimeSize,
+    },
+    checkout: {
+      x: checkout.x,
+      y: checkout.y,
+      width: iconBoxWidth,
+      height: iconBoxHeight,
+      iconSize,
+    },
+  };
+}
 
 export const WINDOW_CONFIGS = {
   photos: {

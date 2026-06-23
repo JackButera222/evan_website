@@ -6,9 +6,10 @@ import {
   useTransform,
   AnimatePresence,
 } from "framer-motion";
+import { ICON_SIZE } from "../constants";
 
-const MAX_SIZE = 88;
-const MAGNIFY_RANGE = 130;
+const MAX_SIZE = 128;
+const MAGNIFY_RANGE = 140;
 
 function DockIcon({ item, mouseX, magnify, baseSize, onLaunch }) {
   const ref = useRef(null);
@@ -96,7 +97,7 @@ function DockIcon({ item, mouseX, magnify, baseSize, onLaunch }) {
 function Dock({ items, isMobile, onLaunch }) {
   const mouseX = useMotionValue(Infinity);
   const magnify = !isMobile;
-  const baseSize = isMobile ? 40 : 52;
+  const baseSize = isMobile ? ICON_SIZE.mobile : ICON_SIZE.desktop;
 
   return (
     <div className="absolute inset-x-0 bottom-0 z-[8000] flex justify-center">
