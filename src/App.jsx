@@ -102,6 +102,50 @@ function AppInner() {
     return getWindowProps(WINDOW_CONFIGS[configKey], viewportSize, isMobile);
   };
 
+  // Dock items configuration
+  const dockItems = [
+    {
+      id: "mail",
+      label: "Mail",
+      icon: mail,
+      isOpen: contactsOpen,
+    },
+    {
+      id: "photos",
+      label: "Photos",
+      icon: photos,
+      isOpen: photosOpen,
+    },
+    {
+      id: "notes",
+      label: "Notes",
+      icon: notes,
+      isOpen: notesOpen,
+    },
+    { divider: true },
+    {
+      id: "trash",
+      label: "Trash",
+      icon: trash,
+      isOpen: trashOpen,
+    },
+  ];
+
+  // Handle dock item launch
+  const handleDockLaunch = (item) => {
+    if (item.id === "mail") {
+      setContactsOpen(true);
+      setContactSent(false);
+      setBookingSent(false);
+    } else if (item.id === "photos") {
+      setPhotosOpen(true);
+    } else if (item.id === "notes") {
+      setNotesOpen(true);
+    } else if (item.id === "trash") {
+      setTrashOpen(true);
+    }
+  };
+
   return (
     <div className="relative h-[100dvh] w-screen overflow-hidden bg-zinc-950 text-white">
       {/* Background */}
@@ -206,16 +250,7 @@ function AppInner() {
       />
 
       {/* Dock */}
-      <Dock
-        onMailClick={() => {
-          setContactsOpen(true);
-          setContactSent(false);
-          setBookingSent(false);
-        }}
-        onPhotosClick={() => setPhotosOpen(true)}
-        onNotesClick={() => setNotesOpen(true)}
-        onTrashClick={() => setTrashOpen(true)}
-      />
+      <Dock items={dockItems} isMobile={isMobile} onLaunch={handleDockLaunch} />
 
       {/* Global Preview Overlay */}
       <GlobalPreview media={selectedMedia} onClose={() => setSelectedMedia(null)} />
