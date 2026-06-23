@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import wallpaper from "../assets/wallpaper.png";
 import logo from "../assets/TRIPOD VAWN LOGO V3.png";
+import unlockSound from "../assets/iphone-unlock.wav";
 
 const KNOB = 56;
 const PAD = 5;
@@ -10,6 +11,18 @@ const UNLOCK_RATIO = 0.72; // fraction of the track the knob must cross to enter
 function LockScreen({ now, onUnlock }) {
   const trackRef = useRef(null);
   const x = useMotionValue(0);
+  const audioRef = useRef(null);
+
+  // Play the classic iPhone unlock sound, then enter the site. Called from the
+  // user gesture (drag release / key press), so autoplay policies allow it.
+  const enter = () => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio(unlockSound);
+    }
+    audioRef.current.currentTime = 0;
+    audioRef.current.play().catch(() => {});
+    onUnlock();
+  };
 
   // The hint text and the knob's trailing fill react to the drag progress.
   const hintOpacity = useTransform(x, [0, 150], [1, 0]);
@@ -34,7 +47,7 @@ function LockScreen({ now, onUnlock }) {
     const limit = maxX();
     if (limit > 0 && x.get() >= limit * UNLOCK_RATIO) {
       animate(x, limit, { duration: 0.15, ease: "easeOut" });
-      window.setTimeout(onUnlock, 150);
+      window.setTimeout(enter, 150);
     } else {
       animate(x, 0, { type: "spring", stiffness: 500, damping: 40 });
     }
@@ -113,7 +126,7 @@ function LockScreen({ now, onUnlock }) {
             style={{ x, width: KNOB, height: KNOB, marginLeft: PAD }}
             onDragEnd={handleDragEnd}
             onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") onUnlock();
+              if (e.key === "Enter" || e.key === " ") enter();
             }}
             whileTap={{ scale: 0.96 }}
             className="relative z-10 flex shrink-0 cursor-grab items-center justify-center rounded-full border border-white/40 bg-white/40 text-white shadow-lg backdrop-blur-md active:cursor-grabbing"
