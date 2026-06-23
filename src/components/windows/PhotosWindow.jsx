@@ -103,12 +103,15 @@ function PhotosWindow({
                       src={photo.src}
                       controls
                       playsInline
+                      preload="none"
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   ) : (
                     <img
-                      src={photo.src}
+                      src={photo.thumb ?? photo.src}
                       alt={photo.alt}
+                      loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       style={{ objectPosition: photo.position }}
                     />

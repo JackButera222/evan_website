@@ -45,8 +45,10 @@ function TrashWindow({ isOpen, onClose, galleryPhotos, getWindowProps }) {
                 className="group aspect-square overflow-hidden rounded-lg bg-zinc-200 shadow-sm ring-1 ring-zinc-900/10 transition-transform hover:scale-[1.02] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
               >
                 <img
-                  src={photo.src}
+                  src={photo.thumb ?? photo.src}
                   alt={photo.alt}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   style={{ objectPosition: photo.position }}
                 />
