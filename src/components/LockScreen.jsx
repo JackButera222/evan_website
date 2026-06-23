@@ -70,7 +70,7 @@ function LockScreen({ now, onUnlock }) {
 
       {/* Profile */}
       <div className="relative flex flex-col items-center gap-3">
-        <div className="flex h-28 w-28 items-center justify-center rounded-full border border-white/40 bg-white/90 shadow-2xl backdrop-blur-sm sm:h-32 sm:w-32">
+        <div className="flex h-28 w-28 items-center justify-center rounded-full border border-white/40 bg-white/40 shadow-2xl backdrop-blur-md sm:h-32 sm:w-32">
           <img
             src={logo}
             alt="Tripod Vawn"
