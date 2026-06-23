@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { useMediaQuery, useViewportSize } from "./hooks";
 import { galleryPhotos, getDesktopLayout, WINDOW_CONFIGS } from "./constants";
 import { getWindowProps } from "./utils/window";
 import ErrorBoundary from "./components/ErrorBoundary";
 import GlobalPreview from "./components/GlobalPreview";
+import LockScreen from "./components/LockScreen";
 import Dock from "./components/Dock";
 import CheckoutIcon from "./components/desktop-icons/CheckoutIcon";
 import QuickTimeWindow from "./components/desktop-icons/QuickTimeWindow";
@@ -29,6 +31,9 @@ function AppInner() {
 
   // Time state
   const [now, setNow] = useState(() => new Date());
+
+  // Lock screen — shown on every fresh load until the user swipes to enter
+  const [locked, setLocked] = useState(true);
 
   // Window state
   const [photosOpen, setPhotosOpen] = useState(false);
@@ -237,6 +242,13 @@ function AppInner() {
 
       {/* Global Preview Overlay */}
       <GlobalPreview media={selectedMedia} onClose={() => setSelectedMedia(null)} />
+
+      {/* Lock screen */}
+      <AnimatePresence>
+        {locked && (
+          <LockScreen now={now} onUnlock={() => setLocked(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
