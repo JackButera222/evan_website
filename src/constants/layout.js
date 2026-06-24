@@ -22,16 +22,14 @@ export function getDesktopLayout(viewportSize, isMobile) {
   const quicktimeSize = Math.max(160, Math.min(target, vw - margin * 2));
 
   const quicktimeY = Math.max(top, Math.round(vh * 0.13));
-  const center = vw / 2;
 
-  // QuickTime sits just left of centre, the IAC Pack icon just right of centre,
-  // with the gap straddling the centre line. Clamped to stay apart and on-screen.
-  let quicktimeX = Math.max(margin, Math.round(center - gap / 2 - quicktimeSize));
-  let checkoutX = Math.round(center + gap / 2);
-  checkoutX = Math.max(checkoutX, quicktimeX + quicktimeSize + gap);
-  checkoutX = Math.min(checkoutX, vw - margin - iconBoxWidth);
+  // Center the QuickTime + gap + icon pair horizontally as a unit.
+  const pairWidth = quicktimeSize + gap + iconBoxWidth;
+  const pairLeft = Math.max(margin, Math.round((vw - pairWidth) / 2) - 80);
+  let quicktimeX = pairLeft;
+  let checkoutX = pairLeft + quicktimeSize + gap;
 
-  const fitsSideBySide = checkoutX >= quicktimeX + quicktimeSize + gap;
+  const fitsSideBySide = checkoutX + iconBoxWidth <= vw - margin;
 
   let checkout;
   if (fitsSideBySide) {
