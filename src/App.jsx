@@ -9,11 +9,13 @@ import LockScreen from "./components/LockScreen";
 import Dock from "./components/Dock";
 import CheckoutIcon from "./components/desktop-icons/CheckoutIcon";
 import QuickTimeWindow from "./components/desktop-icons/QuickTimeWindow";
+import SnakeIcon from "./components/desktop-icons/SnakeIcon";
 import FinderWindow from "./components/windows/FinderWindow";
 import PhotosWindow from "./components/windows/PhotosWindow";
 import ContactsWindow from "./components/windows/ContactsWindow";
 import NotesWindow from "./components/windows/NotesWindow";
 import TrashWindow from "./components/windows/TrashWindow";
+import SnakeWindow from "./components/windows/SnakeWindow";
 import appleLogo from "./assets/apple_logo.svg.png";
 import mojaveDay from "./assets/wallpaper.png";
 import mojaveNight from "./assets/wallpaper.png";
@@ -41,6 +43,7 @@ function AppInner() {
   const [notesOpen, setNotesOpen] = useState(false);
   const [trashOpen, setTrashOpen] = useState(false);
   const [finderOpen, setFinderOpen] = useState(false);
+  const [snakeOpen, setSnakeOpen] = useState(false);
 
   // Form state
   const [contactSent, setContactSent] = useState(false);
@@ -203,6 +206,13 @@ function AppInner() {
         onClick={openGHLCheckout}
       />
 
+      {/* Desktop Icons */}
+      <SnakeIcon
+        placement={desktopLayout.snake}
+        viewport={viewportSize}
+        onClick={() => setSnakeOpen(true)}
+      />
+
       {/* QuickTime Window */}
       <QuickTimeWindow
         placement={desktopLayout.quicktime}
@@ -248,6 +258,12 @@ function AppInner() {
         onClose={() => setTrashOpen(false)}
         galleryPhotos={galleryPhotos}
         getWindowProps={createWindowProps("trash")}
+      />
+
+      <SnakeWindow
+        isOpen={snakeOpen}
+        onClose={() => setSnakeOpen(false)}
+        getWindowProps={createWindowProps("snake")}
       />
 
       {/* Dock */}

@@ -63,13 +63,13 @@ function LockScreen({ now, onUnlock }) {
         transition: { duration: 0.5, ease: "easeInOut" },
       }}
     >
-      {/* Blurred wallpaper backdrop */}
+      {/* Wallpaper backdrop */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 scale-110 bg-cover bg-center blur-xl"
+        className="absolute -inset-8 bg-cover bg-center blur-md"
         style={{ backgroundImage: `url(${wallpaper})` }}
       />
-      <div aria-hidden="true" className="absolute inset-0 bg-black/45" />
+      <div aria-hidden="true" className="absolute inset-0 bg-black/35" />
 
       {/* Clock */}
       <div className="relative flex flex-col items-center">

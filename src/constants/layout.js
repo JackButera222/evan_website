@@ -46,6 +46,10 @@ export function getDesktopLayout(viewportSize, isMobile) {
     };
   }
 
+  // Snake icon sits to the right side of the screen
+  const snakeX = Math.min(vw - margin - iconBoxWidth, Math.round(vw * 0.5));
+  const snakeY = Math.max(top, Math.round(vh * 0.7));
+
   return {
     quicktime: {
       x: quicktimeX,
@@ -56,6 +60,13 @@ export function getDesktopLayout(viewportSize, isMobile) {
     checkout: {
       x: checkout.x,
       y: checkout.y,
+      width: iconBoxWidth,
+      height: iconBoxHeight,
+      iconSize,
+    },
+    snake: {
+      x: snakeX,
+      y: snakeY,
       width: iconBoxWidth,
       height: iconBoxHeight,
       iconSize,
@@ -103,5 +114,13 @@ export const WINDOW_CONFIGS = {
     height: 390,
     minWidth: 380,
     minHeight: 300,
+  },
+  snake: {
+    x: 320,
+    y: 80,
+    width: 440,
+    height: 430,
+    minWidth: 440,
+    minHeight: 430,
   },
 };
