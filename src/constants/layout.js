@@ -120,9 +120,9 @@ export const WINDOW_CONFIGS = {
     x: 320,
     y: 80,
     width: 380,
-    height: 460,
+    height: 560,
     minWidth: 340,
-    minHeight: 420,
-    mobileHeight: 480,
+    minHeight: 500,
+    mobileHeight: 580,
   },
 };
