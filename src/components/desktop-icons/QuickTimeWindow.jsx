@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Rnd } from "react-rnd";
 import quicktimeGif from "../../assets/quicktime-video.gif";
 
-const MENU_BAR_HEIGHT = 32;
-
 function QuickTimeWindow({ placement, viewport }) {
   const { x, y, width, height } = placement;
   const [pos, setPos] = useState({ x, y });
@@ -21,12 +19,7 @@ function QuickTimeWindow({ placement, viewport }) {
     <Rnd
       position={pos}
       size={{ width, height }}
-      bounds={{
-        top: MENU_BAR_HEIGHT,
-        left: 0,
-        right: viewport.width - width,
-        bottom: viewport.height - height,
-      }}
+      bounds=".desktop-drag-bounds"
       enableResizing={false}
       dragHandleClassName="quicktime-drag-handle"
       onDragStop={(_event, data) => setPos({ x: data.x, y: data.y })}
