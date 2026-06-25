@@ -26,7 +26,7 @@ export function getWindowProps(config, viewportSize, isMobile) {
     viewportSize.height - margin - bottomReserve,
   );
   const windowWidth = Math.min(isMobile ? 360 : width, availableWidth);
-  const windowHeight = Math.min(isMobile ? 380 : height, availableHeight);
+  const windowHeight = Math.min(isMobile ? (config.mobileHeight ?? 380) : height, availableHeight);
   const maxX = Math.max(margin, viewportSize.width - windowWidth - margin);
   const maxY = Math.max(
     margin,
@@ -34,17 +34,15 @@ export function getWindowProps(config, viewportSize, isMobile) {
   );
   const minY = Math.max(topBarrier, margin);
 
+  const mobileX = Math.round((viewportSize.width - windowWidth) / 2);
   const mobileY = Math.max(
     topBarrier,
-    Math.min(
-      (viewportSize.height - windowHeight) / 2 - 50,
-      viewportSize.height - windowHeight - bottomReserve - 50,
-    ),
+    Math.round((viewportSize.height - windowHeight) / 2) - 30,
   );
 
   return {
     default: {
-      x: isMobile ? margin : Math.min(Math.max(x, margin), maxX) + 150,
+      x: isMobile ? mobileX : Math.min(Math.max(x, margin), maxX) + 150,
       y: isMobile
         ? mobileY
         : Math.min(Math.max(y, minY), maxY) - 50,

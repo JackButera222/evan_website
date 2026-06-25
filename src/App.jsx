@@ -15,7 +15,7 @@ import PhotosWindow from "./components/windows/PhotosWindow";
 import ContactsWindow from "./components/windows/ContactsWindow";
 import NotesWindow from "./components/windows/NotesWindow";
 import TrashWindow from "./components/windows/TrashWindow";
-import SnakeWindow from "./components/windows/SnakeWindow";
+import Game2048Window from "./components/windows/Game2048Window";
 import appleLogo from "./assets/apple_logo.svg.png";
 import mojaveDay from "./assets/wallpaper.png";
 import mojaveNight from "./assets/wallpaper.png";
@@ -59,18 +59,6 @@ function AppInner() {
     return () => window.clearInterval(intervalId);
   }, []);
 
-  // Handle escape key to close preview
-  useEffect(() => {
-    if (!selectedMedia) return undefined;
-
-    const onKey = (e) => {
-      if (e.key === "Escape") setSelectedMedia(null);
-    };
-
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [selectedMedia]);
-
   // Filtered gallery items
   const displayedGallery = galleryPhotos.filter((item) => {
     if (mediaFilter === "all") return true;
@@ -79,6 +67,32 @@ function AppInner() {
     return true;
   });
 
+  const selectedMediaIndex = selectedMedia
+    ? displayedGallery.findIndex((p) => p === selectedMedia)
+    : -1;
+
+  const goToPrevPhoto = () => {
+    if (selectedMediaIndex > 0) setSelectedMedia(displayedGallery[selectedMediaIndex - 1]);
+  };
+  const goToNextPhoto = () => {
+    if (selectedMediaIndex < displayedGallery.length - 1)
+      setSelectedMedia(displayedGallery[selectedMediaIndex + 1]);
+  };
+
+  // Handle escape/arrow keys for preview
+  useEffect(() => {
+    if (!selectedMedia) return undefined;
+
+    const onKey = (e) => {
+      if (e.key === "Escape") setSelectedMedia(null);
+      if (e.key === "ArrowLeft") goToPrevPhoto();
+      if (e.key === "ArrowRight") goToNextPhoto();
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedMedia, selectedMediaIndex]);
+
   // Checkout click handler (drag-vs-click is handled inside CheckoutIcon)
   const openGHLCheckout = () => {
     window.open("https://tripodvawn.com/", "_blank", "noopener,noreferrer");
@@ -86,14 +100,12 @@ function AppInner() {
 
   // Date/time formatting
   const isNight = now.getHours() < 6 || now.getHours() >= 18;
-  const menuDateTime = now.toLocaleString([], {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+  const menuDateTime = [
+    now.toLocaleString([], { weekday: "short" }),
+    now.toLocaleString([], { month: "short" }),
+    now.toLocaleString([], { day: "numeric" }),
+    now.toLocaleString([], { hour: "numeric", minute: "2-digit", second: "2-digit" }),
+  ].join(" ");
 
   // Create window props helper
   const createWindowProps = (configKey) => {
@@ -260,7 +272,7 @@ function AppInner() {
         getWindowProps={createWindowProps("trash")}
       />
 
-      <SnakeWindow
+      <Game2048Window
         isOpen={snakeOpen}
         onClose={() => setSnakeOpen(false)}
         getWindowProps={createWindowProps("snake")}
@@ -270,7 +282,12 @@ function AppInner() {
       <Dock items={dockItems} isMobile={isMobile} onLaunch={handleDockLaunch} />
 
       {/* Global Preview Overlay */}
-      <GlobalPreview media={selectedMedia} onClose={() => setSelectedMedia(null)} />
+      <GlobalPreview
+        media={selectedMedia}
+        onClose={() => setSelectedMedia(null)}
+        onPrev={selectedMediaIndex > 0 ? goToPrevPhoto : null}
+        onNext={selectedMediaIndex < displayedGallery.length - 1 ? goToNextPhoto : null}
+      />
 
       {/* Lock screen */}
       <AnimatePresence>

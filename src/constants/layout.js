@@ -82,6 +82,7 @@ export const WINDOW_CONFIGS = {
     height: 600,
     minWidth: 380,
     minHeight: 300,
+    mobileHeight: 520,
   },
   contacts: {
     x: 250,
@@ -118,9 +119,10 @@ export const WINDOW_CONFIGS = {
   snake: {
     x: 320,
     y: 80,
-    width: 440,
-    height: 430,
-    minWidth: 440,
-    minHeight: 430,
+    width: 380,
+    height: 460,
+    minWidth: 340,
+    minHeight: 420,
+    mobileHeight: 480,
   },
 };
