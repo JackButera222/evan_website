@@ -1,35 +1,41 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { useMediaQuery, useViewportSize } from "./hooks";
-import {
-  galleryPhotos,
-  mobileLayout,
-  desktopLayout,
-  WINDOW_CONFIGS,
-} from "./constants";
-import { getDefaultPosition, getWindowProps } from "./utils/window";
+import { galleryPhotos, getDesktopLayout, WINDOW_CONFIGS } from "./constants";
+import { getWindowProps } from "./utils/window";
 import ErrorBoundary from "./components/ErrorBoundary";
 import GlobalPreview from "./components/GlobalPreview";
+import LockScreen from "./components/LockScreen";
 import Dock from "./components/Dock";
 import CheckoutIcon from "./components/desktop-icons/CheckoutIcon";
 import QuickTimeWindow from "./components/desktop-icons/QuickTimeWindow";
+import SnakeIcon from "./components/desktop-icons/SnakeIcon";
 import FinderWindow from "./components/windows/FinderWindow";
 import PhotosWindow from "./components/windows/PhotosWindow";
 import ContactsWindow from "./components/windows/ContactsWindow";
 import NotesWindow from "./components/windows/NotesWindow";
 import TrashWindow from "./components/windows/TrashWindow";
+import SnakeWindow from "./components/windows/SnakeWindow";
 import appleLogo from "./assets/apple_logo.svg.png";
 import mojaveDay from "./assets/wallpaper.png";
 import mojaveNight from "./assets/wallpaper.png";
+import mail from "./assets/mail.png";
+import notes from "./assets/notes.png";
+import photos from "./assets/photos.png";
+import trash from "./assets/trash.png";
 
 function AppInner() {
   const viewportSize = useViewportSize();
   const isMobile = useMediaQuery(
     "(max-width: 640px), (max-width: 1100px) and (max-height: 560px)",
   );
-  const layout = isMobile ? mobileLayout : desktopLayout;
+  const desktopLayout = getDesktopLayout(viewportSize, isMobile);
 
   // Time state
   const [now, setNow] = useState(() => new Date());
+
+  // Lock screen — shown on every fresh load until the user swipes to enter
+  const [locked, setLocked] = useState(true);
 
   // Window state
   const [photosOpen, setPhotosOpen] = useState(false);
@@ -37,6 +43,7 @@ function AppInner() {
   const [notesOpen, setNotesOpen] = useState(false);
   const [trashOpen, setTrashOpen] = useState(false);
   const [finderOpen, setFinderOpen] = useState(false);
+  const [snakeOpen, setSnakeOpen] = useState(false);
 
   // Form state
   const [contactSent, setContactSent] = useState(false);
@@ -45,11 +52,6 @@ function AppInner() {
   // Gallery state
   const [mediaFilter, setMediaFilter] = useState("all");
   const [selectedMedia, setSelectedMedia] = useState(null);
-
-  // Drag tracking refs
-  const checkoutWasDraggedRef = useRef(false);
-  const checkoutDragStartRef = useRef({ x: 0, y: 0 });
-  const checkoutPointerStartRef = useRef({ x: 0, y: 0 });
 
   // Update time every second
   useEffect(() => {
@@ -77,12 +79,8 @@ function AppInner() {
     return true;
   });
 
-  // Checkout click handler
+  // Checkout click handler (drag-vs-click is handled inside CheckoutIcon)
   const openGHLCheckout = () => {
-    if (checkoutWasDraggedRef.current) {
-      checkoutWasDraggedRef.current = false;
-      return;
-    }
     window.open("https://tripodvawn.com/", "_blank", "noopener,noreferrer");
   };
 
@@ -100,6 +98,50 @@ function AppInner() {
   // Create window props helper
   const createWindowProps = (configKey) => {
     return getWindowProps(WINDOW_CONFIGS[configKey], viewportSize, isMobile);
+  };
+
+  // Dock items configuration
+  const dockItems = [
+    {
+      id: "mail",
+      label: "Mail",
+      icon: mail,
+      isOpen: contactsOpen,
+    },
+    {
+      id: "photos",
+      label: "Photos",
+      icon: photos,
+      isOpen: photosOpen,
+    },
+    {
+      id: "notes",
+      label: "Notes",
+      icon: notes,
+      isOpen: notesOpen,
+    },
+    { divider: true },
+    {
+      id: "trash",
+      label: "Trash",
+      icon: trash,
+      isOpen: trashOpen,
+    },
+  ];
+
+  // Handle dock item launch
+  const handleDockLaunch = (item) => {
+    if (item.id === "mail") {
+      setContactsOpen(true);
+      setContactSent(false);
+      setBookingSent(false);
+    } else if (item.id === "photos") {
+      setPhotosOpen(true);
+    } else if (item.id === "notes") {
+      setNotesOpen(true);
+    } else if (item.id === "trash") {
+      setTrashOpen(true);
+    }
   };
 
   return (
@@ -136,32 +178,45 @@ function AppInner() {
             <span>tripodvawn</span>
           </div>
         </div>
-        <time
-          className="shrink-0 tabular-nums text-white/90"
-          dateTime={now.toISOString()}
-        >
-          {menuDateTime}
-        </time>
+        <div className="flex items-center gap-3">
+          <a
+            href="https://www.instagram.com/tripodvawn"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center opacity-80 hover:opacity-100 transition-opacity"
+            aria-label="Instagram"
+          >
+            <svg viewBox="0 0 24 24" fill="white" className="h-4 w-4">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+          </a>
+          <time
+            className="shrink-0 tabular-nums text-white/90"
+            dateTime={now.toISOString()}
+          >
+            {menuDateTime}
+          </time>
+        </div>
       </div>
 
       {/* Desktop Icons */}
       <CheckoutIcon
-        layout={layout}
-        isMobile={isMobile}
-        getDefaultPosition={getDefaultPosition}
-        viewportSize={viewportSize}
+        placement={desktopLayout.checkout}
+        viewport={viewportSize}
         onClick={openGHLCheckout}
-        checkoutDragStartRef={checkoutDragStartRef}
-        checkoutPointerStartRef={checkoutPointerStartRef}
-        checkoutWasDraggedRef={checkoutWasDraggedRef}
+      />
+
+      {/* Desktop Icons */}
+      <SnakeIcon
+        placement={desktopLayout.snake}
+        viewport={viewportSize}
+        onClick={() => setSnakeOpen(true)}
       />
 
       {/* QuickTime Window */}
       <QuickTimeWindow
-        layout={layout}
-        isMobile={isMobile}
-        getDefaultPosition={getDefaultPosition}
-        viewportSize={viewportSize}
+        placement={desktopLayout.quicktime}
+        viewport={viewportSize}
       />
 
       {/* Window Components */}
@@ -205,20 +260,24 @@ function AppInner() {
         getWindowProps={createWindowProps("trash")}
       />
 
-      {/* Dock */}
-      <Dock
-        onMailClick={() => {
-          setContactsOpen(true);
-          setContactSent(false);
-          setBookingSent(false);
-        }}
-        onPhotosClick={() => setPhotosOpen(true)}
-        onNotesClick={() => setNotesOpen(true)}
-        onTrashClick={() => setTrashOpen(true)}
+      <SnakeWindow
+        isOpen={snakeOpen}
+        onClose={() => setSnakeOpen(false)}
+        getWindowProps={createWindowProps("snake")}
       />
+
+      {/* Dock */}
+      <Dock items={dockItems} isMobile={isMobile} onLaunch={handleDockLaunch} />
 
       {/* Global Preview Overlay */}
       <GlobalPreview media={selectedMedia} onClose={() => setSelectedMedia(null)} />
+
+      {/* Lock screen */}
+      <AnimatePresence>
+        {locked && (
+          <LockScreen now={now} onUnlock={() => setLocked(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
