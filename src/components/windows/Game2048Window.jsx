@@ -248,6 +248,28 @@ export default function Game2048Window({ isOpen, onClose, getWindowProps }) {
             })}
           </div>
 
+          {/* D-pad controls */}
+          <div className="flex flex-col items-center gap-1">
+            <button type="button" onClick={() => move("up")}
+              className="w-12 h-12 rounded-xl bg-[#bbada0] text-white text-xl font-bold hover:bg-[#a89890] active:bg-[#9a8880] transition-colors flex items-center justify-center">
+              ▲
+            </button>
+            <div className="flex gap-1">
+              <button type="button" onClick={() => move("left")}
+                className="w-12 h-12 rounded-xl bg-[#bbada0] text-white text-xl font-bold hover:bg-[#a89890] active:bg-[#9a8880] transition-colors flex items-center justify-center">
+                ◀
+              </button>
+              <button type="button" onClick={() => move("down")}
+                className="w-12 h-12 rounded-xl bg-[#bbada0] text-white text-xl font-bold hover:bg-[#a89890] active:bg-[#9a8880] transition-colors flex items-center justify-center">
+                ▼
+              </button>
+              <button type="button" onClick={() => move("right")}
+                className="w-12 h-12 rounded-xl bg-[#bbada0] text-white text-xl font-bold hover:bg-[#a89890] active:bg-[#9a8880] transition-colors flex items-center justify-center">
+                ▶
+              </button>
+            </div>
+          </div>
+
           {/* New game button */}
           <button
             type="button"
