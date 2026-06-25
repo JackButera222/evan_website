@@ -197,7 +197,7 @@ export default function Game2048Window({ isOpen, onClose, getWindowProps }) {
   const { grid, score, best, over, won } = state;
 
   return (
-    <Rnd {...getWindowProps} dragHandleClassName="g2048-title-bar" cancel=".window-control">
+    <Rnd {...getWindowProps} dragHandleClassName="g2048-title-bar" cancel=".window-control, .g2048-board">
       <motion.div
         initial={{ opacity: 0, y: 16, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -222,7 +222,7 @@ export default function Game2048Window({ isOpen, onClose, getWindowProps }) {
         {/* Game area */}
         <div
           ref={gameAreaRef}
-          className="relative flex flex-1 flex-col items-center justify-center gap-4 bg-[#faf8ef] p-4 select-none"
+          className="g2048-board relative flex flex-1 flex-col items-center justify-center gap-4 bg-[#faf8ef] p-4 select-none"
         >
           {/* Board */}
           <div
