@@ -16,6 +16,7 @@ import ContactsWindow from "./components/windows/ContactsWindow";
 import NotesWindow from "./components/windows/NotesWindow";
 import TrashWindow from "./components/windows/TrashWindow";
 import Game2048Window from "./components/windows/Game2048Window";
+import CameraWindow from "./components/windows/CameraWindow";
 import appleLogo from "./assets/apple_logo.svg.png";
 import mojaveDay from "./assets/wallpaper.png";
 import mojaveNight from "./assets/wallpaper.png";
@@ -44,6 +45,7 @@ function AppInner() {
   const [trashOpen, setTrashOpen] = useState(false);
   const [finderOpen, setFinderOpen] = useState(false);
   const [snakeOpen, setSnakeOpen] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
 
   // Form state
   const [contactSent, setContactSent] = useState(false);
@@ -132,6 +134,27 @@ function AppInner() {
       icon: notes,
       isOpen: notesOpen,
     },
+    {
+      id: "camera",
+      label: "Camera",
+      icon: null,
+      iconNode: (
+        <div className="dock-icon-img h-full w-full flex items-end justify-center pb-0.5 drop-shadow-[0_3px_4px_rgba(0,0,0,0.35)]">
+          <div className="w-full h-full rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(145deg,#1c1c1e,#2c2c2e)" }}>
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[70%] h-[70%]">
+              <rect x="6" y="18" width="52" height="36" rx="6" fill="#3a3a3c" />
+              <rect x="22" y="10" width="20" height="10" rx="3" fill="#3a3a3c" />
+              <circle cx="32" cy="36" r="11" fill="#1c1c1e" />
+              <circle cx="32" cy="36" r="8" fill="#2c2c2e" />
+              <circle cx="32" cy="36" r="5" fill="#48a0ff" opacity="0.9" />
+              <circle cx="28" cy="32" r="1.5" fill="white" opacity="0.6" />
+              <circle cx="50" cy="24" r="3" fill="#48a0ff" opacity="0.7" />
+            </svg>
+          </div>
+        </div>
+      ),
+      isOpen: cameraOpen,
+    },
     { divider: true },
     {
       id: "trash",
@@ -153,6 +176,8 @@ function AppInner() {
       setNotesOpen(true);
     } else if (item.id === "trash") {
       setTrashOpen(true);
+    } else if (item.id === "camera") {
+      setCameraOpen(true);
     }
   };
 
@@ -276,6 +301,12 @@ function AppInner() {
         isOpen={snakeOpen}
         onClose={() => setSnakeOpen(false)}
         getWindowProps={createWindowProps("snake")}
+      />
+
+      <CameraWindow
+        isOpen={cameraOpen}
+        onClose={() => setCameraOpen(false)}
+        getWindowProps={createWindowProps("camera")}
       />
 
       {/* Dock */}

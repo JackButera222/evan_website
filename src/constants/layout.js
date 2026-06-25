@@ -116,6 +116,15 @@ export const WINDOW_CONFIGS = {
     minWidth: 380,
     minHeight: 300,
   },
+  camera: {
+    x: 280,
+    y: 80,
+    width: 420,
+    height: 500,
+    minWidth: 300,
+    minHeight: 380,
+    mobileHeight: 520,
+  },
   snake: {
     x: 320,
     y: 80,
