@@ -3,7 +3,7 @@ import { Rnd } from "react-rnd";
 import { motion } from "framer-motion";
 
 // Barrel distortion strength (0 = none, 1 = heavy fisheye)
-const K = 0.38;
+const K = 0.22;
 
 function applyFisheye(src, dst, w, h) {
   const srcData = src.data;
@@ -46,6 +46,11 @@ export default function CameraWindow({ isOpen, onClose, getWindowProps }) {
   const [ready, setReady] = useState(false);
   const [flash, setFlash] = useState(false);
   const [captured, setCaptured] = useState(null);
+  const [facingMode, setFacingMode] = useState("environment");
+
+  const flipCamera = () => {
+    setFacingMode((f) => (f === "environment" ? "user" : "environment"));
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -53,7 +58,7 @@ export default function CameraWindow({ isOpen, onClose, getWindowProps }) {
     setReady(false);
 
     navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
+      .getUserMedia({ video: { facingMode: { ideal: facingMode }, width: { ideal: 640 }, height: { ideal: 480 } }, audio: false })
       .then((stream) => {
         streamRef.current = stream;
         const video = videoRef.current;
@@ -72,7 +77,7 @@ export default function CameraWindow({ isOpen, onClose, getWindowProps }) {
       streamRef.current = null;
       setReady(false);
     };
-  }, [isOpen]);
+  }, [isOpen, facingMode]);
 
   // Draw fisheye frames to canvas
   useEffect(() => {
@@ -187,7 +192,15 @@ export default function CameraWindow({ isOpen, onClose, getWindowProps }) {
             className="w-14 h-14 rounded-full border-4 border-white bg-white/10 hover:bg-white/20 active:scale-95 transition-all disabled:opacity-40"
           />
 
-          <div className="w-10" />
+          <button
+            type="button"
+            onClick={flipCamera}
+            disabled={!ready}
+            className="w-10 h-10 rounded-full bg-zinc-700 hover:bg-zinc-600 active:scale-95 transition-all disabled:opacity-40 flex items-center justify-center text-white text-lg"
+            aria-label="Flip camera"
+          >
+            🔄
+          </button>
         </div>
       </motion.div>
     </Rnd>
