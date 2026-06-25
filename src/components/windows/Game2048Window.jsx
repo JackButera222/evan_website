@@ -115,6 +115,7 @@ function fontSize(v) {
 export default function Game2048Window({ isOpen, onClose, getWindowProps }) {
   const [state, setState] = useState(() => initGame());
   const touchStart = useRef(null);
+  const gameAreaRef = useRef(null);
 
   const move = useCallback((dir) => {
     setState((prev) => {
@@ -151,25 +152,45 @@ export default function Game2048Window({ isOpen, onClose, getWindowProps }) {
   }, [isOpen, move]);
 
   // touch swipe
-  const onTouchStart = (e) => {
-    e.stopPropagation();
-    const t = e.touches[0];
-    touchStart.current = { x: t.clientX, y: t.clientY };
-  };
-  const onTouchMove = (e) => {
-    e.stopPropagation();
-  };
-  const onTouchEnd = (e) => {
-    e.stopPropagation();
-    if (!touchStart.current) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - touchStart.current.x;
-    const dy = t.clientY - touchStart.current.y;
-    touchStart.current = null;
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
-    if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? "right" : "left");
-    else move(dy > 0 ? "down" : "up");
-  };
+  // Native non-passive touch listeners so we can preventDefault and stop
+  // Safari from scrolling/panning the page while swiping on the board.
+  useEffect(() => {
+    const el = gameAreaRef.current;
+    if (!el) return;
+
+    const onStart = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const t = e.touches[0];
+      touchStart.current = { x: t.clientX, y: t.clientY };
+    };
+    const onMove = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    const onEnd = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!touchStart.current) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - touchStart.current.x;
+      const dy = t.clientY - touchStart.current.y;
+      touchStart.current = null;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+      if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? "right" : "left");
+      else move(dy > 0 ? "down" : "up");
+    };
+
+    const opts = { passive: false };
+    el.addEventListener("touchstart", onStart, opts);
+    el.addEventListener("touchmove", onMove, opts);
+    el.addEventListener("touchend", onEnd, opts);
+    return () => {
+      el.removeEventListener("touchstart", onStart, opts);
+      el.removeEventListener("touchmove", onMove, opts);
+      el.removeEventListener("touchend", onEnd, opts);
+    };
+  }, [move]);
 
   if (!isOpen) return null;
 
@@ -200,10 +221,8 @@ export default function Game2048Window({ isOpen, onClose, getWindowProps }) {
 
         {/* Game area */}
         <div
+          ref={gameAreaRef}
           className="relative flex flex-1 flex-col items-center justify-center gap-4 bg-[#faf8ef] p-4 select-none"
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
         >
           {/* Board */}
           <div
