@@ -24,6 +24,7 @@ import mail from "./assets/mail.png";
 import notes from "./assets/notes.png";
 import photos from "./assets/photos.png";
 import trash from "./assets/trash.png";
+import camera from "./assets/camera.webp";
 
 function AppInner() {
   const viewportSize = useViewportSize();
@@ -137,22 +138,7 @@ function AppInner() {
     {
       id: "camera",
       label: "Camera",
-      icon: null,
-      iconNode: (
-        <div className="dock-icon-img h-full w-full flex items-end justify-center pb-0.5 drop-shadow-[0_3px_4px_rgba(0,0,0,0.35)]">
-          <div className="w-full h-full rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(145deg,#1c1c1e,#2c2c2e)" }}>
-            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[70%] h-[70%]">
-              <rect x="6" y="18" width="52" height="36" rx="6" fill="#3a3a3c" />
-              <rect x="22" y="10" width="20" height="10" rx="3" fill="#3a3a3c" />
-              <circle cx="32" cy="36" r="11" fill="#1c1c1e" />
-              <circle cx="32" cy="36" r="8" fill="#2c2c2e" />
-              <circle cx="32" cy="36" r="5" fill="#48a0ff" opacity="0.9" />
-              <circle cx="28" cy="32" r="1.5" fill="white" opacity="0.6" />
-              <circle cx="50" cy="24" r="3" fill="#48a0ff" opacity="0.7" />
-            </svg>
-          </div>
-        </div>
-      ),
+      icon: camera,
       isOpen: cameraOpen,
     },
     { divider: true },
