@@ -12,11 +12,11 @@ function QuickTimeWindow({ placement, viewport }) {
       enableResizing={false}
       dragHandleClassName="quicktime-drag-handle"
     >
-      <div className="quicktime-drag-handle h-full w-full touch-none cursor-grab active:cursor-grabbing">
+      <div className="quicktime-drag-handle h-full w-full touch-none cursor-grab overflow-hidden rounded-[3%] active:cursor-grabbing">
         <img
           src={quicktimeGif}
           alt="QuickTime video"
-          className="block h-full w-full object-contain pointer-events-none"
+          className="block h-full w-full object-cover pointer-events-none"
         />
       </div>
     </Rnd>
