@@ -1,30 +1,18 @@
-import { useState } from "react";
 import { Rnd } from "react-rnd";
 import quicktimeGif from "../../assets/quicktime-video.gif";
 
 function QuickTimeWindow({ placement, viewport }) {
   const { x, y, width, height } = placement;
-  const [pos, setPos] = useState({ x, y });
-
-  const [prevViewport, setPrevViewport] = useState(viewport);
-  if (
-    prevViewport.width !== viewport.width ||
-    prevViewport.height !== viewport.height
-  ) {
-    setPrevViewport(viewport);
-    setPos({ x, y });
-  }
 
   return (
     <Rnd
-      position={pos}
-      size={{ width, height }}
+      key={`${viewport.width}x${viewport.height}`}
+      default={{ x, y, width, height }}
       bounds=".desktop-drag-bounds"
       enableResizing={false}
       dragHandleClassName="quicktime-drag-handle"
-      onDragStop={(_event, data) => setPos({ x: data.x, y: data.y })}
     >
-      <div className="quicktime-drag-handle h-full w-full cursor-grab active:cursor-grabbing">
+      <div className="quicktime-drag-handle h-full w-full touch-none cursor-grab active:cursor-grabbing">
         <img
           src={quicktimeGif}
           alt="QuickTime video"
