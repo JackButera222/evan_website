@@ -91,14 +91,17 @@ export const WINDOW_CONFIGS = {
     height: 520,
     minWidth: 360,
     minHeight: 420,
+    mobileHeight: 520,
+
   },
   notes: {
     x: 300,
-    y: 80,
+    y: 130,
     width: 560,
-    height: 540,
+    height: 640,
     minWidth: 360,
     minHeight: 360,
+    mobileHeight: 520,
   },
   trash: {
     x: 360,

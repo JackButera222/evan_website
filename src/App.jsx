@@ -133,7 +133,7 @@ function AppInner() {
       id: "notes",
       label: "Notes",
       icon: notes,
-      iconClassName: "scale-[0.93]",
+      iconClassName: "scale-[0.95]",
       isOpen: notesOpen,
     },
     {

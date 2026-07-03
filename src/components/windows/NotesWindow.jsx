@@ -45,7 +45,7 @@ function NotesWindow({ isOpen, onClose, now, getWindowProps }) {
             >
               Notes
             </button>
-            <div className="text-sm font-semibold drop-shadow">About Evan</div>
+            <div className="text-sm font-semibold drop-shadow">About Vawn</div>
             <button
               type="button"
               aria-label="New Note"
@@ -78,10 +78,11 @@ function NotesWindow({ isOpen, onClose, now, getWindowProps }) {
               }}
             >
               <article className="space-y-0 px-11 pb-8 pt-[8px] font-['Marker_Felt','Comic_Sans_MS',cursive] text-[17px] leading-[29px] tracking-normal text-[#160f05]">
-                <p>Videographer + photographer based in LA.</p>
-                <p>10+ years filming for music artists.</p>
-                <p>Short form content, live shows, music videos.</p>
-                <p>Shot for YEAT, Polo G, Sophie Powers, Eva Grace.</p>
+                <p>About:</p>
+                <p>Videographer + photographer based in LA</p>
+                <p>10+ years filming for music artists</p>
+                <p>Short form content, live shows, music videos</p>
+                <p>Shot for YEAT, Polo G, Sophie Powers, Eva Grace</p>
                 <p>&nbsp;</p>
                 <p>Services:</p>
                 <p>- Music videos</p>
