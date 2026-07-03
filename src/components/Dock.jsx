@@ -80,7 +80,7 @@ function DockIcon({ item, mouseX, magnify, baseSize, onLaunch }) {
             src={item.icon}
             alt=""
             draggable={false}
-            className={`dock-icon-img h-full w-full select-none object-contain object-bottom drop-shadow-[0_3px_4px_rgba(0,0,0,0.35)] ${
+            className={`dock-icon-img h-full w-full select-none object-contain object-center drop-shadow-[0_3px_4px_rgba(0,0,0,0.35)] ${
               item.iconClassName ?? ""
             }`}
           />
