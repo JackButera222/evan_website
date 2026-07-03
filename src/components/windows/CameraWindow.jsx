@@ -126,6 +126,31 @@ export default function CameraWindow({ isOpen, onClose, getWindowProps }) {
     setCaptured(canvas.toDataURL("image/jpeg", 0.92));
   };
 
+  const savePhoto = async () => {
+    if (!captured) return;
+    const res = await fetch(captured);
+    const blob = await res.blob();
+    const file = new File([blob], `photo-${Date.now()}.jpg`, { type: "image/jpeg" });
+
+    // Use native share sheet on mobile (lets user save to Photos on iOS/Android)
+    if (navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: "Photo" });
+        return;
+      } catch {
+        // user cancelled or share failed — fall through to download
+      }
+    }
+
+    // Desktop fallback: trigger download
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -179,10 +204,16 @@ export default function CameraWindow({ isOpen, onClose, getWindowProps }) {
 
         {/* Controls */}
         <div className="flex items-center justify-between bg-zinc-900 px-6 py-3">
-          {/* Last capture thumbnail */}
-          <div className="w-10 h-10 rounded-lg overflow-hidden bg-zinc-800 border border-white/10">
+          {/* Last capture thumbnail — tap to save */}
+          <button
+            type="button"
+            onClick={savePhoto}
+            disabled={!captured}
+            aria-label="Save photo"
+            className="w-10 h-10 rounded-lg overflow-hidden bg-zinc-800 border border-white/10 disabled:opacity-40 active:scale-95 transition-transform"
+          >
             {captured && <img src={captured} alt="capture" className="w-full h-full object-cover" />}
-          </div>
+          </button>
 
           {/* Shutter */}
           <button
