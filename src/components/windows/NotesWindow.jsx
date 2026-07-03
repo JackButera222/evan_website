@@ -78,11 +78,19 @@ function NotesWindow({ isOpen, onClose, now, getWindowProps }) {
               }}
             >
               <article className="space-y-0 px-11 pb-8 pt-[8px] font-['Marker_Felt','Comic_Sans_MS',cursive] text-[17px] leading-[29px] tracking-normal text-[#160f05]">
-                <p>Evan is a photographer.</p>
-                <p>Portraits, events, editorial.</p>
-                <p>Keep sessions relaxed.</p>
-                <p>Make every frame intentional.</p>
-                <p>Available in New York.</p>
+                <p>Videographer + photographer based in LA.</p>
+                <p>10+ years filming for music artists.</p>
+                <p>Short form content, live shows, music videos.</p>
+                <p>Shot for YEAT, Polo G, Sophie Powers, Eva Grace.</p>
+                <p>&nbsp;</p>
+                <p>Services:</p>
+                <p>- Music videos</p>
+                <p>- Short form content (TikTok, Reels)</p>
+                <p>- Live performance + tour coverage</p>
+                <p>- BTS + studio sessions</p>
+                <p>- Artist portraits + cover art</p>
+                <p>- Editing + color grading</p>
+                <p>&nbsp;</p>
                 <p>Available to travel.</p>
                 <p>Send project date + location.</p>
               </article>
