@@ -18,8 +18,9 @@ import NotesWindow from "./components/windows/NotesWindow";
 import TrashWindow from "./components/windows/TrashWindow";
 import Game2048Window from "./components/windows/Game2048Window";
 import CameraWindow from "./components/windows/CameraWindow";
-import AnimatedBackground from "./components/AnimatedBackground";
 import appleLogo from "./assets/apple_logo.svg.png";
+import mojaveDay from "./assets/mojave-day.jpg";
+import mojaveNight from "./assets/mojave-night.jpg";
 import notes from "./assets/notes.png";
 import photos from "./assets/photos.png";
 import trash from "./assets/trash.png";
@@ -47,9 +48,14 @@ function AppInner() {
   const [snakeOpen, setSnakeOpen] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
 
-  // Apple menu + power state ("sleep" dims the screen, "off" fakes a shutdown)
+  // Apple menu + power state ("off" fakes a shutdown)
   const [appleMenuOpen, setAppleMenuOpen] = useState(false);
   const [powerState, setPowerState] = useState(null);
+
+  // Day/night wallpaper — follows the clock until the user toggles it manually
+  const [nightOverride, setNightOverride] = useState(null);
+  const autoNight = now.getHours() < 6 || now.getHours() >= 18;
+  const isNight = nightOverride ?? autoNight;
 
   // Form state
   const [contactSent, setContactSent] = useState(false);
@@ -166,8 +172,15 @@ function AppInner() {
 
   return (
     <div className="relative h-[100dvh] w-screen overflow-hidden bg-zinc-950 text-white">
-      {/* Background */}
-      <AnimatedBackground />
+      {/* Background — Mojave day/night with a soft crossfade */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${mojaveDay})` }}
+      />
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
+        style={{ backgroundImage: `url(${mojaveNight})`, opacity: isNight ? 1 : 0 }}
+      />
       <div
         aria-hidden="true"
         className="desktop-drag-bounds pointer-events-none absolute inset-x-0 bottom-0 top-8"
@@ -216,12 +229,12 @@ function AppInner() {
                   <button
                     type="button"
                     onClick={() => {
-                      setPowerState("sleep");
+                      setNightOverride(!isNight);
                       setAppleMenuOpen(false);
                     }}
                     className="block w-full px-4 py-1 text-left hover:bg-blue-500"
                   >
-                    Sleep
+                    {isNight ? "Wake Up" : "Sleep"}
                   </button>
                   <button
                     type="button"
@@ -385,7 +398,7 @@ function AppInner() {
             key="power-overlay"
             role="button"
             tabIndex={0}
-            aria-label={powerState === "sleep" ? "Asleep — click to wake" : "Powered off — click to turn on"}
+            aria-label="Powered off — click to turn on"
             ref={(el) => el?.focus()}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
