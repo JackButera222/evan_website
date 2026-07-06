@@ -51,7 +51,7 @@ export function getDesktopLayout(viewportSize, isMobile) {
   const snakeY = Math.max(top, Math.round(vh * 0.7));
 
   // Mail ("hit me up") icon on the right side, above the snake icon
-  const mailX = Math.min(vw - margin - iconBoxWidth, Math.round(vw * 0.78));
+  const mailX = Math.min(vw - margin - iconBoxWidth, Math.round(vw * 0.82));
   const mailY = Math.max(top, Math.round(vh * 0.4));
 
   const layout = {

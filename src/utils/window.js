@@ -16,7 +16,7 @@ export function getDefaultPosition(item, viewportSize) {
 }
 
 export function getWindowProps(config, viewportSize, isMobile) {
-  const { x, y, width, height } = config;
+  const { width, height } = config;
   const margin = isMobile ? 20 : 24;
   const bottomReserve = isMobile ? 132 : 96;
   const topBarrier = isMobile ? 34 : 32;
@@ -27,25 +27,17 @@ export function getWindowProps(config, viewportSize, isMobile) {
   );
   const windowWidth = Math.min(isMobile ? 360 : width, availableWidth);
   const windowHeight = Math.min(isMobile ? (config.mobileHeight ?? 380) : height, availableHeight);
-  const maxX = Math.max(margin, viewportSize.width - windowWidth - margin);
-  const maxY = Math.max(
-    margin,
-    viewportSize.height - windowHeight - bottomReserve,
-  );
-  const minY = Math.max(topBarrier, margin);
-
-  const mobileX = Math.round((viewportSize.width - windowWidth) / 2);
-  const mobileY = Math.max(
+  // All windows open centered in the viewport (clamped below the menu bar)
+  const centeredX = Math.round((viewportSize.width - windowWidth) / 2);
+  const centeredY = Math.max(
     topBarrier,
-    Math.round((viewportSize.height - windowHeight) / 2) - 30,
+    Math.round((viewportSize.height - windowHeight) / 2) - (isMobile ? 30 : 0),
   );
 
   return {
     default: {
-      x: isMobile ? mobileX : Math.min(Math.max(x, margin), maxX) + 150,
-      y: isMobile
-        ? mobileY
-        : Math.min(Math.max(y, minY), maxY) - 50,
+      x: centeredX,
+      y: centeredY,
       width: windowWidth,
       height: windowHeight,
     },
