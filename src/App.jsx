@@ -18,9 +18,8 @@ import NotesWindow from "./components/windows/NotesWindow";
 import TrashWindow from "./components/windows/TrashWindow";
 import Game2048Window from "./components/windows/Game2048Window";
 import CameraWindow from "./components/windows/CameraWindow";
+import AnimatedBackground from "./components/AnimatedBackground";
 import appleLogo from "./assets/apple_logo.svg.png";
-import mojaveDay from "./assets/wallpaper.png";
-import mojaveNight from "./assets/wallpaper.png";
 import notes from "./assets/notes.png";
 import photos from "./assets/photos.png";
 import trash from "./assets/trash.png";
@@ -106,7 +105,6 @@ function AppInner() {
   };
 
   // Date/time formatting
-  const isNight = now.getHours() < 6 || now.getHours() >= 18;
   const menuDateTime = [
     now.toLocaleString([], { weekday: "short" }),
     now.toLocaleString([], { month: "short" }),
@@ -169,19 +167,7 @@ function AppInner() {
   return (
     <div className="relative h-[100dvh] w-screen overflow-hidden bg-zinc-950 text-white">
       {/* Background */}
-      <div
-        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
-        style={{
-          backgroundImage: `url(${mojaveDay})`,
-        }}
-      />
-      <div
-        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
-        style={{
-          backgroundImage: `url(${mojaveNight})`,
-          opacity: isNight ? 1 : 0,
-        }}
-      />
+      <AnimatedBackground />
       <div
         aria-hidden="true"
         className="desktop-drag-bounds pointer-events-none absolute inset-x-0 bottom-0 top-8"

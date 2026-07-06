@@ -241,3 +241,91 @@
     background-position: -200% 0;
   }
 }
+
+/* ── Animated aurora background ─────────────────────────────────────────── */
+.aurora-bg {
+  background: linear-gradient(160deg, #1b1035 0%, #2a1650 35%, #3b1a5e 60%, #1c1240 100%);
+}
+
+.aurora-blob {
+  position: absolute;
+  width: 65vmax;
+  height: 65vmax;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+  will-change: transform;
+}
+
+.aurora-blob-1 {
+  background: radial-gradient(circle, rgba(236, 96, 202, 0.75), transparent 65%);
+  top: -20%;
+  left: -10%;
+  animation: aurora-drift-1 46s ease-in-out infinite alternate;
+}
+
+.aurora-blob-2 {
+  background: radial-gradient(circle, rgba(98, 108, 255, 0.7), transparent 65%);
+  bottom: -25%;
+  right: -15%;
+  animation: aurora-drift-2 58s ease-in-out infinite alternate;
+}
+
+.aurora-blob-3 {
+  background: radial-gradient(circle, rgba(255, 140, 92, 0.45), transparent 62%);
+  top: 30%;
+  left: 45%;
+  width: 50vmax;
+  height: 50vmax;
+  animation: aurora-drift-3 52s ease-in-out infinite alternate;
+}
+
+.aurora-blob-4 {
+  background: radial-gradient(circle, rgba(84, 200, 255, 0.4), transparent 65%);
+  top: 55%;
+  left: -15%;
+  width: 55vmax;
+  height: 55vmax;
+  animation: aurora-drift-4 64s ease-in-out infinite alternate;
+}
+
+.aurora-stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 34% 64%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 48% 12%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 63% 42%, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1.5px 1.5px at 74% 76%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 86% 18%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 22% 84%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 92% 58%, rgba(255, 255, 255, 0.65), transparent),
+    radial-gradient(1px 1px at 55% 90%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 5% 50%, rgba(255, 255, 255, 0.5), transparent);
+  animation: aurora-twinkle 9s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift-1 {
+  to { transform: translate(18vw, 12vh) scale(1.15); }
+}
+@keyframes aurora-drift-2 {
+  to { transform: translate(-14vw, -10vh) scale(1.2); }
+}
+@keyframes aurora-drift-3 {
+  to { transform: translate(-16vw, 14vh) scale(0.9); }
+}
+@keyframes aurora-drift-4 {
+  to { transform: translate(12vw, -12vh) scale(1.1); }
+}
+@keyframes aurora-twinkle {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob,
+  .aurora-stars {
+    animation: none;
+  }
+}
