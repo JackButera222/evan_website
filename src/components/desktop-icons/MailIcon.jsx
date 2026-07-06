@@ -44,7 +44,7 @@ function MailIcon({ placement, viewport, onClick }) {
           <img src={mailIcon} alt="" aria-hidden="true" className="pointer-events-none h-full w-full object-contain" />
         </span>
         <span className="w-full px-1 text-center text-xs font-semibold leading-tight text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
-          hit me up
+          hit me up!!
         </span>
       </button>
     </Rnd>
