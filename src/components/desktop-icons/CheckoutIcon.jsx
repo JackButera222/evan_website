@@ -5,6 +5,7 @@ import contentPack from "../../assets/content-pack-logo-square.png";
 function CheckoutIcon({ placement, viewport, onClick }) {
   const { x, y, width, height, iconSize } = placement;
   const [pos, setPos] = useState({ x, y });
+  const [dragging, setDragging] = useState(false);
   const wasDraggedRef = useRef(false);
   const pointerStartRef = useRef({ x: 0, y: 0 });
 
@@ -34,9 +35,13 @@ function CheckoutIcon({ placement, viewport, onClick }) {
       onDrag={(_event, data) => {
         if (Math.hypot(data.x - pos.x, data.y - pos.y) > 8) {
           wasDraggedRef.current = true;
+          setDragging(true);
         }
       }}
-      onDragStop={(_event, data) => setPos({ x: data.x, y: data.y })}
+      onDragStop={(_event, data) => {
+        setDragging(false);
+        setPos({ x: data.x, y: data.y });
+      }}
     >
       <button
         type="button"
@@ -51,7 +56,9 @@ function CheckoutIcon({ placement, viewport, onClick }) {
             onClick();
           }
         }}
-        className="flex h-full w-full touch-none cursor-pointer select-none flex-col items-center justify-start gap-1 text-white transition-transform duration-150 hover:scale-110"
+        className={`flex h-full w-full touch-none cursor-pointer select-none flex-col items-center justify-start gap-1 text-white transition-transform duration-200 ease-out ${
+          dragging ? "-rotate-6 scale-110 drop-shadow-2xl" : "hover:scale-110"
+        }`}
       >
         <span
           className="relative drop-shadow-xl"

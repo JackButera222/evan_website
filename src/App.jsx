@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useMediaQuery, useViewportSize } from "./hooks";
 import { galleryPhotos, getDesktopLayout, WINDOW_CONFIGS } from "./constants";
 import { getWindowProps } from "./utils/window";
@@ -392,30 +392,42 @@ function AppInner() {
         )}
       </AnimatePresence>
 
-      {/* Sleep / shutdown overlay — click or press any key to wake */}
-      {powerState && (
-        <div
-          role="button"
-          tabIndex={0}
-          aria-label={powerState === "sleep" ? "Asleep — click to wake" : "Powered off — click to turn on"}
-          ref={(el) => el?.focus()}
-          onClick={() => {
-            if (powerState === "off") window.location.reload();
-            else setPowerState(null);
-          }}
-          onKeyDown={() => {
-            if (powerState === "off") window.location.reload();
-            else setPowerState(null);
-          }}
-          className="fixed inset-0 z-[30000] cursor-pointer bg-black outline-none"
-        >
-          {powerState === "off" && (
-            <span className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs text-white/25">
-              click anywhere to turn on
-            </span>
-          )}
-        </div>
-      )}
+      {/* Sleep / shutdown overlay — fades to black, click or key to wake */}
+      <AnimatePresence>
+        {powerState && (
+          <motion.div
+            key="power-overlay"
+            role="button"
+            tabIndex={0}
+            aria-label={powerState === "sleep" ? "Asleep — click to wake" : "Powered off — click to turn on"}
+            ref={(el) => el?.focus()}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.9, ease: "easeInOut" }}
+            onClick={() => {
+              if (powerState === "off") window.location.reload();
+              else setPowerState(null);
+            }}
+            onKeyDown={() => {
+              if (powerState === "off") window.location.reload();
+              else setPowerState(null);
+            }}
+            className="fixed inset-0 z-[30000] cursor-pointer bg-black outline-none"
+          >
+            {powerState === "off" && (
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.4, duration: 0.8 }}
+                className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs text-white/25"
+              >
+                click anywhere to turn on
+              </motion.span>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
