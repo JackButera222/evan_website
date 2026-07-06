@@ -31,7 +31,7 @@ export function getWindowProps(config, viewportSize, isMobile) {
   const centeredX = Math.round((viewportSize.width - windowWidth) / 2);
   const centeredY = Math.max(
     topBarrier,
-    Math.round((viewportSize.height - windowHeight) / 2) - (isMobile ? 30 : 0),
+    Math.round((viewportSize.height - windowHeight) / 2) - (isMobile ? 30 : 40),
   );
 
   return {
