@@ -10,6 +10,7 @@ import Dock from "./components/Dock";
 import CheckoutIcon from "./components/desktop-icons/CheckoutIcon";
 import QuickTimeWindow from "./components/desktop-icons/QuickTimeWindow";
 import SnakeIcon from "./components/desktop-icons/SnakeIcon";
+import MailIcon from "./components/desktop-icons/MailIcon";
 import FinderWindow from "./components/windows/FinderWindow";
 import PhotosWindow from "./components/windows/PhotosWindow";
 import ContactsWindow from "./components/windows/ContactsWindow";
@@ -20,7 +21,6 @@ import CameraWindow from "./components/windows/CameraWindow";
 import appleLogo from "./assets/apple_logo.svg.png";
 import mojaveDay from "./assets/wallpaper.png";
 import mojaveNight from "./assets/wallpaper.png";
-import mail from "./assets/mail.png";
 import notes from "./assets/notes.png";
 import photos from "./assets/photos.png";
 import trash from "./assets/trash.png";
@@ -117,12 +117,6 @@ function AppInner() {
 
   // Dock items configuration
   const dockItems = [
-    {
-      id: "mail",
-      label: "Mail",
-      icon: mail,
-      isOpen: contactsOpen,
-    },
     {
       id: "photos",
       label: "Photos",
@@ -235,6 +229,16 @@ function AppInner() {
         placement={desktopLayout.snake}
         viewport={viewportSize}
         onClick={() => setSnakeOpen(true)}
+      />
+
+      <MailIcon
+        placement={desktopLayout.mail}
+        viewport={viewportSize}
+        onClick={() => {
+          setContactsOpen(true);
+          setContactSent(false);
+          setBookingSent(false);
+        }}
       />
 
       {/* QuickTime Window */}
