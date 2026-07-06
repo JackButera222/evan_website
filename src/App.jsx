@@ -10,19 +10,21 @@ import Dock from "./components/Dock";
 import CheckoutIcon from "./components/desktop-icons/CheckoutIcon";
 import QuickTimeWindow from "./components/desktop-icons/QuickTimeWindow";
 import SnakeIcon from "./components/desktop-icons/SnakeIcon";
+import MailIcon from "./components/desktop-icons/MailIcon";
 import FinderWindow from "./components/windows/FinderWindow";
 import PhotosWindow from "./components/windows/PhotosWindow";
 import ContactsWindow from "./components/windows/ContactsWindow";
 import NotesWindow from "./components/windows/NotesWindow";
 import TrashWindow from "./components/windows/TrashWindow";
-import SnakeWindow from "./components/windows/SnakeWindow";
+import Game2048Window from "./components/windows/Game2048Window";
+import CameraWindow from "./components/windows/CameraWindow";
 import appleLogo from "./assets/apple_logo.svg.png";
 import mojaveDay from "./assets/wallpaper.png";
 import mojaveNight from "./assets/wallpaper.png";
-import mail from "./assets/mail.png";
 import notes from "./assets/notes.png";
 import photos from "./assets/photos.png";
 import trash from "./assets/trash.png";
+import camera from "./assets/camera.webp";
 
 function AppInner() {
   const viewportSize = useViewportSize();
@@ -44,6 +46,7 @@ function AppInner() {
   const [trashOpen, setTrashOpen] = useState(false);
   const [finderOpen, setFinderOpen] = useState(false);
   const [snakeOpen, setSnakeOpen] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
 
   // Form state
   const [contactSent, setContactSent] = useState(false);
@@ -59,18 +62,6 @@ function AppInner() {
     return () => window.clearInterval(intervalId);
   }, []);
 
-  // Handle escape key to close preview
-  useEffect(() => {
-    if (!selectedMedia) return undefined;
-
-    const onKey = (e) => {
-      if (e.key === "Escape") setSelectedMedia(null);
-    };
-
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [selectedMedia]);
-
   // Filtered gallery items
   const displayedGallery = galleryPhotos.filter((item) => {
     if (mediaFilter === "all") return true;
@@ -79,6 +70,32 @@ function AppInner() {
     return true;
   });
 
+  const selectedMediaIndex = selectedMedia
+    ? displayedGallery.findIndex((p) => p === selectedMedia)
+    : -1;
+
+  const goToPrevPhoto = () => {
+    if (selectedMediaIndex > 0) setSelectedMedia(displayedGallery[selectedMediaIndex - 1]);
+  };
+  const goToNextPhoto = () => {
+    if (selectedMediaIndex < displayedGallery.length - 1)
+      setSelectedMedia(displayedGallery[selectedMediaIndex + 1]);
+  };
+
+  // Handle escape/arrow keys for preview
+  useEffect(() => {
+    if (!selectedMedia) return undefined;
+
+    const onKey = (e) => {
+      if (e.key === "Escape") setSelectedMedia(null);
+      if (e.key === "ArrowLeft") goToPrevPhoto();
+      if (e.key === "ArrowRight") goToNextPhoto();
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedMedia, selectedMediaIndex]);
+
   // Checkout click handler (drag-vs-click is handled inside CheckoutIcon)
   const openGHLCheckout = () => {
     window.open("https://tripodvawn.com/", "_blank", "noopener,noreferrer");
@@ -86,14 +103,12 @@ function AppInner() {
 
   // Date/time formatting
   const isNight = now.getHours() < 6 || now.getHours() >= 18;
-  const menuDateTime = now.toLocaleString([], {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+  const menuDateTime = [
+    now.toLocaleString([], { weekday: "short" }),
+    now.toLocaleString([], { month: "short" }),
+    now.toLocaleString([], { day: "numeric" }),
+    now.toLocaleString([], { hour: "numeric", minute: "2-digit", second: "2-digit" }),
+  ].join(" ");
 
   // Create window props helper
   const createWindowProps = (configKey) => {
@@ -102,12 +117,6 @@ function AppInner() {
 
   // Dock items configuration
   const dockItems = [
-    {
-      id: "mail",
-      label: "Mail",
-      icon: mail,
-      isOpen: contactsOpen,
-    },
     {
       id: "photos",
       label: "Photos",
@@ -118,7 +127,14 @@ function AppInner() {
       id: "notes",
       label: "Notes",
       icon: notes,
+      iconClassName: "scale-[0.95]",
       isOpen: notesOpen,
+    },
+    {
+      id: "camera",
+      label: "Camera",
+      icon: camera,
+      isOpen: cameraOpen,
     },
     { divider: true },
     {
@@ -141,6 +157,8 @@ function AppInner() {
       setNotesOpen(true);
     } else if (item.id === "trash") {
       setTrashOpen(true);
+    } else if (item.id === "camera") {
+      setCameraOpen(true);
     }
   };
 
@@ -213,6 +231,16 @@ function AppInner() {
         onClick={() => setSnakeOpen(true)}
       />
 
+      <MailIcon
+        placement={desktopLayout.mail}
+        viewport={viewportSize}
+        onClick={() => {
+          setContactsOpen(true);
+          setContactSent(false);
+          setBookingSent(false);
+        }}
+      />
+
       {/* QuickTime Window */}
       <QuickTimeWindow
         placement={desktopLayout.quicktime}
@@ -260,17 +288,28 @@ function AppInner() {
         getWindowProps={createWindowProps("trash")}
       />
 
-      <SnakeWindow
+      <Game2048Window
         isOpen={snakeOpen}
         onClose={() => setSnakeOpen(false)}
         getWindowProps={createWindowProps("snake")}
+      />
+
+      <CameraWindow
+        isOpen={cameraOpen}
+        onClose={() => setCameraOpen(false)}
+        getWindowProps={createWindowProps("camera")}
       />
 
       {/* Dock */}
       <Dock items={dockItems} isMobile={isMobile} onLaunch={handleDockLaunch} />
 
       {/* Global Preview Overlay */}
-      <GlobalPreview media={selectedMedia} onClose={() => setSelectedMedia(null)} />
+      <GlobalPreview
+        media={selectedMedia}
+        onClose={() => setSelectedMedia(null)}
+        onPrev={selectedMediaIndex > 0 ? goToPrevPhoto : null}
+        onNext={selectedMediaIndex < displayedGallery.length - 1 ? goToNextPhoto : null}
+      />
 
       {/* Lock screen */}
       <AnimatePresence>

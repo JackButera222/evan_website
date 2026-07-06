@@ -1,4 +1,4 @@
-function GlobalPreview({ media, onClose }) {
+function GlobalPreview({ media, onClose, onPrev, onNext }) {
   if (!media) return null;
 
   return (
@@ -25,11 +25,27 @@ function GlobalPreview({ media, onClose }) {
             />
           )}
 
-          <div className="mt-3 flex justify-end">
+          <div className="mt-3 flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={onPrev}
+                disabled={!onPrev}
+                className="rounded-md bg-white/10 px-3 py-1 text-sm text-white disabled:opacity-30 hover:bg-white/20 transition-colors"
+              >
+                ← Prev
+              </button>
+              <button
+                type="button"
+                onClick={onNext}
+                disabled={!onNext}
+                className="rounded-md bg-white/10 px-3 py-1 text-sm text-white disabled:opacity-30 hover:bg-white/20 transition-colors"
+              >
+                Next →
+              </button>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md bg-white/10 px-3 py-1 text-sm text-white"
+              className="rounded-md bg-white/10 px-3 py-1 text-sm text-white hover:bg-white/20 transition-colors"
             >
               Close
             </button>

@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
 import { Rnd } from "react-rnd";
+import mailIcon from "../../assets/mail.png";
 
-function SnakeIcon({ placement, viewport, onClick }) {
+function MailIcon({ placement, viewport, onClick }) {
   const { x, y, width, height, iconSize } = placement;
   const [pos, setPos] = useState({ x, y });
   const wasDraggedRef = useRef(false);
@@ -30,7 +31,7 @@ function SnakeIcon({ placement, viewport, onClick }) {
     >
       <button
         type="button"
-        aria-label="Open 2048"
+        aria-label="Open hit me up"
         onPointerDown={(e) => { pointerStartRef.current = { x: e.clientX, y: e.clientY }; }}
         onPointerUp={(e) => {
           const dx = e.clientX - pointerStartRef.current.x;
@@ -39,18 +40,15 @@ function SnakeIcon({ placement, viewport, onClick }) {
         }}
         className="flex h-full w-full touch-none cursor-pointer select-none flex-col items-center justify-start gap-1 text-white transition-transform duration-150 hover:scale-110"
       >
-        <span
-          className="relative flex items-center justify-center rounded-2xl drop-shadow-xl"
-          style={{ width: iconSize, height: iconSize, background: "#bbada0" }}
-        >
-          <span className="font-black text-white leading-none" style={{ fontSize: iconSize * 0.32 }}>2048</span>
+        <span className="relative drop-shadow-xl" style={{ width: iconSize, height: iconSize }}>
+          <img src={mailIcon} alt="" aria-hidden="true" className="pointer-events-none h-full w-full object-contain" />
         </span>
         <span className="w-full px-1 text-center text-xs font-semibold leading-tight text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
-          2048
+          hit me up!!
         </span>
       </button>
     </Rnd>
   );
 }
 
-export default SnakeIcon;
+export default MailIcon;

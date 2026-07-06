@@ -50,7 +50,11 @@ export function getDesktopLayout(viewportSize, isMobile) {
   const snakeX = Math.min(vw - margin - iconBoxWidth, Math.round(vw * 0.5));
   const snakeY = Math.max(top, Math.round(vh * 0.7));
 
-  return {
+  // Mail ("hit me up") icon on the right side, above the snake icon
+  const mailX = Math.min(vw - margin - iconBoxWidth, Math.round(vw * 0.78));
+  const mailY = Math.max(top, Math.round(vh * 0.4));
+
+  const layout = {
     quicktime: {
       x: quicktimeX,
       y: quicktimeY,
@@ -64,6 +68,13 @@ export function getDesktopLayout(viewportSize, isMobile) {
       height: iconBoxHeight,
       iconSize,
     },
+    mail: {
+      x: mailX,
+      y: mailY,
+      width: iconBoxWidth,
+      height: iconBoxHeight,
+      iconSize,
+    },
     snake: {
       x: snakeX,
       y: snakeY,
@@ -72,6 +83,36 @@ export function getDesktopLayout(viewportSize, isMobile) {
       iconSize,
     },
   };
+
+  // Guarantee no default placements overlap: walk the items in order and push
+  // any colliding item below the earlier one (wrapping horizontally if it
+  // would run off the bottom of the screen).
+  const pad = 8;
+  const intersects = (a, b) =>
+    a.x < b.x + b.width + pad &&
+    a.x + a.width + pad > b.x &&
+    a.y < b.y + b.height + pad &&
+    a.y + a.height + pad > b.y;
+
+  const order = ["quicktime", "checkout", "mail", "snake"];
+  for (let i = 1; i < order.length; i++) {
+    const item = layout[order[i]];
+    for (let guard = 0; guard < 20; guard++) {
+      const hit = order.slice(0, i).find((k) => intersects(item, layout[k]));
+      if (!hit) break;
+      item.y = layout[hit].y + layout[hit].height + gap;
+      if (item.y + item.height > vh - margin) {
+        // No room below: shift sideways instead and retry from the top.
+        item.y = top;
+        item.x = Math.max(
+          margin,
+          Math.min(vw - margin - item.width, item.x + item.width + gap),
+        );
+      }
+    }
+  }
+
+  return layout;
 }
 
 export const WINDOW_CONFIGS = {
@@ -82,6 +123,7 @@ export const WINDOW_CONFIGS = {
     height: 600,
     minWidth: 380,
     minHeight: 300,
+    mobileHeight: 520,
   },
   contacts: {
     x: 250,
@@ -90,14 +132,17 @@ export const WINDOW_CONFIGS = {
     height: 520,
     minWidth: 360,
     minHeight: 420,
+    mobileHeight: 520,
+
   },
   notes: {
     x: 300,
-    y: 80,
+    y: 130,
     width: 560,
-    height: 540,
+    height: 640,
     minWidth: 360,
     minHeight: 360,
+    mobileHeight: 520,
   },
   trash: {
     x: 360,
@@ -115,12 +160,22 @@ export const WINDOW_CONFIGS = {
     minWidth: 380,
     minHeight: 300,
   },
+  camera: {
+    x: 280,
+    y: 80,
+    width: 420,
+    height: 500,
+    minWidth: 300,
+    minHeight: 380,
+    mobileHeight: 520,
+  },
   snake: {
     x: 320,
     y: 80,
-    width: 440,
-    height: 430,
-    minWidth: 440,
-    minHeight: 430,
+    width: 380,
+    height: 560,
+    minWidth: 340,
+    minHeight: 500,
+    mobileHeight: 580,
   },
 };
