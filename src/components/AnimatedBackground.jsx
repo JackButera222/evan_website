@@ -8,8 +8,11 @@ function AnimatedBackground() {
       <div className="aurora-blob aurora-blob-2" />
       <div className="aurora-blob aurora-blob-3" />
       <div className="aurora-blob aurora-blob-4" />
-      {/* faint grain of stars so it still reads as a night sky */}
+      {/* two star layers twinkling out of phase + occasional shooting stars */}
       <div className="aurora-stars" />
+      <div className="aurora-stars-2" />
+      <div className="aurora-shooting-star" />
+      <div className="aurora-shooting-star aurora-shooting-star-2" />
     </div>
   );
 }
