@@ -48,6 +48,10 @@ function AppInner() {
   const [snakeOpen, setSnakeOpen] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
 
+  // Apple menu + power state ("sleep" dims the screen, "off" fakes a shutdown)
+  const [appleMenuOpen, setAppleMenuOpen] = useState(false);
+  const [powerState, setPowerState] = useState(null);
+
   // Form state
   const [contactSent, setContactSent] = useState(false);
   const [bookingSent, setBookingSent] = useState(false);
@@ -186,14 +190,84 @@ function AppInner() {
       {/* Menu Bar */}
       <div className="absolute inset-x-0 top-0 z-50 flex h-8 items-center justify-between border-b border-white/10 bg-zinc-950/35 px-4 text-sm font-medium text-white shadow-sm backdrop-blur-2xl">
         <div className="flex min-w-0 items-center gap-5">
-          <div className="flex items-center gap-2 font-semibold">
-            <img
-              src={appleLogo}
-              alt=""
-              aria-hidden="true"
-              className="h-4 w-4 object-contain"
-            />
+          <div className="relative flex items-center gap-2 font-semibold">
+            <button
+              type="button"
+              aria-label="Apple menu"
+              onClick={() => setAppleMenuOpen((v) => !v)}
+              className={`-mx-1.5 flex h-7 items-center rounded px-1.5 transition-colors ${
+                appleMenuOpen ? "bg-white/20" : "hover:bg-white/10"
+              }`}
+            >
+              <img
+                src={appleLogo}
+                alt=""
+                aria-hidden="true"
+                className="h-4 w-4 object-contain"
+              />
+            </button>
             <span>tripodvawn</span>
+
+            {appleMenuOpen && (
+              <>
+                {/* click-away catcher */}
+                <div
+                  className="fixed inset-0 z-[60]"
+                  onClick={() => setAppleMenuOpen(false)}
+                />
+                <div className="absolute left-0 top-8 z-[70] w-56 overflow-hidden rounded-lg border border-white/15 bg-zinc-900/80 py-1 font-normal shadow-2xl backdrop-blur-2xl">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotesOpen(true);
+                      setAppleMenuOpen(false);
+                    }}
+                    className="block w-full px-4 py-1 text-left hover:bg-blue-500"
+                  >
+                    About Vawn
+                  </button>
+                  <div className="mx-3 my-1 border-t border-white/15" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPowerState("sleep");
+                      setAppleMenuOpen(false);
+                    }}
+                    className="block w-full px-4 py-1 text-left hover:bg-blue-500"
+                  >
+                    Sleep
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                    className="block w-full px-4 py-1 text-left hover:bg-blue-500"
+                  >
+                    Restart…
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPowerState("off");
+                      setAppleMenuOpen(false);
+                    }}
+                    className="block w-full px-4 py-1 text-left hover:bg-blue-500"
+                  >
+                    Shut Down…
+                  </button>
+                  <div className="mx-3 my-1 border-t border-white/15" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLocked(true);
+                      setAppleMenuOpen(false);
+                    }}
+                    className="block w-full px-4 py-1 text-left hover:bg-blue-500"
+                  >
+                    Lock Screen
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -317,6 +391,31 @@ function AppInner() {
           <LockScreen now={now} onUnlock={() => setLocked(false)} />
         )}
       </AnimatePresence>
+
+      {/* Sleep / shutdown overlay — click or press any key to wake */}
+      {powerState && (
+        <div
+          role="button"
+          tabIndex={0}
+          aria-label={powerState === "sleep" ? "Asleep — click to wake" : "Powered off — click to turn on"}
+          ref={(el) => el?.focus()}
+          onClick={() => {
+            if (powerState === "off") window.location.reload();
+            else setPowerState(null);
+          }}
+          onKeyDown={() => {
+            if (powerState === "off") window.location.reload();
+            else setPowerState(null);
+          }}
+          className="fixed inset-0 z-[30000] cursor-pointer bg-black outline-none"
+        >
+          {powerState === "off" && (
+            <span className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs text-white/25">
+              click anywhere to turn on
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
