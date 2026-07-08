@@ -13,6 +13,9 @@ export function handleBookingSubmit(event, setBookingSent) {
     `Name: ${name}\nEmail: ${email}\nType of Shoot: ${shootType}\nBudget: ${budget}\nInstagram: ${instagram}`,
   );
 
+  // Meta Pixel conversion event (no-op if the pixel is blocked/not loaded)
+  window.fbq?.("track", "Lead");
+
   window.location.href =
     `mailto:tripodvawn@gmail.com?subject=${subject}&body=${body}`;
   setBookingSent(true);

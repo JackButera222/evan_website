@@ -10,6 +10,9 @@ import mojaveNight from "../assets/mojave-night.jpg";
 // this for a direct Stripe Payment Link.
 const CHECKOUT_URL = "https://tripodvawn.com/checkout";
 
+const trackCheckout = () =>
+  window.fbq?.("track", "InitiateCheckout", { content_name: "IAC Pack", value: 100, currency: "USD" });
+
 const included = [
   "30 Phone-Filmed Ideas",
   "Step-by-Step CapCut Tutorials",
@@ -137,6 +140,7 @@ function IacPackPage() {
                   <div className="mt-3 flex flex-wrap items-center gap-3">
                     <a
                       href={CHECKOUT_URL}
+                      onClick={trackCheckout}
                       className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500"
                     >
                       GET — $100
@@ -202,6 +206,7 @@ function IacPackPage() {
               <div className="mt-10 flex flex-col items-center gap-2 border-t border-zinc-200 pt-8">
                 <a
                   href={CHECKOUT_URL}
+                  onClick={trackCheckout}
                   className="rounded-lg bg-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500"
                 >
                   BUY NOW — $100
