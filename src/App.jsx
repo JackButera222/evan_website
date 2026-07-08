@@ -5,6 +5,7 @@ import { galleryPhotos, getDesktopLayout, WINDOW_CONFIGS } from "./constants";
 import { getWindowProps } from "./utils/window";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ContactPage from "./components/ContactPage";
+import IacPackPage from "./components/IacPackPage";
 import GlobalPreview from "./components/GlobalPreview";
 import LockScreen from "./components/LockScreen";
 import Dock from "./components/Dock";
@@ -108,7 +109,7 @@ function AppInner() {
 
   // Checkout click handler (drag-vs-click is handled inside CheckoutIcon)
   const openGHLCheckout = () => {
-    window.open("https://tripodvawn.com/", "_blank", "noopener,noreferrer");
+    window.location.href = "/iacpack";
   };
 
   // Date/time formatting
@@ -435,11 +436,17 @@ function AppInner() {
 export default function App() {
   // Tiny path-based router: /contact serves the standalone ad landing page,
   // everything else gets the desktop.
-  const isContactPage = window.location.pathname.replace(/\/+$/, "") === "/contact";
+  const path = window.location.pathname.replace(/\/+$/, "");
 
   return (
     <ErrorBoundary>
-      {isContactPage ? <ContactPage /> : <AppInner />}
+      {path === "/contact" ? (
+        <ContactPage />
+      ) : path === "/iacpack" ? (
+        <IacPackPage />
+      ) : (
+        <AppInner />
+      )}
     </ErrorBoundary>
   );
 }
