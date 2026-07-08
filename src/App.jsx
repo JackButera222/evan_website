@@ -4,6 +4,7 @@ import { useMediaQuery, useViewportSize } from "./hooks";
 import { galleryPhotos, getDesktopLayout, WINDOW_CONFIGS } from "./constants";
 import { getWindowProps } from "./utils/window";
 import ErrorBoundary from "./components/ErrorBoundary";
+import ContactPage from "./components/ContactPage";
 import GlobalPreview from "./components/GlobalPreview";
 import LockScreen from "./components/LockScreen";
 import Dock from "./components/Dock";
@@ -432,9 +433,13 @@ function AppInner() {
 }
 
 export default function App() {
+  // Tiny path-based router: /contact serves the standalone ad landing page,
+  // everything else gets the desktop.
+  const isContactPage = window.location.pathname.replace(/\/+$/, "") === "/contact";
+
   return (
     <ErrorBoundary>
-      <AppInner />
+      {isContactPage ? <ContactPage /> : <AppInner />}
     </ErrorBoundary>
   );
 }
