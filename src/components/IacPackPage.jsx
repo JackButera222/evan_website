@@ -5,9 +5,10 @@ import contentPack from "../assets/content-pack-logo-square.png";
 import mojaveDay from "../assets/mojave-day.jpg";
 import mojaveNight from "../assets/mojave-night.jpg";
 
-// TODO: replace with the real Stripe Payment Link for the IAC Pack
-const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/REPLACE_ME";
-const PRICE_LABEL = "$0"; // TODO: real price
+// GoHighLevel-hosted checkout (Stripe under the hood). NOTE: this lives on
+// the old GHL site — if tripodvawn.com is ever pointed at this app, swap
+// this for a direct Stripe Payment Link.
+const CHECKOUT_URL = "https://tripodvawn.com/checkout";
 
 const included = [
   "Short form content strategy built for independent artists",
@@ -95,10 +96,10 @@ function IacPackPage() {
                   </p>
                   <div className="mt-3 flex items-center gap-3">
                     <a
-                      href={STRIPE_CHECKOUT_URL}
+                      href={CHECKOUT_URL}
                       className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500"
                     >
-                      GET — {PRICE_LABEL}
+                      GET
                     </a>
                     <span className="text-xs text-zinc-400">Secure checkout via Stripe</span>
                   </div>
@@ -136,10 +137,10 @@ function IacPackPage() {
 
               <div className="mt-8 flex flex-col items-center gap-2 border-t border-zinc-200 pt-8">
                 <a
-                  href={STRIPE_CHECKOUT_URL}
+                  href={CHECKOUT_URL}
                   className="rounded-lg bg-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500"
                 >
-                  BUY THE PACK — {PRICE_LABEL}
+                  BUY THE PACK
                 </a>
                 <p className="text-xs text-zinc-400">
                   Questions first?{" "}
