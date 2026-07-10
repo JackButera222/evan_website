@@ -242,3 +242,27 @@
   }
 }
 
+
+/* ── IAC Pack image marquee ─────────────────────────────────────────── */
+.iac-marquee {
+  overflow: hidden;
+}
+
+.iac-marquee-track {
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  animation: iac-marquee-scroll 35s linear infinite;
+}
+
+@keyframes iac-marquee-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iac-marquee-track {
+    animation: none;
+  }
+}

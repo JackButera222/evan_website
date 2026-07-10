@@ -13,6 +13,10 @@ const CHECKOUT_URL = "https://tripodvawn.com/checkout";
 const trackCheckout = () =>
   window.fbq?.("track", "InitiateCheckout", { content_name: "IAC Pack", value: 100, currency: "USD" });
 
+const carouselImages = Object.values(
+  import.meta.glob("../assets/iacpack/carousel-*.webp", { eager: true, import: "default" }),
+);
+
 const included = [
   "30 Phone-Filmed Ideas",
   "Step-by-Step CapCut Tutorials",
@@ -151,6 +155,22 @@ function IacPackPage() {
                     <span className="text-xs text-zinc-400">Secure checkout via Stripe</span>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Scrolling preview strip */}
+            <div className="iac-marquee border-b border-zinc-200 bg-zinc-950 py-4">
+              <div className="iac-marquee-track">
+                {[...carouselImages, ...carouselImages].map((src, i) => (
+                  <img
+                    key={i}
+                    src={src}
+                    alt=""
+                    aria-hidden={i >= carouselImages.length}
+                    loading="lazy"
+                    className="h-56 w-auto shrink-0 rounded-lg object-cover"
+                  />
+                ))}
               </div>
             </div>
 
