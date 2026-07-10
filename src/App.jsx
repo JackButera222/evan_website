@@ -39,7 +39,11 @@ function AppInner() {
   const [now, setNow] = useState(() => new Date());
 
   // Lock screen — shown on every fresh load until the user swipes to enter
-  const [locked, setLocked] = useState(true);
+  // Stay unlocked for the rest of the browser session (e.g. returning from
+  // /contact or /iacpack), but re-lock on a manual Lock Screen.
+  const [locked, setLocked] = useState(
+    () => sessionStorage.getItem("tv-unlocked") !== "1",
+  );
 
   // Window state
   const [photosOpen, setPhotosOpen] = useState(false);
@@ -240,7 +244,10 @@ function AppInner() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => window.location.reload()}
+                    onClick={() => {
+                      sessionStorage.removeItem("tv-unlocked");
+                      window.location.reload();
+                    }}
                     className="block w-full px-4 py-1 text-left hover:bg-blue-500"
                   >
                     Restart…
@@ -259,6 +266,7 @@ function AppInner() {
                   <button
                     type="button"
                     onClick={() => {
+                      sessionStorage.removeItem("tv-unlocked");
                       setLocked(true);
                       setAppleMenuOpen(false);
                     }}
@@ -389,7 +397,13 @@ function AppInner() {
       {/* Lock screen */}
       <AnimatePresence>
         {locked && (
-          <LockScreen now={now} onUnlock={() => setLocked(false)} />
+          <LockScreen
+            now={now}
+            onUnlock={() => {
+              sessionStorage.setItem("tv-unlocked", "1");
+              setLocked(false);
+            }}
+          />
         )}
       </AnimatePresence>
 
@@ -407,11 +421,17 @@ function AppInner() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.9, ease: "easeInOut" }}
             onClick={() => {
-              if (powerState === "off") window.location.reload();
+              if (powerState === "off") {
+                sessionStorage.removeItem("tv-unlocked");
+                window.location.reload();
+              }
               else setPowerState(null);
             }}
             onKeyDown={() => {
-              if (powerState === "off") window.location.reload();
+              if (powerState === "off") {
+                sessionStorage.removeItem("tv-unlocked");
+                window.location.reload();
+              }
               else setPowerState(null);
             }}
             className="fixed inset-0 z-[30000] cursor-pointer bg-black outline-none"

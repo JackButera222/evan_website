@@ -28,7 +28,7 @@ function ContactPage() {
   ].join(" ");
 
   return (
-    <div className="relative min-h-[100dvh] w-screen overflow-x-hidden bg-zinc-950 text-white">
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-zinc-950 text-white">
       {/* Wallpaper */}
       <div
         className="fixed inset-0 bg-cover bg-center"
@@ -64,12 +64,12 @@ function ContactPage() {
       </div>
 
       {/* Mail-style window */}
-      <div className="relative z-10 mx-auto w-full max-w-3xl px-3 pb-10 pt-14 sm:px-6">
+      <div className="relative z-10 mx-auto flex h-full w-full max-w-3xl flex-col px-3 pb-4 pt-12 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 16, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="flex flex-col overflow-hidden rounded-xl border border-white/20 bg-zinc-950/65 shadow-2xl backdrop-blur-2xl sm:rounded-2xl"
+          className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/20 bg-zinc-950/65 shadow-2xl backdrop-blur-2xl sm:rounded-2xl"
         >
           {/* Title bar */}
           <div className="flex h-11 items-center gap-2 border-b border-white/10 bg-white/10 px-4">
@@ -83,7 +83,7 @@ function ContactPage() {
             <div className="ml-3 text-sm font-medium text-white/85">Mail — Contact</div>
           </div>
 
-          <div className="bg-zinc-100 text-zinc-900">
+          <div className="min-h-0 flex-1 overflow-y-auto bg-zinc-100 text-zinc-900">
             {/* Bio header */}
             <div className="border-b border-zinc-200 bg-white/70 px-6 py-6 sm:px-10">
               <div className="flex items-center gap-4">
@@ -209,7 +209,7 @@ function ContactPage() {
           </div>
         </motion.div>
 
-        <p className="mt-4 text-center text-xs text-white/60">
+        <p className="mt-3 shrink-0 text-center text-xs text-white/60">
           <a href="/" className="underline-offset-2 hover:underline">
             ← back to tripodvawn.com
           </a>
