@@ -119,7 +119,7 @@ export const WINDOW_CONFIGS = {
   photos: {
     x: 190,
     y: 90,
-    width: 800,
+    width: 980,
     height: 600,
     minWidth: 380,
     minHeight: 300,

@@ -90,7 +90,7 @@ function PhotosWindow({
               <h1 className="text-xl font-semibold tracking-normal">Library</h1>
             </div>
 
-            <div className="photos-gallery grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-2">
+            <div className="photos-gallery grid grid-cols-2 gap-3 sm:grid-cols-3">
               {displayedGallery.map((photo, index) => (
                 <button
                   type="button"
