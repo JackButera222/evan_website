@@ -193,6 +193,18 @@ function ContactPage() {
                   />
                 </label>
 
+                <label className="block">
+                  <span className="mb-1.5 block text-sm font-medium text-zinc-700">
+                    Anything Else? <span className="font-normal text-zinc-400">(optional)</span>
+                  </span>
+                  <textarea
+                    name="message"
+                    rows={4}
+                    placeholder="Tell me about your vision, timeline, references..."
+                    className="w-full resize-none rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </label>
+
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm text-green-700">
                     {bookingSent ? "Request sent — talk soon!" : ""}

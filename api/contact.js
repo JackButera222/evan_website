@@ -10,18 +10,27 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { name, email, shootType, budget, instagram, eventId } = req.body ?? {};
-  if (!name || !email) {
-    return res.status(400).json({ error: "Name and email are required" });
+  const { type, name, email, subject, shootType, budget, instagram, message, eventId } =
+    req.body ?? {};
+  if (!email || (type === "general" ? !subject : !name)) {
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
-  const text = [
-    `Name: ${name}`,
-    `Email: ${email}`,
-    `Type of Shoot: ${shootType ?? ""}`,
-    `Budget: ${budget ?? ""}`,
-    `Instagram: ${instagram ?? ""}`,
-  ].join("\n");
+  const isGeneral = type === "general";
+  const emailSubject = isGeneral
+    ? `Inquiry: ${subject}`
+    : `Booking request from ${name}`;
+  const text = (isGeneral
+    ? [`Email: ${email}`, `Subject: ${subject}`, "", message ?? ""]
+    : [
+        `Name: ${name}`,
+        `Email: ${email}`,
+        `Type of Shoot: ${shootType ?? ""}`,
+        `Budget: ${budget ?? ""}`,
+        `Instagram: ${instagram ?? ""}`,
+        ...(message ? ["", `Message:`, message] : []),
+      ]
+  ).join("\n");
 
   const resendResponse = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -38,7 +47,7 @@ export default async function handler(req, res) {
       from: process.env.CONTACT_FROM_EMAIL ?? "TripodVawn Site <onboarding@resend.dev>",
       to: [process.env.CONTACT_TO_EMAIL ?? "tripodvawn@gmail.com"],
       reply_to: email,
-      subject: `Booking request from ${name}`,
+      subject: emailSubject,
       text,
     }),
   });
