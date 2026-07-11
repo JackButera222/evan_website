@@ -139,7 +139,7 @@ function BookShootForm({ bookingSent, setBookingSent }) {
       <div className="mb-5">
         <h1 className="text-xl font-semibold tracking-normal">Book a Shoot</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Submit your details and open your email client to send it directly.
+          Fill it out and it goes straight to my inbox.
         </p>
       </div>
 
@@ -256,7 +256,7 @@ function BookShootForm({ bookingSent, setBookingSent }) {
 
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm text-green-700">
-            {bookingSent ? "Email draft opened in your mail client." : ""}
+            {bookingSent ? "Request sent — talk soon!" : ""}
           </p>
           <button
             type="submit"

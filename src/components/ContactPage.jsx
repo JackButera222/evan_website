@@ -109,7 +109,7 @@ function ContactPage() {
               <div className="mb-5">
                 <h2 className="text-xl font-semibold">Book a Shoot</h2>
                 <p className="mt-1 text-sm text-zinc-500">
-                  Submit your details and it opens your email client to send directly.
+                  Fill it out and it goes straight to my inbox.
                 </p>
               </div>
 
@@ -195,7 +195,7 @@ function ContactPage() {
 
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm text-green-700">
-                    {bookingSent ? "Email draft opened in your mail client." : ""}
+                    {bookingSent ? "Request sent — talk soon!" : ""}
                   </p>
                   <button
                     type="submit"
