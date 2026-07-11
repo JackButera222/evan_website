@@ -4,6 +4,9 @@ import appleLogo from "../assets/apple_logo.svg.png";
 import contentPack from "../assets/content-pack-logo-square.png";
 import mojaveDay from "../assets/mojave-day.jpg";
 import mojaveNight from "../assets/mojave-night.jpg";
+import tHuggy from "../assets/iacpack/testimonial-huggyduzit.webp";
+import tCon from "../assets/iacpack/testimonial-con.webp";
+import tDtrel from "../assets/iacpack/testimonial-dtrel.webp";
 
 // GoHighLevel-hosted checkout (Stripe under the hood). NOTE: this lives on
 // the old GHL site — if tripodvawn.com is ever pointed at this app, swap
@@ -27,16 +30,19 @@ const included = [
 const testimonials = [
   {
     handle: "@huggyduzit",
+    photo: tHuggy,
     quote:
       "From the variety of cool ideas, to just understanding the BASICS to filming on my iPhone. This pack truly made filming my content at home so much easier.",
   },
   {
     handle: "@con_colorofnoise",
+    photo: tCon,
     quote:
       "The amount of VALUE in this pack is unbelievable. It gave the extra boost of confidence I needed when making content with my phone",
   },
   {
     handle: "@d_trel_music",
+    photo: tDtrel,
     quote:
       "This made posting content and sharing my music so much easier and more AFFORDABLE. For this price too, it's a game changer",
   },
@@ -202,13 +208,24 @@ function IacPackPage() {
               <h2 className="mt-10 text-xl font-semibold">What music artists are saying...</h2>
               <div className="mt-4 space-y-4">
                 {testimonials.map((t) => (
-                  <figure key={t.handle} className="rounded-xl border border-zinc-200 bg-white p-5">
-                    <blockquote className="text-sm leading-6 text-zinc-700">
-                      “{t.quote}”
-                    </blockquote>
-                    <figcaption className="mt-2 text-sm font-semibold text-blue-600">
-                      {t.handle}
-                    </figcaption>
+                  <figure
+                    key={t.handle}
+                    className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-5 sm:flex-row sm:items-center"
+                  >
+                    <img
+                      src={t.photo}
+                      alt={`${t.handle} content example`}
+                      loading="lazy"
+                      className="h-40 w-full shrink-0 rounded-lg object-cover sm:h-28 sm:w-28"
+                    />
+                    <div>
+                      <blockquote className="text-sm leading-6 text-zinc-700">
+                        “{t.quote}”
+                      </blockquote>
+                      <figcaption className="mt-2 text-sm font-semibold text-blue-600">
+                        {t.handle}
+                      </figcaption>
+                    </div>
                   </figure>
                 ))}
               </div>
@@ -217,10 +234,26 @@ function IacPackPage() {
               <h2 className="mt-10 text-xl font-semibold">You have questions... We have answers.</h2>
               <div className="mt-4 space-y-4">
                 {faqs.map((f) => (
-                  <div key={f.q} className="rounded-xl border border-zinc-200 bg-white p-5">
-                    <h3 className="text-sm font-semibold text-zinc-900">{f.q}</h3>
-                    <p className="mt-1.5 text-sm leading-6 text-zinc-600">{f.a}</p>
-                  </div>
+                  <details
+                    key={f.q}
+                    className="group rounded-xl border border-zinc-200 bg-white"
+                  >
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-5 text-sm font-semibold text-zinc-900 [&::-webkit-details-marker]:hidden">
+                      {f.q}
+                      <svg
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="h-4 w-4 shrink-0 text-zinc-400 transition-transform duration-200 group-open:rotate-180"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </summary>
+                    <p className="px-5 pb-5 text-sm leading-6 text-zinc-600">{f.a}</p>
+                  </details>
                 ))}
               </div>
 
