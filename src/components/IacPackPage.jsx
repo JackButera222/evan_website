@@ -158,22 +158,6 @@ function IacPackPage() {
               </div>
             </div>
 
-            {/* Scrolling preview strip */}
-            <div className="iac-marquee border-b border-zinc-200 bg-zinc-950 py-4">
-              <div className="iac-marquee-track">
-                {[...carouselImages, ...carouselImages].map((src, i) => (
-                  <img
-                    key={i}
-                    src={src}
-                    alt=""
-                    aria-hidden={i >= carouselImages.length}
-                    loading="lazy"
-                    className="h-56 w-auto shrink-0 rounded-lg object-cover"
-                  />
-                ))}
-              </div>
-            </div>
-
             {/* Details */}
             <div className="px-6 py-6 sm:px-10 sm:py-8">
               <h2 className="text-xl font-semibold">The Perfect Package for Independent Artists</h2>
@@ -195,7 +179,25 @@ function IacPackPage() {
                 Total value: <s className="text-zinc-400">$180</s>{" "}
                 <span className="font-semibold text-zinc-900">Today just $100</span>
               </p>
+            </div>
 
+            {/* Scrolling preview strip */}
+            <div className="iac-marquee border-b border-zinc-200 bg-zinc-950 py-4">
+              <div className="iac-marquee-track">
+                {[...carouselImages, ...carouselImages].map((src, i) => (
+                  <img
+                    key={i}
+                    src={src}
+                    alt=""
+                    aria-hidden={i >= carouselImages.length}
+                    loading="lazy"
+                    className="h-56 w-auto shrink-0 rounded-lg object-cover"
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="px-6 py-6 sm:px-10 sm:py-8">
               {/* Testimonials */}
               <h2 className="mt-10 text-xl font-semibold">What music artists are saying...</h2>
               <div className="mt-4 space-y-4">
