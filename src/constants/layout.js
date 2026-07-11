@@ -128,7 +128,7 @@ export const WINDOW_CONFIGS = {
   contacts: {
     x: 250,
     y: 120,
-    width: 560,
+    width: 980,
     height: 520,
     minWidth: 360,
     minHeight: 420,
