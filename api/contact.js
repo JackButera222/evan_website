@@ -30,8 +30,13 @@ export default async function handler(req, res) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "TripodVawn Site <onboarding@resend.dev>",
-      to: ["tripodvawn@gmail.com"],
+      // Until a domain is verified in Resend, the resend.dev test sender
+      // only delivers to the Resend account owner's email — set
+      // CONTACT_TO_EMAIL to that address for now. After verifying
+      // tripodvawn.com, set CONTACT_FROM_EMAIL to e.g.
+      // "TripodVawn <bookings@tripodvawn.com>" and drop CONTACT_TO_EMAIL.
+      from: process.env.CONTACT_FROM_EMAIL ?? "TripodVawn Site <onboarding@resend.dev>",
+      to: [process.env.CONTACT_TO_EMAIL ?? "tripodvawn@gmail.com"],
       reply_to: email,
       subject: `Booking request from ${name}`,
       text,
