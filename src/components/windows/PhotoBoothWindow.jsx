@@ -62,6 +62,9 @@ export default function PhotoBoothWindow({ isOpen, onClose, getWindowProps }) {
   const [facingMode, setFacingMode] = useState("user");
   // null = live camera; otherwise index into boothVideos
   const [selectedVideo, setSelectedVideo] = useState(null);
+  // Videos start muted until the visitor unmutes once; after that, stay
+  // unmuted for the rest of the session.
+  const [hasUnmuted, setHasUnmuted] = useState(false);
 
   const cameraMode = selectedVideo === null;
 
@@ -227,6 +230,10 @@ export default function PhotoBoothWindow({ isOpen, onClose, getWindowProps }) {
               controls
               autoPlay
               playsInline
+              muted={!hasUnmuted}
+              onVolumeChange={(e) => {
+                if (!e.currentTarget.muted) setHasUnmuted(true);
+              }}
             />
           )}
 
