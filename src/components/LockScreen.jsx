@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
-import wallpaper from "../assets/wallpaper.png";
+import wallpaper from "../assets/mojave-night.jpg";
 import logo from "../assets/TRIPOD VAWN LOGO V3.png";
 import unlockSound from "../assets/iphone-unlock.wav";
 

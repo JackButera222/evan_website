@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Rnd } from "react-rnd";
 import { motion } from "framer-motion";
 import tripodVawnLogo from "../../assets/TRIPOD VAWN LOGO V3.png";
-import { handleBookingSubmit } from "../../utils/handlers";
+import { handleBookingSubmit, handleGeneralSubmit } from "../../utils/handlers";
 
 const tabs = [
   { id: "book", label: "Book Shoot" },
@@ -22,11 +22,6 @@ function ContactsWindow({
 
   if (!isOpen) return null;
 
-  function handleContactSubmit(event) {
-    event.preventDefault();
-    setContactSent(true);
-    // Submission handling would go here if needed
-  }
 
   return (
     <Rnd
@@ -123,7 +118,7 @@ function ContactsWindow({
             ) : (
               <GeneralInquiriesForm
                 contactSent={contactSent}
-                onSubmit={handleContactSubmit}
+                onSubmit={(event) => handleGeneralSubmit(event, setContactSent)}
               />
             )}
           </main>
@@ -139,7 +134,7 @@ function BookShootForm({ bookingSent, setBookingSent }) {
       <div className="mb-5">
         <h1 className="text-xl font-semibold tracking-normal">Book a Shoot</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Submit your details and open your email client to send it directly.
+          Fill it out and it goes straight to my inbox.
         </p>
       </div>
 
@@ -254,9 +249,21 @@ function BookShootForm({ bookingSent, setBookingSent }) {
           />
         </label>
 
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-medium text-zinc-700">
+            Anything Else? <span className="font-normal text-zinc-400">(optional)</span>
+          </span>
+          <textarea
+            name="message"
+            rows={4}
+            placeholder="Tell me about your vision, timeline, references..."
+            className="w-full resize-none rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          />
+        </label>
+
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm text-green-700">
-            {bookingSent ? "Email draft opened in your mail client." : ""}
+            {bookingSent ? "Request sent — talk soon!" : ""}
           </p>
           <button
             type="submit"
@@ -288,6 +295,7 @@ function GeneralInquiriesForm({ contactSent, onSubmit }) {
             Email
           </span>
           <input
+            name="email"
             type="email"
             required
             placeholder="you@example.com"
@@ -300,6 +308,7 @@ function GeneralInquiriesForm({ contactSent, onSubmit }) {
             Subject
           </span>
           <input
+            name="subject"
             type="text"
             required
             placeholder="Wedding inquiry, portrait session, event..."
@@ -312,6 +321,7 @@ function GeneralInquiriesForm({ contactSent, onSubmit }) {
             Message
           </span>
           <textarea
+            name="message"
             required
             rows={7}
             placeholder="Tell me what you are imagining."
@@ -321,7 +331,7 @@ function GeneralInquiriesForm({ contactSent, onSubmit }) {
 
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm text-green-700">
-            {contactSent ? "Message ready. Thanks for reaching out." : ""}
+            {contactSent ? "Message sent — talk soon!" : ""}
           </p>
           <button
             type="submit"

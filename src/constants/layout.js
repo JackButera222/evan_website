@@ -119,7 +119,7 @@ export const WINDOW_CONFIGS = {
   photos: {
     x: 190,
     y: 90,
-    width: 800,
+    width: 980,
     height: 600,
     minWidth: 380,
     minHeight: 300,
@@ -128,8 +128,8 @@ export const WINDOW_CONFIGS = {
   contacts: {
     x: 250,
     y: 120,
-    width: 560,
-    height: 520,
+    width: 980,
+    height: 640,
     minWidth: 360,
     minHeight: 420,
     mobileHeight: 520,
