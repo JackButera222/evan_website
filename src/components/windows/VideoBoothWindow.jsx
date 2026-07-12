@@ -139,7 +139,7 @@ function renderFrame(video, offCtx, ctx, w, h, map, colorEffect, vignette) {
   }
 }
 
-export default function PhotoBoothWindow({ isOpen, onClose, getWindowProps }) {
+export default function VideoBoothWindow({ isOpen, onClose, getWindowProps }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const offRef = useRef(null);
@@ -153,13 +153,11 @@ export default function PhotoBoothWindow({ isOpen, onClose, getWindowProps }) {
   const chunksRef = useRef([]);
   const [error, setError] = useState(null);
   const [ready, setReady] = useState(false);
-  const [flash, setFlash] = useState(false);
   const [facingMode, setFacingMode] = useState("user");
   const [effect, setEffect] = useState("bulge");
   const [showEffects, setShowEffects] = useState(false);
   const [recording, setRecording] = useState(false);
-  const [videoMode, setVideoMode] = useState(false);
-  // Session captures: {kind:'photo'|'video', url, name}
+  // Session captures (recorded videos): {url, name}
   const [captures, setCaptures] = useState([]);
   // Stage selection: {type:'camera'} | {type:'library', i} | {type:'capture', i}
   const [stage, setStage] = useState({ type: "camera" });
@@ -262,21 +260,6 @@ export default function PhotoBoothWindow({ isOpen, onClose, getWindowProps }) {
     return () => cancelAnimationFrame(rafRef.current);
   }, [ready, cameraMode, activeEffect, showEffects]);
 
-  const takePhoto = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    setFlash(true);
-    setTimeout(() => setFlash(false), 150);
-    canvas.toBlob(
-      (blob) => {
-        const url = URL.createObjectURL(blob);
-        setCaptures((c) => [...c, { kind: "photo", url, name: `Photo ${c.length + 1}` }]);
-      },
-      "image/jpeg",
-      0.92,
-    );
-  };
-
   const toggleRecording = () => {
     if (recording) {
       recorderRef.current?.stop();
@@ -300,7 +283,7 @@ export default function PhotoBoothWindow({ isOpen, onClose, getWindowProps }) {
     rec.onstop = () => {
       const blob = new Blob(chunksRef.current, { type: rec.mimeType });
       const url = URL.createObjectURL(blob);
-      setCaptures((c) => [...c, { kind: "video", url, name: `Video ${c.length + 1}` }]);
+      setCaptures((c) => [...c, { url, name: `Video ${c.length + 1}` }]);
       setRecording(false);
     };
     recorderRef.current = rec;
@@ -311,7 +294,7 @@ export default function PhotoBoothWindow({ isOpen, onClose, getWindowProps }) {
   const saveCapture = async (cap) => {
     const res = await fetch(cap.url);
     const blob = await res.blob();
-    const ext = cap.kind === "photo" ? "jpg" : blob.type.includes("mp4") ? "mp4" : "webm";
+    const ext = blob.type.includes("mp4") ? "mp4" : "webm";
     const file = new File([blob], `${cap.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}.${ext}`, { type: blob.type });
 
     if (navigator.canShare?.({ files: [file] })) {
@@ -356,13 +339,13 @@ export default function PhotoBoothWindow({ isOpen, onClose, getWindowProps }) {
       >
         {/* Title bar */}
         <div className="pb-title-bar flex h-11 touch-none cursor-grab items-center gap-2 border-b border-white/10 bg-zinc-900 px-4 active:cursor-grabbing">
-          <button type="button" aria-label="Close Photo Booth" onClick={onClose}
+          <button type="button" aria-label="Close Video Booth" onClick={onClose}
             className="window-control w-3.5 h-3.5 rounded-full bg-red-500 border border-red-300/50 hover:bg-red-400" />
           <button type="button" aria-label="Minimize"
             className="window-control w-3.5 h-3.5 rounded-full bg-yellow-400 border border-yellow-200/50" />
           <button type="button" aria-label="Zoom"
             className="window-control w-3.5 h-3.5 rounded-full bg-green-500 border border-green-300/50" />
-          <div className="ml-3 text-sm font-medium text-white/85">Photo Booth</div>
+          <div className="ml-3 text-sm font-medium text-white/85">Video Booth</div>
           {recording && (
             <div className="ml-auto flex items-center gap-1.5 text-xs font-semibold text-red-400">
               <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" /> REC
@@ -376,7 +359,6 @@ export default function PhotoBoothWindow({ isOpen, onClose, getWindowProps }) {
             <>
               <video ref={videoRef} className="hidden" playsInline muted />
               <canvas ref={canvasRef} width={W} height={H} className="h-full w-full object-cover" />
-              {flash && <div className="absolute inset-0 bg-white pointer-events-none" />}
               {error && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black text-white/60 text-sm text-center px-6">
                   <span className="text-3xl">📵</span>
@@ -438,19 +420,15 @@ export default function PhotoBoothWindow({ isOpen, onClose, getWindowProps }) {
 
           {stagedCapture && (
             <>
-              {stagedCapture.kind === "photo" ? (
-                <img src={stagedCapture.url} alt={stagedCapture.name} className="h-full w-full object-contain bg-black" />
-              ) : (
-                <video
-                  key={stagedCapture.url}
-                  src={stagedCapture.url}
-                  className="pb-player h-full w-full object-contain bg-black"
-                  controls
-                  autoPlay
-                  playsInline
-                  loop
-                />
-              )}
+              <video
+                key={stagedCapture.url}
+                src={stagedCapture.url}
+                className="pb-player h-full w-full object-contain bg-black"
+                controls
+                autoPlay
+                playsInline
+                loop
+              />
               <button
                 type="button"
                 onClick={() => saveCapture(stagedCapture)}
@@ -512,14 +490,8 @@ export default function PhotoBoothWindow({ isOpen, onClose, getWindowProps }) {
               }`}
               aria-label={`View ${c.name}`}
             >
-              {c.kind === "photo" ? (
-                <img src={c.url} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <>
-                  <video src={c.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
-                  <span className="absolute inset-0 flex items-center justify-center text-white/90 text-lg drop-shadow">▶</span>
-                </>
-              )}
+              <video src={c.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+              <span className="absolute inset-0 flex items-center justify-center text-white/90 text-lg drop-shadow">▶</span>
             </button>
           ))}
         </div>
@@ -528,16 +500,6 @@ export default function PhotoBoothWindow({ isOpen, onClose, getWindowProps }) {
         {cameraMode && (
           <div className="flex items-center justify-between bg-zinc-900 px-4 py-3">
             <div className="flex items-center gap-2">
-              {/* photo / video mode toggle */}
-              <button
-                type="button"
-                onClick={() => setVideoMode((v) => !v)}
-                disabled={recording}
-                className="window-control flex h-10 w-14 items-center justify-center rounded-lg bg-zinc-800 border border-white/10 text-lg hover:bg-zinc-700 disabled:opacity-40"
-                aria-label={videoMode ? "Switch to photo mode" : "Switch to video mode"}
-              >
-                {videoMode ? "🎥" : "📸"}
-              </button>
               <button
                 type="button"
                 onClick={() => setShowEffects((s) => !s)}
@@ -550,26 +512,16 @@ export default function PhotoBoothWindow({ isOpen, onClose, getWindowProps }) {
               </button>
             </div>
 
-            {/* Shutter / record */}
-            {videoMode ? (
-              <button
-                type="button"
-                onClick={toggleRecording}
-                disabled={!ready}
-                aria-label={recording ? "Stop recording" : "Start recording"}
-                className="window-control flex h-14 w-14 items-center justify-center rounded-full border-4 border-white bg-white/10 transition-all hover:bg-white/20 active:scale-95 disabled:opacity-40"
-              >
-                <span className={`bg-red-500 transition-all ${recording ? "h-5 w-5 rounded" : "h-8 w-8 rounded-full"}`} />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={takePhoto}
-                disabled={!ready}
-                aria-label="Take photo"
-                className="window-control h-14 w-14 rounded-full border-4 border-white bg-white/10 transition-all hover:bg-white/20 active:scale-95 disabled:opacity-40"
-              />
-            )}
+            {/* Record */}
+            <button
+              type="button"
+              onClick={toggleRecording}
+              disabled={!ready}
+              aria-label={recording ? "Stop recording" : "Start recording"}
+              className="window-control flex h-14 w-14 items-center justify-center rounded-full border-4 border-white bg-white/10 transition-all hover:bg-white/20 active:scale-95 disabled:opacity-40"
+            >
+              <span className={`bg-red-500 transition-all ${recording ? "h-5 w-5 rounded" : "h-8 w-8 rounded-full"}`} />
+            </button>
 
             <button
               type="button"
