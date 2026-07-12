@@ -50,6 +50,10 @@ export function getDesktopLayout(viewportSize, isMobile) {
   const snakeX = Math.min(vw - margin - iconBoxWidth, Math.round(vw * 0.5));
   const snakeY = Math.max(top, Math.round(vh * 0.7));
 
+  // Maps icon lower-left area
+  const mapX = Math.max(margin, Math.round(vw * 0.16));
+  const mapY = Math.max(top, Math.round(vh * 0.68));
+
   // Mail ("hit me up") icon on the right side, above the snake icon
   const mailX = Math.min(vw - margin - iconBoxWidth, Math.round(vw * 0.65));
   const mailY = Math.max(top, Math.round(vh * 0.4));
@@ -82,6 +86,13 @@ export function getDesktopLayout(viewportSize, isMobile) {
       height: iconBoxHeight,
       iconSize,
     },
+    map: {
+      x: mapX,
+      y: mapY,
+      width: iconBoxWidth,
+      height: iconBoxHeight,
+      iconSize,
+    },
   };
 
   // Guarantee no default placements overlap: walk the items in order and push
@@ -94,7 +105,7 @@ export function getDesktopLayout(viewportSize, isMobile) {
     a.y < b.y + b.height + pad &&
     a.y + a.height + pad > b.y;
 
-  const order = ["quicktime", "checkout", "mail", "snake"];
+  const order = ["quicktime", "checkout", "mail", "snake", "map"];
   for (let i = 1; i < order.length; i++) {
     const item = layout[order[i]];
     for (let guard = 0; guard < 20; guard++) {
@@ -177,5 +188,14 @@ export const WINDOW_CONFIGS = {
     minWidth: 340,
     minHeight: 500,
     mobileHeight: 580,
+  },
+  map: {
+    x: 200,
+    y: 100,
+    width: 860,
+    height: 600,
+    minWidth: 380,
+    minHeight: 320,
+    mobileHeight: 520,
   },
 };

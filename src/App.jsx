@@ -13,9 +13,11 @@ import CheckoutIcon from "./components/desktop-icons/CheckoutIcon";
 import QuickTimeWindow from "./components/desktop-icons/QuickTimeWindow";
 import SnakeIcon from "./components/desktop-icons/SnakeIcon";
 import MailIcon from "./components/desktop-icons/MailIcon";
+import MapIcon from "./components/desktop-icons/MapIcon";
 import FinderWindow from "./components/windows/FinderWindow";
 import PhotosWindow from "./components/windows/PhotosWindow";
 import ContactsWindow from "./components/windows/ContactsWindow";
+import MapWindow from "./components/windows/MapWindow";
 import NotesWindow from "./components/windows/NotesWindow";
 import TrashWindow from "./components/windows/TrashWindow";
 import Game2048Window from "./components/windows/Game2048Window";
@@ -52,7 +54,9 @@ function AppInner() {
   const [trashOpen, setTrashOpen] = useState(false);
   const [finderOpen, setFinderOpen] = useState(false);
   const [snakeOpen, setSnakeOpen] = useState(false);
-  const [cameraOpen, setCameraOpen] = useState(false);
+  // Video Booth greets visitors by default (camera stays off until opted in)
+  const [cameraOpen, setCameraOpen] = useState(true);
+  const [mapOpen, setMapOpen] = useState(false);
 
   // Apple menu + power state ("off" fakes a shutdown)
   const [appleMenuOpen, setAppleMenuOpen] = useState(false);
@@ -323,10 +327,22 @@ function AppInner() {
         }}
       />
 
+      <MapIcon
+        placement={desktopLayout.map}
+        viewport={viewportSize}
+        onClick={() => setMapOpen(true)}
+      />
+
       {/* QuickTime Window */}
       <QuickTimeWindow
         placement={desktopLayout.quicktime}
         viewport={viewportSize}
+      />
+
+      <MapWindow
+        isOpen={mapOpen}
+        onClose={() => setMapOpen(false)}
+        getWindowProps={createWindowProps("map")}
       />
 
       {/* Window Components */}

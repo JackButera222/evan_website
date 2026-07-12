@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <clipPath id="mround"><rect width="1000" height="1000" rx="225"/></clipPath>
+  </defs>
+  <g clip-path="url(#mround)">
+    <rect width="1000" height="1000" fill="#f6f2e9"/>
+    <path d="M0 0h420l180 1000H0z" fill="#cfe6b0"/>
+    <path d="M1000 0v380L640 1000h360z" fill="#a8d1e7"/>
+    <path d="M-40 640 L1040 300" stroke="#f7c948" stroke-width="90"/>
+    <path d="M-40 640 L1040 300" stroke="#fff" stroke-width="12" stroke-dasharray="40 34"/>
+    <path d="M300 -40 L560 1040" stroke="#fff" stroke-width="56"/>
+    <path d="M300 -40 L560 1040" stroke="#e8e2d4" stroke-width="50"/>
+    <g transform="translate(500 330)">
+      <path d="M0 0C-105 0-190 85-190 190c0 142 190 342 190 342s190-200 190-342C190 85 105 0 0 0z" fill="#ff3b30"/>
+      <circle cx="0" cy="185" r="70" fill="#fff"/>
+    </g>
+  </g>
+</svg>

@@ -157,6 +157,9 @@ export default function VideoBoothWindow({ isOpen, onClose, getWindowProps }) {
   const [effect, setEffect] = useState("bulge");
   const [showEffects, setShowEffects] = useState(false);
   const [recording, setRecording] = useState(false);
+  // Camera stays off until the visitor opts in, so loading the site never
+  // triggers a browser permission popup uninvited.
+  const [cameraEnabled, setCameraEnabled] = useState(false);
   // Session captures (recorded videos): {url, name}
   const [captures, setCaptures] = useState([]);
   // Stage selection: {type:'camera'} | {type:'library', i} | {type:'capture', i}
@@ -167,7 +170,7 @@ export default function VideoBoothWindow({ isOpen, onClose, getWindowProps }) {
   const activeEffect = EFFECTS.find((e) => e.id === effect) ?? EFFECTS[4];
 
   useEffect(() => {
-    if (!isOpen || !cameraMode) return;
+    if (!isOpen || !cameraMode || !cameraEnabled) return;
     setError(null);
     setReady(false);
 
@@ -196,7 +199,7 @@ export default function VideoBoothWindow({ isOpen, onClose, getWindowProps }) {
       setReady(false);
       setRecording(false);
     };
-  }, [isOpen, facingMode, cameraMode]);
+  }, [isOpen, facingMode, cameraMode, cameraEnabled]);
 
   // Free capture object URLs when the window unmounts entirely
   useEffect(() => {
@@ -366,7 +369,26 @@ export default function VideoBoothWindow({ isOpen, onClose, getWindowProps }) {
                   <p className="text-xs text-white/40">{error}</p>
                 </div>
               )}
-              {!ready && !error && (
+              {!cameraEnabled && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-zinc-950 px-6 text-center">
+                  <span className="text-4xl">🎥</span>
+                  <p className="text-sm text-white/70">
+                    Want to record a clip with effects?
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setCameraEnabled(true)}
+                    className="window-control rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow transition hover:bg-blue-500"
+                  >
+                    Enable Camera
+                  </button>
+                  <p className="text-xs text-white/35">
+                    Your browser will ask for permission. Nothing is uploaded —
+                    recordings stay on your device.
+                  </p>
+                </div>
+              )}
+              {cameraEnabled && !ready && !error && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black text-white/40 text-sm">
                   Starting camera…
                 </div>
