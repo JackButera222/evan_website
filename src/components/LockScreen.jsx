@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
-import wallpaper from "../assets/mojave-night.jpg";
+import mojaveDay from "../assets/mojave-day.jpg";
+import mojaveNight from "../assets/mojave-night.jpg";
 import logo from "../assets/TRIPOD VAWN LOGO V3.png";
 import unlockSound from "../assets/iphone-unlock.wav";
 
@@ -37,6 +38,10 @@ function LockScreen({ now, onUnlock }) {
     month: "long",
     day: "numeric",
   });
+
+  // Match the desktop's day/night rule (day 6am-6pm)
+  const isNight = now.getHours() < 6 || now.getHours() >= 18;
+  const wallpaper = isNight ? mojaveNight : mojaveDay;
 
   const maxX = () => {
     const track = trackRef.current;
