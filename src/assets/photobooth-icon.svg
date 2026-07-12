@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <linearGradient id="pbbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f5241c"/>
+      <stop offset="1" stop-color="#c00f12"/>
+    </linearGradient>
+  </defs>
+  <rect width="1000" height="1000" rx="225" fill="url(#pbbg)"/>
+  <!-- back tilted empty frame -->
+  <g transform="rotate(-8 420 520)">
+    <path d="M150 300h420v520H150z" fill="none" stroke="#fff" stroke-width="52"/>
+  </g>
+  <!-- front photo frame with silhouette -->
+  <g transform="rotate(3 620 470)">
+    <rect x="330" y="200" width="540" height="560" fill="#fff"/>
+    <g fill="#d21418">
+      <path d="M600 265c-62 0-104 46-104 118 0 50 22 96 52 118-64 22-140 60-158 108-8 22 4 51 4 51h412s12-29 4-51c-18-48-94-86-158-108 30-22 52-68 52-118 0-72-42-118-104-118z" transform="translate(0 10)"/>
+    </g>
+  </g>
+</svg>

@@ -19,14 +19,14 @@ import ContactsWindow from "./components/windows/ContactsWindow";
 import NotesWindow from "./components/windows/NotesWindow";
 import TrashWindow from "./components/windows/TrashWindow";
 import Game2048Window from "./components/windows/Game2048Window";
-import CameraWindow from "./components/windows/CameraWindow";
+import PhotoBoothWindow from "./components/windows/PhotoBoothWindow";
 import appleLogo from "./assets/apple_logo.svg.png";
 import mojaveDay from "./assets/mojave-day.jpg";
 import mojaveNight from "./assets/mojave-night.jpg";
 import notes from "./assets/notes.png";
 import photos from "./assets/photos.png";
 import trash from "./assets/trash.png";
-import camera from "./assets/camera.webp";
+import photoBoothIcon from "./assets/photobooth-icon.svg";
 
 function AppInner() {
   const viewportSize = useViewportSize();
@@ -146,8 +146,8 @@ function AppInner() {
     },
     {
       id: "camera",
-      label: "Camera",
-      icon: camera,
+      label: "Photo Booth",
+      icon: photoBoothIcon,
       isOpen: cameraOpen,
     },
     { divider: true },
@@ -377,7 +377,7 @@ function AppInner() {
         getWindowProps={createWindowProps("snake")}
       />
 
-      <CameraWindow
+      <PhotoBoothWindow
         isOpen={cameraOpen}
         onClose={() => setCameraOpen(false)}
         getWindowProps={createWindowProps("camera")}

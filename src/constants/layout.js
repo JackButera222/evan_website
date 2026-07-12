@@ -163,8 +163,8 @@ export const WINDOW_CONFIGS = {
   camera: {
     x: 280,
     y: 80,
-    width: 420,
-    height: 500,
+    width: 560,
+    height: 560,
     minWidth: 300,
     minHeight: 380,
     mobileHeight: 520,
