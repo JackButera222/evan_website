@@ -339,13 +339,13 @@ function AppInner() {
         viewport={viewportSize}
       />
 
-      <MapWindow
-        isOpen={mapOpen}
-        onClose={() => setMapOpen(false)}
-        getWindowProps={createWindowProps("map")}
+      {/* Window Components — earlier renders sit lower in the stack */}
+      <VideoBoothWindow
+        isOpen={cameraOpen}
+        onClose={() => setCameraOpen(false)}
+        getWindowProps={createWindowProps("camera")}
       />
 
-      {/* Window Components */}
       <FinderWindow
         isOpen={finderOpen}
         onClose={() => setFinderOpen(false)}
@@ -392,11 +392,12 @@ function AppInner() {
         getWindowProps={createWindowProps("snake")}
       />
 
-      <VideoBoothWindow
-        isOpen={cameraOpen}
-        onClose={() => setCameraOpen(false)}
-        getWindowProps={createWindowProps("camera")}
+      <MapWindow
+        isOpen={mapOpen}
+        onClose={() => setMapOpen(false)}
+        getWindowProps={createWindowProps("map")}
       />
+
 
       {/* Dock */}
       <Dock items={dockItems} isMobile={isMobile} onLaunch={handleDockLaunch} />
