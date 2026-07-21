@@ -17,29 +17,32 @@ function getMobileLayout(vw, vh) {
   const iconBoxWidth = iconSize + 28;
   const iconBoxHeight = iconSize + 24;
 
-  const qt = Math.max(140, Math.min(160, vw - 32));
+  const qt = Math.max(140, Math.min(150, vw - 32));
   const quicktimeY = 40;
+  // Nudge the player off dead-center so nothing lines up too perfectly.
+  const quicktimeX = Math.round((vw - qt) / 2) - Math.round(vw * 0.035);
 
-  const colLeft = Math.round(vw * 0.14);
-  const colRight = vw - Math.round(vw * 0.14) - iconBoxWidth;
-  const row1Y = quicktimeY + qt + 20;
-  const row2Y = row1Y + iconBoxHeight + 14;
+  const colLeft = Math.round(vw * 0.11);
+  const colRight = vw - Math.round(vw * 0.11) - iconBoxWidth;
+  const row1Y = quicktimeY + qt + 18;
+  const row2Y = row1Y + iconBoxHeight + 38;
 
   const widgetW = Math.min(200, vw - 40);
   const widgetH = 130;
-  const widgetY = row2Y + iconBoxHeight + 18;
 
   const icon = (x, y) => ({ x, y, width: iconBoxWidth, height: iconBoxHeight, iconSize });
 
+  // Deliberately staggered (not a strict grid) so the desktop looks used:
+  // rows sit at slightly different heights and the columns jitter sideways.
   return {
-    quicktime: { x: Math.round((vw - qt) / 2), y: quicktimeY, width: qt, height: qt },
-    checkout: icon(colLeft, row1Y), // IAC Pack
-    snake: icon(colRight, row1Y), // 2048
-    map: icon(colLeft, row2Y), // Maps
-    mail: icon(colRight, row2Y), // hit me up
+    quicktime: { x: quicktimeX, y: quicktimeY, width: qt, height: qt },
+    checkout: icon(colLeft + Math.round(vw * 0.015), row1Y - 6), // IAC Pack, higher
+    snake: icon(colRight - Math.round(vw * 0.02), row1Y + 24), // 2048, dropped down
+    map: icon(colLeft + Math.round(vw * 0.06), row2Y + 12), // Maps, right + lower
+    mail: icon(colRight + Math.round(vw * 0.005), row2Y - 10), // hit me up, higher
     boothWidget: {
-      x: Math.round((vw - widgetW) / 2),
-      y: widgetY,
+      x: Math.round((vw - widgetW) / 2) - Math.round(vw * 0.03),
+      y: row2Y + iconBoxHeight + 16,
       width: widgetW,
       height: widgetH,
     },
