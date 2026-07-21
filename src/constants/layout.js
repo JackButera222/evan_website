@@ -9,40 +9,52 @@ const QUICKTIME_SIZE = { desktop: 360, mobile: 216 };
 // horizontally-centered pair (the icon beside the player, or stacked beneath it
 // when the window is too narrow), so they default near the middle of the screen
 // and never overlap or drift off-screen across resizes or mobile/desktop switches.
-// Hand-tuned mobile layout: a compact centered player up top, a tidy 2x2 icon
-// grid, and the Video Booth widget beneath — all sized to clear the dock even
-// on shorter phones, instead of the free-floating desktop arrangement.
+// Hand-placed mobile layout. The positions below were dialed in on a 375x812
+// phone and are scaled to the actual viewport (with clamping so nothing runs
+// under the dock or off-screen on other sizes).
+const MOBILE_REF = { w: 375, h: 812 };
+const MOBILE_POS = {
+  quicktime: { x: 26, y: 40 },
+  checkout: { x: 248, y: 120 }, // IAC Pack
+  snake: { x: 221, y: 290 }, // 2048
+  mail: { x: 41, y: 313 }, // hit me up
+  map: { x: 65, y: 618 }, // Shoot Map
+  boothWidget: { x: 133, y: 441 },
+};
+
 function getMobileLayout(vw, vh) {
   const iconSize = ICON_SIZE.mobile;
   const iconBoxWidth = iconSize + 28;
   const iconBoxHeight = iconSize + 24;
+  const margin = 12;
+  const bottomReserve = 96; // keep clear of the dock
 
-  const qt = Math.max(140, Math.min(150, vw - 32));
-  const quicktimeY = 40;
-  // Nudge the player off dead-center so nothing lines up too perfectly.
-  const quicktimeX = Math.round((vw - qt) / 2) - Math.round(vw * 0.035);
+  const sx = (x, w) =>
+    Math.max(margin, Math.min(vw - margin - w, Math.round((x / MOBILE_REF.w) * vw)));
+  const sy = (y, h) =>
+    Math.max(40, Math.min(vh - bottomReserve - h, Math.round((y / MOBILE_REF.h) * vh)));
 
-  const colLeft = Math.round(vw * 0.11);
-  const colRight = vw - Math.round(vw * 0.11) - iconBoxWidth;
-  const row1Y = quicktimeY + qt + 18;
-  const row2Y = row1Y + iconBoxHeight + 38;
-
-  const widgetW = Math.min(200, vw - 40);
+  const qt = Math.min(180, vw - margin * 2);
+  const widgetW = Math.min(200, vw - 32);
   const widgetH = 130;
 
-  const icon = (x, y) => ({ x, y, width: iconBoxWidth, height: iconBoxHeight, iconSize });
+  const icon = (key) => ({
+    x: sx(MOBILE_POS[key].x, iconBoxWidth),
+    y: sy(MOBILE_POS[key].y, iconBoxHeight),
+    width: iconBoxWidth,
+    height: iconBoxHeight,
+    iconSize,
+  });
 
-  // Deliberately staggered (not a strict grid) so the desktop looks used:
-  // rows sit at slightly different heights and the columns jitter sideways.
   return {
-    quicktime: { x: quicktimeX, y: quicktimeY, width: qt, height: qt },
-    checkout: icon(colLeft + Math.round(vw * 0.015), row1Y - 6), // IAC Pack, higher
-    snake: icon(colRight - Math.round(vw * 0.02), row1Y + 24), // 2048, dropped down
-    map: icon(colLeft + Math.round(vw * 0.06), row2Y + 12), // Maps, right + lower
-    mail: icon(colRight + Math.round(vw * 0.005), row2Y - 10), // hit me up, higher
+    quicktime: { x: sx(MOBILE_POS.quicktime.x, qt), y: sy(MOBILE_POS.quicktime.y, qt), width: qt, height: qt },
+    checkout: icon("checkout"),
+    snake: icon("snake"),
+    mail: icon("mail"),
+    map: icon("map"),
     boothWidget: {
-      x: Math.round((vw - widgetW) / 2) - Math.round(vw * 0.03),
-      y: row2Y + iconBoxHeight + 16,
+      x: sx(MOBILE_POS.boothWidget.x, widgetW),
+      y: sy(MOBILE_POS.boothWidget.y, widgetH),
       width: widgetW,
       height: widgetH,
     },
