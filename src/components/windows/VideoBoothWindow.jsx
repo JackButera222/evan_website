@@ -139,7 +139,7 @@ function renderFrame(video, offCtx, ctx, w, h, map, colorEffect, vignette) {
   }
 }
 
-export default function VideoBoothWindow({ isOpen, onClose, getWindowProps }) {
+export default function VideoBoothWindow({ isOpen, onClose, getWindowProps, autoEnableCamera = false }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const offRef = useRef(null);
@@ -160,6 +160,14 @@ export default function VideoBoothWindow({ isOpen, onClose, getWindowProps }) {
   // Camera stays off until the visitor opts in, so loading the site never
   // triggers a browser permission popup uninvited.
   const [cameraEnabled, setCameraEnabled] = useState(false);
+
+  // This component stays mounted (it renders null when closed) so the initial
+  // state can't carry the opt-in. Sync it here: reset when the window closes,
+  // and auto-enable when opened via the "enter the booth" widget.
+  useEffect(() => {
+    if (!isOpen) setCameraEnabled(false);
+    else if (autoEnableCamera) setCameraEnabled(true);
+  }, [isOpen, autoEnableCamera]);
   // Session captures (recorded videos): {url, name}
   const [captures, setCaptures] = useState([]);
   // Stage selection: {type:'camera'} | {type:'library', i} | {type:'capture', i}

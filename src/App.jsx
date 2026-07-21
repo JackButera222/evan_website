@@ -54,12 +54,21 @@ function AppInner() {
   const [trashOpen, setTrashOpen] = useState(false);
   const [finderOpen, setFinderOpen] = useState(false);
   const [snakeOpen, setSnakeOpen] = useState(false);
-  // Video Booth greets visitors by default (camera stays off until opted in).
-  // The auto-opened window is smaller and tucked top-right so it doesn't
-  // dominate the desktop; once closed, it reopens at the normal size/position.
-  const [cameraOpen, setCameraOpen] = useState(true);
-  const [boothFirstOpen, setBoothFirstOpen] = useState(true);
+  // Video Booth: a "click to enter" widget greets visitors instead of the
+  // full window, so nothing dominates the desktop and the camera-permission
+  // prompt only fires once they choose to enter.
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [boothWidgetVisible, setBoothWidgetVisible] = useState(true);
+  const [boothAutoCamera, setBoothAutoCamera] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
+
+  // Entering from the widget opens the booth and enables the camera in the
+  // same gesture (so the permission prompt is allowed to appear).
+  const enterVideoBooth = () => {
+    setBoothWidgetVisible(false);
+    setBoothAutoCamera(true);
+    setCameraOpen(true);
+  };
 
   // Apple menu + power state ("off" fakes a shutdown)
   const [appleMenuOpen, setAppleMenuOpen] = useState(false);
@@ -136,25 +145,6 @@ function AppInner() {
     return getWindowProps(WINDOW_CONFIGS[configKey], viewportSize, isMobile);
   };
 
-  // The Video Booth auto-opens on load; for that first appearance only, shrink
-  // it and tuck it into the top-right corner so it doesn't cover the desktop.
-  // After the visitor closes it, subsequent opens use the normal props.
-  const baseBoothProps = createWindowProps("camera");
-  const boothProps =
-    boothFirstOpen && !isMobile
-      ? {
-          ...baseBoothProps,
-          default: {
-            width: Math.min(380, baseBoothProps.maxWidth),
-            height: Math.min(440, baseBoothProps.maxHeight),
-            x: Math.max(
-              24,
-              viewportSize.width - Math.min(380, baseBoothProps.maxWidth) - 28,
-            ),
-            y: 44,
-          },
-        }
-      : baseBoothProps;
 
   // Dock items configuration
   const dockItems = [
@@ -198,6 +188,8 @@ function AppInner() {
     } else if (item.id === "trash") {
       setTrashOpen(true);
     } else if (item.id === "camera") {
+      setBoothWidgetVisible(false);
+      setBoothAutoCamera(false);
       setCameraOpen(true);
     }
   };
@@ -362,14 +354,43 @@ function AppInner() {
         viewport={viewportSize}
       />
 
+      {/* Video Booth entry widget — shown until the visitor enters the booth */}
+      {boothWidgetVisible && (
+        <motion.div
+          initial={{ opacity: 0, y: 14, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.3, ease: "easeOut", delay: 0.2 }}
+          className="absolute left-1/2 top-[62%] z-[7000] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
+        >
+          <button
+            type="button"
+            onClick={enterVideoBooth}
+            className="group flex flex-col items-center gap-3 rounded-3xl border border-white/20 bg-zinc-900/50 px-8 py-6 text-center text-white shadow-2xl backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-zinc-900/65"
+          >
+            <img
+              src={photoBoothIcon}
+              alt=""
+              className="h-16 w-16 drop-shadow-lg transition-transform group-hover:scale-105"
+            />
+            <div>
+              <div className="text-base font-semibold">Enter the Video Booth</div>
+              <div className="mt-0.5 text-xs text-white/60">
+                Record a clip with classic effects
+              </div>
+            </div>
+            <span className="rounded-full bg-blue-600 px-4 py-1.5 text-sm font-semibold shadow transition group-hover:bg-blue-500">
+              Click to enter
+            </span>
+          </button>
+        </motion.div>
+      )}
+
       {/* Window Components — earlier renders sit lower in the stack */}
       <VideoBoothWindow
         isOpen={cameraOpen}
-        onClose={() => {
-          setCameraOpen(false);
-          setBoothFirstOpen(false);
-        }}
-        getWindowProps={boothProps}
+        onClose={() => setCameraOpen(false)}
+        getWindowProps={createWindowProps("camera")}
+        autoEnableCamera={boothAutoCamera}
       />
 
       <FinderWindow
