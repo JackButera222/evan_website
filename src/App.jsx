@@ -54,8 +54,11 @@ function AppInner() {
   const [trashOpen, setTrashOpen] = useState(false);
   const [finderOpen, setFinderOpen] = useState(false);
   const [snakeOpen, setSnakeOpen] = useState(false);
-  // Video Booth greets visitors by default (camera stays off until opted in)
+  // Video Booth greets visitors by default (camera stays off until opted in).
+  // The auto-opened window is smaller and tucked top-right so it doesn't
+  // dominate the desktop; once closed, it reopens at the normal size/position.
   const [cameraOpen, setCameraOpen] = useState(true);
+  const [boothFirstOpen, setBoothFirstOpen] = useState(true);
   const [mapOpen, setMapOpen] = useState(false);
 
   // Apple menu + power state ("off" fakes a shutdown)
@@ -132,6 +135,26 @@ function AppInner() {
   const createWindowProps = (configKey) => {
     return getWindowProps(WINDOW_CONFIGS[configKey], viewportSize, isMobile);
   };
+
+  // The Video Booth auto-opens on load; for that first appearance only, shrink
+  // it and tuck it into the top-right corner so it doesn't cover the desktop.
+  // After the visitor closes it, subsequent opens use the normal props.
+  const baseBoothProps = createWindowProps("camera");
+  const boothProps =
+    boothFirstOpen && !isMobile
+      ? {
+          ...baseBoothProps,
+          default: {
+            width: Math.min(380, baseBoothProps.maxWidth),
+            height: Math.min(440, baseBoothProps.maxHeight),
+            x: Math.max(
+              24,
+              viewportSize.width - Math.min(380, baseBoothProps.maxWidth) - 28,
+            ),
+            y: 44,
+          },
+        }
+      : baseBoothProps;
 
   // Dock items configuration
   const dockItems = [
@@ -342,8 +365,11 @@ function AppInner() {
       {/* Window Components — earlier renders sit lower in the stack */}
       <VideoBoothWindow
         isOpen={cameraOpen}
-        onClose={() => setCameraOpen(false)}
-        getWindowProps={createWindowProps("camera")}
+        onClose={() => {
+          setCameraOpen(false);
+          setBoothFirstOpen(false);
+        }}
+        getWindowProps={boothProps}
       />
 
       <FinderWindow
