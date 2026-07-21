@@ -59,13 +59,12 @@ function AppInner() {
   // full window, so nothing dominates the desktop. Clicking it opens the
   // booth straight to the example videos.
   const [cameraOpen, setCameraOpen] = useState(false);
-  const [boothWidgetVisible, setBoothWidgetVisible] = useState(true);
   const [boothOpenToLibrary, setBoothOpenToLibrary] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
 
   // Entering from the widget opens the booth to the first example video.
+  // The widget itself always stays on the desktop.
   const enterVideoBooth = () => {
-    setBoothWidgetVisible(false);
     setBoothOpenToLibrary(true);
     setCameraOpen(true);
   };
@@ -188,7 +187,6 @@ function AppInner() {
     } else if (item.id === "trash") {
       setTrashOpen(true);
     } else if (item.id === "camera") {
-      setBoothWidgetVisible(false);
       setBoothOpenToLibrary(false);
       setCameraOpen(true);
     }
@@ -348,13 +346,11 @@ function AppInner() {
         onClick={() => setMapOpen(true)}
       />
 
-      {boothWidgetVisible && (
-        <VideoBoothWidget
-          placement={desktopLayout.boothWidget}
-          viewport={viewportSize}
-          onClick={enterVideoBooth}
-        />
-      )}
+      <VideoBoothWidget
+        placement={desktopLayout.boothWidget}
+        viewport={viewportSize}
+        onClick={enterVideoBooth}
+      />
 
       {/* QuickTime Window */}
       <QuickTimeWindow
