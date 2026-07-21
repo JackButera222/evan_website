@@ -58,6 +58,15 @@ export function getDesktopLayout(viewportSize, isMobile) {
   const mailX = Math.min(vw - margin - iconBoxWidth, Math.round(vw * 0.65));
   const mailY = Math.max(top, Math.round(vh * 0.4));
 
+  // Video Booth widget sits just to the right of the QuickTime player
+  const widgetW = Math.min(200, Math.max(160, vw - margin * 2));
+  const widgetH = 150;
+  const widgetX = Math.min(
+    vw - margin - widgetW,
+    quicktimeX + quicktimeSize + gap,
+  );
+  const widgetY = quicktimeY;
+
   const layout = {
     quicktime: {
       x: quicktimeX,
@@ -93,6 +102,12 @@ export function getDesktopLayout(viewportSize, isMobile) {
       height: iconBoxHeight,
       iconSize,
     },
+    boothWidget: {
+      x: widgetX,
+      y: widgetY,
+      width: widgetW,
+      height: widgetH,
+    },
   };
 
   // Guarantee no default placements overlap: walk the items in order and push
@@ -105,7 +120,7 @@ export function getDesktopLayout(viewportSize, isMobile) {
     a.y < b.y + b.height + pad &&
     a.y + a.height + pad > b.y;
 
-  const order = ["quicktime", "checkout", "mail", "snake", "map"];
+  const order = ["quicktime", "checkout", "boothWidget", "mail", "snake", "map"];
   for (let i = 1; i < order.length; i++) {
     const item = layout[order[i]];
     for (let guard = 0; guard < 20; guard++) {
