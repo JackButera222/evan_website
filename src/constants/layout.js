@@ -9,8 +9,47 @@ const QUICKTIME_SIZE = { desktop: 360, mobile: 216 };
 // horizontally-centered pair (the icon beside the player, or stacked beneath it
 // when the window is too narrow), so they default near the middle of the screen
 // and never overlap or drift off-screen across resizes or mobile/desktop switches.
+// Hand-tuned mobile layout: a compact centered player up top, a tidy 2x2 icon
+// grid, and the Video Booth widget beneath — all sized to clear the dock even
+// on shorter phones, instead of the free-floating desktop arrangement.
+function getMobileLayout(vw, vh) {
+  const iconSize = ICON_SIZE.mobile;
+  const iconBoxWidth = iconSize + 28;
+  const iconBoxHeight = iconSize + 24;
+
+  const qt = Math.max(140, Math.min(160, vw - 32));
+  const quicktimeY = 40;
+
+  const colLeft = Math.round(vw * 0.14);
+  const colRight = vw - Math.round(vw * 0.14) - iconBoxWidth;
+  const row1Y = quicktimeY + qt + 20;
+  const row2Y = row1Y + iconBoxHeight + 14;
+
+  const widgetW = Math.min(200, vw - 40);
+  const widgetH = 130;
+  const widgetY = row2Y + iconBoxHeight + 18;
+
+  const icon = (x, y) => ({ x, y, width: iconBoxWidth, height: iconBoxHeight, iconSize });
+
+  return {
+    quicktime: { x: Math.round((vw - qt) / 2), y: quicktimeY, width: qt, height: qt },
+    checkout: icon(colLeft, row1Y), // IAC Pack
+    snake: icon(colRight, row1Y), // 2048
+    map: icon(colLeft, row2Y), // Maps
+    mail: icon(colRight, row2Y), // hit me up
+    boothWidget: {
+      x: Math.round((vw - widgetW) / 2),
+      y: widgetY,
+      width: widgetW,
+      height: widgetH,
+    },
+  };
+}
+
 export function getDesktopLayout(viewportSize, isMobile) {
   const { width: vw, height: vh } = viewportSize;
+  if (isMobile) return getMobileLayout(vw, vh);
+
   const margin = isMobile ? 16 : 28;
   const top = isMobile ? 52 : 56;
   const iconSize = isMobile ? ICON_SIZE.mobile : ICON_SIZE.desktop;
