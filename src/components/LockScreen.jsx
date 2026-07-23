@@ -58,9 +58,25 @@ function LockScreen({ now, onUnlock }) {
     }
   };
 
+  // Mobile browsers (Safari in particular) can resize the visible viewport
+  // by a toolbar's worth of pixels without the page's 100dvh box keeping up,
+  // which used to leave a sliver of the real menu bar/dock visible at the
+  // edges. Rather than chase exact viewport math, this overshoots on purpose:
+  // the outer layer is `fixed` (so no ancestor `overflow-hidden` can clip it)
+  // and extends ~200px past every edge, guaranteeing the blur/tint covers any
+  // gap. The inner layer cancels that overhang so the actual clock/profile/
+  // slider content still lands exactly where it always has.
+  const OVERHANG = 200;
+
   return (
     <motion.div
-      className="absolute inset-0 z-[20000] flex flex-col items-center justify-between overflow-hidden py-[12vh] text-white"
+      className="fixed z-[20000] text-white"
+      style={{
+        top: -OVERHANG,
+        bottom: -OVERHANG,
+        left: -OVERHANG,
+        right: -OVERHANG,
+      }}
       initial={{ opacity: 1 }}
       exit={{
         opacity: 0,
@@ -68,86 +84,94 @@ function LockScreen({ now, onUnlock }) {
         transition: { duration: 0.5, ease: "easeInOut" },
       }}
     >
-      {/* Wallpaper backdrop */}
+      {/* Wallpaper backdrop — fills the oversized box, so it overshoots the
+          real screen edges on every side */}
       <div
         aria-hidden="true"
-        className="absolute -inset-8 bg-cover bg-center blur-md"
+        className="absolute inset-0 bg-cover bg-center blur-md"
         style={{ backgroundImage: `url(${wallpaper})` }}
       />
       <div aria-hidden="true" className="absolute inset-0 bg-black/35" />
 
-      {/* Clock */}
-      <div className="relative flex flex-col items-center">
-        <div className="text-6xl font-semibold tracking-tight drop-shadow-lg sm:text-7xl">
-          {time}
+      {/* Content layer — cancels the overhang to sit flush with the true
+          viewport, same layout as before */}
+      <div
+        className="absolute flex flex-col items-center justify-between overflow-hidden py-[12vh]"
+        style={{ inset: OVERHANG }}
+      >
+        {/* Clock */}
+        <div className="relative flex flex-col items-center">
+          <div className="text-6xl font-semibold tracking-tight drop-shadow-lg sm:text-7xl">
+            {time}
+          </div>
+          <div className="mt-1 text-base font-medium text-white/85 drop-shadow sm:text-lg">
+            {date}
+          </div>
         </div>
-        <div className="mt-1 text-base font-medium text-white/85 drop-shadow sm:text-lg">
-          {date}
-        </div>
-      </div>
 
-      {/* Profile */}
-      <div className="relative flex flex-col items-center gap-3">
-        <div className="flex h-28 w-28 items-center justify-center rounded-full border border-white/40 bg-white/40 shadow-2xl backdrop-blur-md sm:h-32 sm:w-32">
-          <img
-            src={logo}
-            alt="Tripod Vawn"
-            className="h-[78%] w-[78%] object-contain"
-          />
+        {/* Profile */}
+        <div className="relative flex flex-col items-center gap-3">
+          <div className="flex h-28 w-28 items-center justify-center rounded-full border border-white/40 bg-white/40 shadow-2xl backdrop-blur-md sm:h-32 sm:w-32">
+            <img
+              src={logo}
+              alt="Tripod Vawn"
+              className="h-[78%] w-[78%] object-contain"
+            />
+          </div>
+          <div className="text-xl font-semibold drop-shadow sm:text-2xl">
+            tripodvawn
+          </div>
         </div>
-        <div className="text-xl font-semibold drop-shadow sm:text-2xl">
-          tripodvawn
-        </div>
-      </div>
 
-      {/* Slide to enter */}
-      <div className="relative w-full max-w-[320px] px-6">
-        <div
-          ref={trackRef}
-          className="relative flex h-[66px] items-center overflow-hidden rounded-full border border-white/25 bg-white/10 backdrop-blur-md"
-        >
-          {/* trailing fill that brightens as you drag */}
-          <motion.div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 rounded-full bg-white"
-            style={{ opacity: fillOpacity }}
-          />
-
-          <motion.span
-            aria-hidden="true"
-            style={{ opacity: hintOpacity }}
-            className="lock-shimmer pointer-events-none absolute inset-0 flex items-center justify-center text-base font-medium"
+        {/* Slide to enter */}
+        <div className="relative w-full max-w-[320px] px-6">
+          <div
+            ref={trackRef}
+            className="relative flex h-[66px] items-center overflow-hidden rounded-full border border-white/25 bg-white/10 backdrop-blur-md"
           >
-            slide to enter
-          </motion.span>
+            {/* trailing fill that brightens as you drag */}
+            <motion.div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 rounded-full bg-white"
+              style={{ opacity: fillOpacity }}
+            />
 
-          <motion.button
-            type="button"
-            aria-label="Slide to enter"
-            drag="x"
-            dragConstraints={trackRef}
-            dragElastic={0}
-            dragMomentum={false}
-            style={{ x, width: KNOB, height: KNOB, marginLeft: PAD }}
-            onDragEnd={handleDragEnd}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") enter();
-            }}
-            whileTap={{ scale: 0.96 }}
-            className="relative z-10 flex shrink-0 cursor-grab items-center justify-center rounded-full border border-white/40 bg-white/40 text-white shadow-lg backdrop-blur-md active:cursor-grabbing"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-6 w-6"
+            <motion.span
+              aria-hidden="true"
+              style={{ opacity: hintOpacity }}
+              className="lock-shimmer pointer-events-none absolute inset-0 flex items-center justify-center text-base font-medium"
             >
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
-          </motion.button>
+              slide to enter
+            </motion.span>
+
+            <motion.button
+              type="button"
+              aria-label="Slide to enter"
+              drag="x"
+              dragConstraints={trackRef}
+              dragElastic={0}
+              dragMomentum={false}
+              style={{ x, width: KNOB, height: KNOB, marginLeft: PAD }}
+              onDragEnd={handleDragEnd}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") enter();
+              }}
+              whileTap={{ scale: 0.96 }}
+              className="relative z-10 flex shrink-0 cursor-grab items-center justify-center rounded-full border border-white/40 bg-white/40 text-white shadow-lg backdrop-blur-md active:cursor-grabbing"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-6 w-6"
+              >
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </motion.button>
+          </div>
         </div>
       </div>
     </motion.div>
