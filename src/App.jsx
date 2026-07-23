@@ -6,6 +6,7 @@ import { getWindowProps } from "./utils/window";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ContactPage from "./components/ContactPage";
 import IacPackPage from "./components/IacPackPage";
+import VideosPage from "./components/VideosPage";
 import GlobalPreview from "./components/GlobalPreview";
 import LockScreen from "./components/LockScreen";
 import Dock from "./components/Dock";
@@ -492,6 +493,8 @@ export default function App() {
         <ContactPage />
       ) : path === "/iacpack" ? (
         <IacPackPage />
+      ) : path === "/videos" ? (
+        <VideosPage />
       ) : (
         <AppInner />
       )}

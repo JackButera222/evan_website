@@ -139,7 +139,17 @@ function renderFrame(video, offCtx, ctx, w, h, map, colorEffect, vignette) {
   }
 }
 
-export default function VideoBoothWindow({ isOpen, onClose, getWindowProps, openToLibrary = false }) {
+// Shared booth logic + UI (camera stage, effects grid, filmstrip, recording
+// controls). Rendered two ways: as a draggable desktop window ("window"
+// variant, wrapped in Rnd) and as the full-page /videos experience ("page"
+// variant — chrome-less, sized by its page-level container instead).
+export function VideoBoothExperience({
+  variant = "window",
+  isOpen = true,
+  onClose,
+  openToLibrary = false,
+  getWindowProps,
+}) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const offRef = useRef(null);
@@ -342,10 +352,251 @@ export default function VideoBoothWindow({ isOpen, onClose, getWindowProps, open
     setStage(strip[next]);
   };
 
-  if (!isOpen) return null;
+  if (variant === "window" && !isOpen) return null;
 
   const stagedLibrary = stage.type === "library" ? boothVideos[stage.i] : null;
   const stagedCapture = stage.type === "capture" ? captures[stage.i] : null;
+
+  const recBadge = recording && (
+    <div className="ml-auto flex items-center gap-1.5 text-xs font-semibold text-red-400">
+      <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" /> REC
+    </div>
+  );
+
+  const titleBar =
+    variant === "page" ? (
+      <div className="flex h-11 items-center gap-2 border-b border-white/10 bg-zinc-900 px-4">
+        <a
+          href="/"
+          aria-label="Back to tripodvawn.com"
+          className="h-3.5 w-3.5 rounded-full border border-red-300/50 bg-red-500 hover:bg-red-400"
+        />
+        <span className="h-3.5 w-3.5 rounded-full border border-yellow-200/50 bg-yellow-400" />
+        <span className="h-3.5 w-3.5 rounded-full border border-green-300/50 bg-green-500" />
+        <div className="ml-3 text-sm font-medium text-white/85">Video Booth</div>
+        {recBadge}
+      </div>
+    ) : (
+      <div className="pb-title-bar flex h-11 touch-none cursor-grab items-center gap-2 border-b border-white/10 bg-zinc-900 px-4 active:cursor-grabbing">
+        <button type="button" aria-label="Close Video Booth" onClick={onClose}
+          className="window-control w-3.5 h-3.5 rounded-full bg-red-500 border border-red-300/50 hover:bg-red-400" />
+        <button type="button" aria-label="Minimize"
+          className="window-control w-3.5 h-3.5 rounded-full bg-yellow-400 border border-yellow-200/50" />
+        <button type="button" aria-label="Zoom"
+          className="window-control w-3.5 h-3.5 rounded-full bg-green-500 border border-green-300/50" />
+        <div className="ml-3 text-sm font-medium text-white/85">Video Booth</div>
+        {recBadge}
+      </div>
+    );
+
+  const body = (
+    <div className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-white/20 bg-black shadow-2xl">
+      {titleBar}
+
+      {/* Stage */}
+      <div className="relative flex-1 bg-black flex flex-col min-h-0">
+        {cameraMode && (
+          <>
+            <video ref={videoRef} className="hidden" playsInline muted />
+            <canvas ref={canvasRef} width={W} height={H} className="h-full w-full object-cover" />
+            {error && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black text-white/60 text-sm text-center px-6">
+                <span className="text-3xl">📵</span>
+                <p>Camera access denied</p>
+                <p className="text-xs text-white/40">{error}</p>
+              </div>
+            )}
+            {!cameraEnabled && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-zinc-950 px-6 text-center">
+                <span className="text-4xl">🎥</span>
+                <p className="text-sm text-white/70">
+                  Want to record a clip with effects?
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setCameraEnabled(true)}
+                  className="window-control rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow transition hover:bg-blue-500"
+                >
+                  Enable Camera
+                </button>
+                <p className="text-xs text-white/35">
+                  Your browser will ask for permission. Nothing is uploaded —
+                  recordings stay on your device.
+                </p>
+              </div>
+            )}
+            {cameraEnabled && !ready && !error && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black text-white/40 text-sm">
+                Starting camera…
+              </div>
+            )}
+
+            {/* Effects panel — classic 3x3 live grid */}
+            {showEffects && ready && (
+              <div className="pb-effects absolute inset-0 grid grid-cols-3 grid-rows-3 gap-1 bg-black/90 p-2">
+                {EFFECTS.map((fx) => (
+                  <button
+                    key={fx.id}
+                    type="button"
+                    onClick={() => {
+                      setEffect(fx.id);
+                      setShowEffects(false);
+                    }}
+                    className={`relative overflow-hidden rounded border transition ${
+                      effect === fx.id ? "border-blue-400" : "border-white/15 hover:border-white/50"
+                    }`}
+                  >
+                    <canvas
+                      ref={(el) => { previewRefs.current[fx.id] = el; }}
+                      width={PREVIEW_W}
+                      height={PREVIEW_H}
+                      className="h-full w-full object-cover"
+                    />
+                    <span className="absolute inset-x-0 bottom-0 bg-black/55 py-0.5 text-center text-[10px] font-medium text-white/90">
+                      {fx.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {stagedLibrary && (
+          <video
+            key={stagedLibrary.src}
+            src={stagedLibrary.src}
+            className="pb-player h-full w-full object-contain bg-black"
+            controls
+            autoPlay
+            playsInline
+            muted={!hasUnmuted}
+            onVolumeChange={(e) => {
+              if (!e.currentTarget.muted) setHasUnmuted(true);
+            }}
+          />
+        )}
+
+        {stagedCapture && (
+          <>
+            <video
+              key={stagedCapture.url}
+              src={stagedCapture.url}
+              className="pb-player h-full w-full object-contain bg-black"
+              controls
+              autoPlay
+              playsInline
+              loop
+            />
+            <button
+              type="button"
+              onClick={() => saveCapture(stagedCapture)}
+              className="window-control absolute right-3 top-3 rounded-full bg-black/60 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur hover:bg-black/80"
+            >
+              Save ↓
+            </button>
+          </>
+        )}
+
+        {/* Prev / next arrows */}
+        {strip.length > 1 && !showEffects && (
+          <>
+            <button type="button" aria-label="Previous" onClick={() => stepStage(-1)}
+              className="window-control absolute left-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white/90 backdrop-blur hover:bg-black/70">
+              ‹
+            </button>
+            <button type="button" aria-label="Next" onClick={() => stepStage(1)}
+              className="window-control absolute right-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white/90 backdrop-blur hover:bg-black/70">
+              ›
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Filmstrip */}
+      <div className="pb-strip flex gap-2 overflow-x-auto border-t border-white/10 bg-zinc-900/90 px-3 py-2">
+        <button
+          type="button"
+          onClick={() => setStage({ type: "camera" })}
+          className={`flex h-14 w-20 shrink-0 items-center justify-center rounded-md border text-2xl transition ${
+            cameraMode ? "border-blue-400 bg-zinc-700" : "border-white/10 bg-zinc-800 hover:bg-zinc-700"
+          }`}
+          aria-label="Live camera"
+        >
+          📷
+        </button>
+        {boothVideos.map((v, i) => (
+          <button
+            key={v.src}
+            type="button"
+            onClick={() => setStage({ type: "library", i })}
+            className={`relative h-14 w-20 shrink-0 overflow-hidden rounded-md border transition ${
+              stage.type === "library" && stage.i === i ? "border-blue-400" : "border-white/10 hover:border-white/30"
+            }`}
+            aria-label={`Play ${v.name}`}
+          >
+            <video src={v.src} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+            <span className="absolute inset-0 flex items-center justify-center text-white/90 text-lg drop-shadow">▶</span>
+          </button>
+        ))}
+        {captures.map((c, i) => (
+          <button
+            key={c.url}
+            type="button"
+            onClick={() => setStage({ type: "capture", i })}
+            className={`relative h-14 w-20 shrink-0 overflow-hidden rounded-md border transition ${
+              stage.type === "capture" && stage.i === i ? "border-blue-400" : "border-white/10 hover:border-white/30"
+            }`}
+            aria-label={`View ${c.name}`}
+          >
+            <video src={c.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+            <span className="absolute inset-0 flex items-center justify-center text-white/90 text-lg drop-shadow">▶</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Controls (camera mode only) */}
+      {cameraMode && (
+        <div className="flex items-center justify-between bg-zinc-900 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowEffects((s) => !s)}
+              disabled={!ready || recording}
+              className={`window-control h-10 rounded-lg border px-3 text-sm font-medium transition disabled:opacity-40 ${
+                showEffects ? "border-blue-400 bg-zinc-700 text-white" : "border-white/10 bg-zinc-800 text-white/85 hover:bg-zinc-700"
+              }`}
+            >
+              Effects
+            </button>
+          </div>
+
+          {/* Record */}
+          <button
+            type="button"
+            onClick={toggleRecording}
+            disabled={!ready}
+            aria-label={recording ? "Stop recording" : "Start recording"}
+            className="window-control flex h-14 w-14 items-center justify-center rounded-full border-4 border-white bg-white/10 transition-all hover:bg-white/20 active:scale-95 disabled:opacity-40"
+          >
+            <span className={`bg-red-500 transition-all ${recording ? "h-5 w-5 rounded" : "h-8 w-8 rounded-full"}`} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFacingMode((f) => (f === "environment" ? "user" : "environment"))}
+            disabled={!ready || recording}
+            className="window-control flex h-10 w-10 items-center justify-center rounded-full bg-zinc-700 text-lg text-white transition-all hover:bg-zinc-600 active:scale-95 disabled:opacity-40"
+            aria-label="Flip camera"
+          >
+            🔄
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  if (variant === "page") return body;
 
   return (
     <Rnd {...getWindowProps} dragHandleClassName="pb-title-bar" cancel=".window-control, .pb-strip, .pb-player, .pb-effects">
@@ -353,225 +604,22 @@ export default function VideoBoothWindow({ isOpen, onClose, getWindowProps, open
         initial={{ opacity: 0, y: 16, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.18, ease: "easeOut" }}
-        className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-white/20 bg-black shadow-2xl"
+        className="h-full w-full"
       >
-        {/* Title bar */}
-        <div className="pb-title-bar flex h-11 touch-none cursor-grab items-center gap-2 border-b border-white/10 bg-zinc-900 px-4 active:cursor-grabbing">
-          <button type="button" aria-label="Close Video Booth" onClick={onClose}
-            className="window-control w-3.5 h-3.5 rounded-full bg-red-500 border border-red-300/50 hover:bg-red-400" />
-          <button type="button" aria-label="Minimize"
-            className="window-control w-3.5 h-3.5 rounded-full bg-yellow-400 border border-yellow-200/50" />
-          <button type="button" aria-label="Zoom"
-            className="window-control w-3.5 h-3.5 rounded-full bg-green-500 border border-green-300/50" />
-          <div className="ml-3 text-sm font-medium text-white/85">Video Booth</div>
-          {recording && (
-            <div className="ml-auto flex items-center gap-1.5 text-xs font-semibold text-red-400">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" /> REC
-            </div>
-          )}
-        </div>
-
-        {/* Stage */}
-        <div className="relative flex-1 bg-black flex flex-col min-h-0">
-          {cameraMode && (
-            <>
-              <video ref={videoRef} className="hidden" playsInline muted />
-              <canvas ref={canvasRef} width={W} height={H} className="h-full w-full object-cover" />
-              {error && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black text-white/60 text-sm text-center px-6">
-                  <span className="text-3xl">📵</span>
-                  <p>Camera access denied</p>
-                  <p className="text-xs text-white/40">{error}</p>
-                </div>
-              )}
-              {!cameraEnabled && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-zinc-950 px-6 text-center">
-                  <span className="text-4xl">🎥</span>
-                  <p className="text-sm text-white/70">
-                    Want to record a clip with effects?
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setCameraEnabled(true)}
-                    className="window-control rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow transition hover:bg-blue-500"
-                  >
-                    Enable Camera
-                  </button>
-                  <p className="text-xs text-white/35">
-                    Your browser will ask for permission. Nothing is uploaded —
-                    recordings stay on your device.
-                  </p>
-                </div>
-              )}
-              {cameraEnabled && !ready && !error && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black text-white/40 text-sm">
-                  Starting camera…
-                </div>
-              )}
-
-              {/* Effects panel — classic 3x3 live grid */}
-              {showEffects && ready && (
-                <div className="pb-effects absolute inset-0 grid grid-cols-3 grid-rows-3 gap-1 bg-black/90 p-2">
-                  {EFFECTS.map((fx) => (
-                    <button
-                      key={fx.id}
-                      type="button"
-                      onClick={() => {
-                        setEffect(fx.id);
-                        setShowEffects(false);
-                      }}
-                      className={`relative overflow-hidden rounded border transition ${
-                        effect === fx.id ? "border-blue-400" : "border-white/15 hover:border-white/50"
-                      }`}
-                    >
-                      <canvas
-                        ref={(el) => { previewRefs.current[fx.id] = el; }}
-                        width={PREVIEW_W}
-                        height={PREVIEW_H}
-                        className="h-full w-full object-cover"
-                      />
-                      <span className="absolute inset-x-0 bottom-0 bg-black/55 py-0.5 text-center text-[10px] font-medium text-white/90">
-                        {fx.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-
-          {stagedLibrary && (
-            <video
-              key={stagedLibrary.src}
-              src={stagedLibrary.src}
-              className="pb-player h-full w-full object-contain bg-black"
-              controls
-              autoPlay
-              playsInline
-              muted={!hasUnmuted}
-              onVolumeChange={(e) => {
-                if (!e.currentTarget.muted) setHasUnmuted(true);
-              }}
-            />
-          )}
-
-          {stagedCapture && (
-            <>
-              <video
-                key={stagedCapture.url}
-                src={stagedCapture.url}
-                className="pb-player h-full w-full object-contain bg-black"
-                controls
-                autoPlay
-                playsInline
-                loop
-              />
-              <button
-                type="button"
-                onClick={() => saveCapture(stagedCapture)}
-                className="window-control absolute right-3 top-3 rounded-full bg-black/60 px-4 py-1.5 text-xs font-semibold text-white backdrop-blur hover:bg-black/80"
-              >
-                Save ↓
-              </button>
-            </>
-          )}
-
-          {/* Prev / next arrows */}
-          {strip.length > 1 && !showEffects && (
-            <>
-              <button type="button" aria-label="Previous" onClick={() => stepStage(-1)}
-                className="window-control absolute left-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white/90 backdrop-blur hover:bg-black/70">
-                ‹
-              </button>
-              <button type="button" aria-label="Next" onClick={() => stepStage(1)}
-                className="window-control absolute right-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white/90 backdrop-blur hover:bg-black/70">
-                ›
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* Filmstrip */}
-        <div className="pb-strip flex gap-2 overflow-x-auto border-t border-white/10 bg-zinc-900/90 px-3 py-2">
-          <button
-            type="button"
-            onClick={() => setStage({ type: "camera" })}
-            className={`flex h-14 w-20 shrink-0 items-center justify-center rounded-md border text-2xl transition ${
-              cameraMode ? "border-blue-400 bg-zinc-700" : "border-white/10 bg-zinc-800 hover:bg-zinc-700"
-            }`}
-            aria-label="Live camera"
-          >
-            📷
-          </button>
-          {boothVideos.map((v, i) => (
-            <button
-              key={v.src}
-              type="button"
-              onClick={() => setStage({ type: "library", i })}
-              className={`relative h-14 w-20 shrink-0 overflow-hidden rounded-md border transition ${
-                stage.type === "library" && stage.i === i ? "border-blue-400" : "border-white/10 hover:border-white/30"
-              }`}
-              aria-label={`Play ${v.name}`}
-            >
-              <video src={v.src} muted playsInline preload="metadata" className="h-full w-full object-cover" />
-              <span className="absolute inset-0 flex items-center justify-center text-white/90 text-lg drop-shadow">▶</span>
-            </button>
-          ))}
-          {captures.map((c, i) => (
-            <button
-              key={c.url}
-              type="button"
-              onClick={() => setStage({ type: "capture", i })}
-              className={`relative h-14 w-20 shrink-0 overflow-hidden rounded-md border transition ${
-                stage.type === "capture" && stage.i === i ? "border-blue-400" : "border-white/10 hover:border-white/30"
-              }`}
-              aria-label={`View ${c.name}`}
-            >
-              <video src={c.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
-              <span className="absolute inset-0 flex items-center justify-center text-white/90 text-lg drop-shadow">▶</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Controls (camera mode only) */}
-        {cameraMode && (
-          <div className="flex items-center justify-between bg-zinc-900 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowEffects((s) => !s)}
-                disabled={!ready || recording}
-                className={`window-control h-10 rounded-lg border px-3 text-sm font-medium transition disabled:opacity-40 ${
-                  showEffects ? "border-blue-400 bg-zinc-700 text-white" : "border-white/10 bg-zinc-800 text-white/85 hover:bg-zinc-700"
-                }`}
-              >
-                Effects
-              </button>
-            </div>
-
-            {/* Record */}
-            <button
-              type="button"
-              onClick={toggleRecording}
-              disabled={!ready}
-              aria-label={recording ? "Stop recording" : "Start recording"}
-              className="window-control flex h-14 w-14 items-center justify-center rounded-full border-4 border-white bg-white/10 transition-all hover:bg-white/20 active:scale-95 disabled:opacity-40"
-            >
-              <span className={`bg-red-500 transition-all ${recording ? "h-5 w-5 rounded" : "h-8 w-8 rounded-full"}`} />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setFacingMode((f) => (f === "environment" ? "user" : "environment"))}
-              disabled={!ready || recording}
-              className="window-control flex h-10 w-10 items-center justify-center rounded-full bg-zinc-700 text-lg text-white transition-all hover:bg-zinc-600 active:scale-95 disabled:opacity-40"
-              aria-label="Flip camera"
-            >
-              🔄
-            </button>
-          </div>
-        )}
+        {body}
       </motion.div>
     </Rnd>
+  );
+}
+
+export default function VideoBoothWindow({ isOpen, onClose, getWindowProps, openToLibrary = false }) {
+  return (
+    <VideoBoothExperience
+      variant="window"
+      isOpen={isOpen}
+      onClose={onClose}
+      openToLibrary={openToLibrary}
+      getWindowProps={getWindowProps}
+    />
   );
 }

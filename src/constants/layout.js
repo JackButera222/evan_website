@@ -77,49 +77,32 @@ export function getDesktopLayout(viewportSize, isMobile) {
 
   const quicktimeY = Math.max(top, Math.round(vh * 0.13));
 
-  // Center the QuickTime + gap + icon pair horizontally as a unit.
-  const pairWidth = quicktimeSize + gap + iconBoxWidth;
-  const pairLeft = Math.max(margin, Math.round((vw - pairWidth) / 2) - 80);
-  let quicktimeX = pairLeft;
-  let checkoutX = pairLeft + quicktimeSize + gap;
+  // QuickTime on the left, checkout (IAC Pack) in upper middle area
+  let quicktimeX = Math.max(margin, Math.round(vw * 0.15));
+  let checkoutX = Math.round(vw * 0.5);
 
-  const fitsSideBySide = checkoutX + iconBoxWidth <= vw - margin;
+  let checkout = {
+    x: checkoutX,
+    y: Math.max(top, Math.round(vh * 0.25)),
+  };
 
-  let checkout;
-  if (fitsSideBySide) {
-    checkout = {
-      x: checkoutX,
-      y: quicktimeY + Math.round((quicktimeSize - iconBoxHeight) / 2),
-    };
-  } else {
-    // Too narrow for side-by-side: centre the player and stack the icon beneath.
-    quicktimeX = Math.max(margin, Math.round((vw - quicktimeSize) / 2));
-    checkout = {
-      x: Math.round(quicktimeX + (quicktimeSize - iconBoxWidth) / 2),
-      y: quicktimeY + quicktimeSize + gap,
-    };
-  }
+  // Snake icon (2048) sits in the lower right
+  const snakeX = Math.min(vw - margin - iconBoxWidth, Math.round(vw * 0.68));
+  const snakeY = Math.max(top, Math.round(vh * 0.68));
 
-  // Snake icon sits to the right side of the screen
-  const snakeX = Math.min(vw - margin - iconBoxWidth, Math.round(vw * 0.5));
-  const snakeY = Math.max(top, Math.round(vh * 0.7));
-
-  // Maps icon lower-left area
+  // Maps icon lower-left area (will be moved to dock, but keep for now)
   const mapX = Math.max(margin, Math.round(vw * 0.16));
   const mapY = Math.max(top, Math.round(vh * 0.68));
 
-  // Mail ("hit me up") icon on the right side, above the snake icon
-  const mailX = Math.min(vw - margin - iconBoxWidth, Math.round(vw * 0.65));
-  const mailY = Math.max(top, Math.round(vh * 0.4));
+  // Mail ("hit me up") icon below the Video Booth widget, center-right
+  const mailX = Math.min(vw - margin - iconBoxWidth, Math.round(vw * 0.45));
+  const mailY = Math.max(top, Math.round(vh * 0.52));
 
-  // Video Booth widget sits just to the right of the QuickTime player
+  // Video Booth widget sits in the middle-right area
   const widgetW = Math.min(200, Math.max(160, vw - margin * 2));
   const widgetH = 150;
-  const widgetX = Math.min(
-    vw - margin - widgetW,
-    quicktimeX + quicktimeSize + gap,
-  );
-  const widgetY = quicktimeY;
+  const widgetX = Math.round(vw * 0.58);
+  const widgetY = Math.max(top, Math.round(vh * 0.35));
 
   const layout = {
     quicktime: {
