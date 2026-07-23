@@ -13,7 +13,6 @@ import CheckoutIcon from "./components/desktop-icons/CheckoutIcon";
 import QuickTimeWindow from "./components/desktop-icons/QuickTimeWindow";
 import SnakeIcon from "./components/desktop-icons/SnakeIcon";
 import MailIcon from "./components/desktop-icons/MailIcon";
-import MapIcon from "./components/desktop-icons/MapIcon";
 import VideoBoothWidget from "./components/desktop-icons/VideoBoothWidget";
 import FinderWindow from "./components/windows/FinderWindow";
 import PhotosWindow from "./components/windows/PhotosWindow";
@@ -29,7 +28,7 @@ import mojaveNight from "./assets/mojave-night.jpg";
 import notes from "./assets/notes.png";
 import photos from "./assets/photos.png";
 import trash from "./assets/trash.png";
-import photoBoothIcon from "./assets/photobooth-icon.svg";
+import mapsIcon from "./assets/maps-icon.svg";
 
 function AppInner() {
   const viewportSize = useViewportSize();
@@ -160,10 +159,10 @@ function AppInner() {
       isOpen: notesOpen,
     },
     {
-      id: "camera",
-      label: "Video Booth",
-      icon: photoBoothIcon,
-      isOpen: cameraOpen,
+      id: "maps",
+      label: "Shoot Map",
+      icon: mapsIcon,
+      isOpen: mapOpen,
     },
     { divider: true },
     {
@@ -186,9 +185,8 @@ function AppInner() {
       setNotesOpen(true);
     } else if (item.id === "trash") {
       setTrashOpen(true);
-    } else if (item.id === "camera") {
-      setBoothOpenToLibrary(false);
-      setCameraOpen(true);
+    } else if (item.id === "maps") {
+      setMapOpen(true);
     }
   };
 
@@ -338,12 +336,6 @@ function AppInner() {
           setContactSent(false);
           setBookingSent(false);
         }}
-      />
-
-      <MapIcon
-        placement={desktopLayout.map}
-        viewport={viewportSize}
-        onClick={() => setMapOpen(true)}
       />
 
       <VideoBoothWidget
