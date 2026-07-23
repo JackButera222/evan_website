@@ -45,7 +45,7 @@ function VideoBoothWidget({ placement, viewport, onClick }) {
     >
       <button
         type="button"
-        aria-label="Enter the Video Booth"
+        aria-label="Enter the Short Form Content Booth"
         onPointerDown={(event) => {
           pointerStartRef.current = { x: event.clientX, y: event.clientY };
         }}
@@ -65,9 +65,9 @@ function VideoBoothWidget({ placement, viewport, onClick }) {
           className="pointer-events-none h-12 w-12 drop-shadow-lg"
         />
         <div>
-          <div className="text-sm font-semibold leading-tight">Enter the Video Booth</div>
+          <div className="text-sm font-semibold leading-tight">Enter the Short Form Content Booth</div>
           <div className="mt-0.5 text-[11px] leading-tight text-white/65">
-            Click here to view example videos
+            View example videos
           </div>
         </div>
       </button>
