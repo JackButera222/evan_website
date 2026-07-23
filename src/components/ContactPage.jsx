@@ -5,6 +5,8 @@ import {
   tabs,
   BookShootForm,
   GeneralInquiriesForm,
+  SuccessCheckOverlay,
+  useSuccessCheck,
 } from "./windows/ContactsWindow";
 import appleLogo from "../assets/apple_logo.svg.png";
 import tripodVawnLogo from "../assets/TRIPOD VAWN LOGO V3.png";
@@ -20,6 +22,7 @@ function ContactPage() {
   const [bookingSent, setBookingSent] = useState(false);
   const [contactSent, setContactSent] = useState(false);
   const [activeTab, setActiveTab] = useState("book");
+  const showSuccess = useSuccessCheck(contactSent, setContactSent);
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(new Date()), 1_000);
@@ -90,7 +93,7 @@ function ContactPage() {
             <div className="ml-3 text-sm font-medium text-white/85">Mail — Contact</div>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto bg-zinc-100 text-zinc-900">
+          <div className="relative min-h-0 flex-1 overflow-y-auto bg-zinc-100 text-zinc-900">
             {/* Bio header */}
             <div className="border-b border-zinc-200 bg-white/70 px-6 py-6 sm:px-10">
               <div className="flex items-center gap-4">
@@ -169,12 +172,13 @@ function ContactPage() {
                   />
                 ) : (
                   <GeneralInquiriesForm
-                    contactSent={contactSent}
                     onSubmit={(event) => handleGeneralSubmit(event, setContactSent)}
                   />
                 )}
               </main>
             </div>
+
+            <SuccessCheckOverlay show={showSuccess} />
           </div>
         </motion.div>
 

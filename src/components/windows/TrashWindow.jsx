@@ -38,7 +38,7 @@ function TrashWindow({ isOpen, onClose, galleryPhotos, getWindowProps }) {
 
         <div className="trash-list min-h-0 flex-1 overflow-auto bg-zinc-100 text-zinc-900">
           <div className="grid grid-cols-1 gap-3 p-4">
-            {galleryPhotos.concat(galleryPhotos).map((photo, index) => (
+            {/* {galleryPhotos.concat(galleryPhotos).map((photo, index) => (
               <button
                 type="button"
                 key={`${photo.alt}-trash-${index}`}
@@ -53,7 +53,7 @@ function TrashWindow({ isOpen, onClose, galleryPhotos, getWindowProps }) {
                   style={{ objectPosition: photo.position }}
                 />
               </button>
-            ))}
+            ))} */}
           </div>
         </div>
       </motion.div>

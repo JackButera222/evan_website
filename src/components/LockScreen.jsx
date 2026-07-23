@@ -60,7 +60,7 @@ function LockScreen({ now, onUnlock }) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[20000] flex flex-col items-center justify-between overflow-hidden py-[12vh] text-white"
+      className="absolute inset-0 z-[20000] flex flex-col items-center justify-between overflow-hidden py-[12vh] text-white"
       initial={{ opacity: 1 }}
       exit={{
         opacity: 0,

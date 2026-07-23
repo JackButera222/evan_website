@@ -62,6 +62,7 @@ export async function handleGeneralSubmit(event, setContactSent) {
     const mailSubject = encodeURIComponent(subject || "TripodVawn Inquiry");
     const body = encodeURIComponent(`Email: ${email}\n\n${message}`);
     window.location.href = `mailto:tripodvawn@gmail.com?subject=${mailSubject}&body=${body}`;
+    form.reset();
     setContactSent(true);
   }
 }

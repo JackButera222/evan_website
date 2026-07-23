@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Rnd } from "react-rnd";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import tripodVawnLogo from "../../assets/TRIPOD VAWN LOGO V3.png";
 import { handleBookingSubmit, handleGeneralSubmit } from "../../utils/handlers";
 
@@ -8,6 +8,65 @@ export const tabs = [
   { id: "book", label: "Book Shoot" },
   { id: "general", label: "General Inquiries" },
 ];
+
+// Drives the brief Apple-Pay-style checkmark overlay: `trigger` flips true
+// the moment a submit handler resolves, we hold the overlay up for a beat,
+// then flip `trigger` back to false (via setTrigger) so a later resubmit
+// can fire it again.
+export function useSuccessCheck(trigger, setTrigger, duration = 1700) {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (!trigger) return;
+    setShow(true);
+    const timer = setTimeout(() => {
+      setShow(false);
+      setTrigger(false);
+    }, duration);
+    return () => clearTimeout(timer);
+  }, [trigger, setTrigger, duration]);
+
+  return show;
+}
+
+export function SuccessCheckOverlay({ show }) {
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          key="success-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className="absolute inset-0 z-30 flex items-center justify-center bg-white/50 backdrop-blur-md"
+        >
+          <motion.div
+            initial={{ scale: 0.4, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.7, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 320, damping: 22 }}
+            className="flex h-20 w-20 items-center justify-center rounded-full bg-zinc-900 shadow-xl"
+          >
+            <svg viewBox="0 0 24 24" className="h-10 w-10">
+              <motion.path
+                d="M5 13l4 4L19 7"
+                fill="none"
+                stroke="white"
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.4, delay: 0.15, ease: "easeOut" }}
+              />
+            </svg>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
 
 function ContactsWindow({
   isOpen,
@@ -19,6 +78,7 @@ function ContactsWindow({
   getWindowProps,
 }) {
   const [activeTab, setActiveTab] = useState("book");
+  const showSuccess = useSuccessCheck(contactSent, setContactSent);
 
   if (!isOpen) return null;
 
@@ -55,7 +115,7 @@ function ContactsWindow({
           <div className="ml-3 text-sm font-medium text-white/85">Mail</div>
         </div>
 
-        <div className="flex min-h-0 flex-1 bg-zinc-100 text-zinc-900">
+        <div className="relative flex min-h-0 flex-1 bg-zinc-100 text-zinc-900">
           <aside
             role="tablist"
             aria-label="Mail sections"
@@ -117,11 +177,12 @@ function ContactsWindow({
               />
             ) : (
               <GeneralInquiriesForm
-                contactSent={contactSent}
                 onSubmit={(event) => handleGeneralSubmit(event, setContactSent)}
               />
             )}
           </main>
+
+          <SuccessCheckOverlay show={showSuccess} />
         </div>
       </motion.div>
     </Rnd>
@@ -268,7 +329,7 @@ export function BookShootForm({ bookingSent, setBookingSent }) {
             type="submit"
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
           >
-            SUBMIT
+            Send Message
           </button>
         </div>
       </form>
@@ -276,7 +337,7 @@ export function BookShootForm({ bookingSent, setBookingSent }) {
   );
 }
 
-export function GeneralInquiriesForm({ contactSent, onSubmit }) {
+export function GeneralInquiriesForm({ onSubmit }) {
   return (
     <>
       <div className="mb-5">
@@ -328,10 +389,7 @@ export function GeneralInquiriesForm({ contactSent, onSubmit }) {
           />
         </label>
 
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-green-700">
-            {contactSent ? "Message sent — talk soon!" : ""}
-          </p>
+        <div className="flex items-center justify-end gap-3">
           <button
             type="submit"
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
