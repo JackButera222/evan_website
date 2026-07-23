@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import tripodVawnLogo from "../../assets/TRIPOD VAWN LOGO V3.png";
 import { handleBookingSubmit, handleGeneralSubmit } from "../../utils/handlers";
 
-const tabs = [
+export const tabs = [
   { id: "book", label: "Book Shoot" },
   { id: "general", label: "General Inquiries" },
 ];
@@ -128,7 +128,7 @@ function ContactsWindow({
   );
 }
 
-function BookShootForm({ bookingSent, setBookingSent }) {
+export function BookShootForm({ bookingSent, setBookingSent }) {
   return (
     <>
       <div className="mb-5">
@@ -242,7 +242,6 @@ function BookShootForm({ bookingSent, setBookingSent }) {
           </span>
           <input
             name="instagram"
-            type="url"
             required
             placeholder="https://instagram.com/yourhandle"
             className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
@@ -277,7 +276,7 @@ function BookShootForm({ bookingSent, setBookingSent }) {
   );
 }
 
-function GeneralInquiriesForm({ contactSent, onSubmit }) {
+export function GeneralInquiriesForm({ contactSent, onSubmit }) {
   return (
     <>
       <div className="mb-5">

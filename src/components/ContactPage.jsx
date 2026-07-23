@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { handleBookingSubmit } from "../utils/handlers";
+import { handleGeneralSubmit } from "../utils/handlers";
+import {
+  tabs,
+  BookShootForm,
+  GeneralInquiriesForm,
+} from "./windows/ContactsWindow";
 import appleLogo from "../assets/apple_logo.svg.png";
 import tripodVawnLogo from "../assets/TRIPOD VAWN LOGO V3.png";
 import mojaveDay from "../assets/mojave-day.jpg";
@@ -13,6 +18,8 @@ import mojaveNight from "../assets/mojave-night.jpg";
 function ContactPage() {
   const [now, setNow] = useState(() => new Date());
   const [bookingSent, setBookingSent] = useState(false);
+  const [contactSent, setContactSent] = useState(false);
+  const [activeTab, setActiveTab] = useState("book");
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(new Date()), 1_000);
@@ -104,119 +111,69 @@ function ContactPage() {
               </p>
             </div>
 
-            {/* Booking form */}
-            <div className="px-6 py-6 sm:px-10 sm:py-8">
-              <div className="mb-5">
-                <h2 className="text-xl font-semibold">Book a Shoot</h2>
-                <p className="mt-1 text-sm text-zinc-500">
-                  Fill it out and it goes straight to my inbox.
-                </p>
-              </div>
-
-              <form
-                className="space-y-4"
-                onSubmit={(event) => handleBookingSubmit(event, setBookingSent)}
+            {/* Tabs + form */}
+            <div className="flex flex-1 flex-col sm:flex-row">
+              <aside
+                role="tablist"
+                aria-label="Mail sections"
+                className="hidden w-40 shrink-0 border-r border-zinc-200 bg-zinc-50/90 p-3 text-sm text-zinc-600 sm:block"
               >
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-zinc-700">Name</span>
-                  <input
-                    name="name"
-                    type="text"
-                    required
-                    placeholder="Your name"
-                    className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </label>
-
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-zinc-700">Email</span>
-                  <input
-                    name="email"
-                    type="email"
-                    required
-                    placeholder="you@example.com"
-                    className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </label>
-
-                <span className="mb-1.5 block text-sm font-medium text-zinc-700">
-                  What Type of Shoot Are You Interested In?
-                </span>
-                <fieldset className="space-y-3 rounded-lg border border-zinc-300 bg-white/90 p-4 text-sm text-zinc-700">
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="shootType"
-                      value="Short Form Content Shoot"
-                      required
-                      className="h-4 w-4 accent-blue-600"
-                    />
-                    Short Form Content Shoot
-                  </label>
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name="shootType"
-                      value="Full Music Video Shoot"
-                      className="h-4 w-4 accent-blue-600"
-                    />
-                    Full Music Video Shoot
-                  </label>
-                </fieldset>
-
-                <span className="mb-1.5 block text-sm font-medium text-zinc-700">Your Budget</span>
-                <fieldset className="space-y-3 rounded-lg border border-zinc-300 bg-white/90 p-4 text-sm text-zinc-700">
-                  {["$450-$900", "$900-$1,350", "$1,350-2,000", "$2,000+"].map((b, i) => (
-                    <label key={b} className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="budget"
-                        value={b}
-                        required={i === 0}
-                        className="h-4 w-4 accent-blue-600"
-                      />
-                      {b}
-                    </label>
+                <div className="space-y-2">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeTab === tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={
+                        activeTab === tab.id
+                          ? "w-full rounded-md bg-blue-500 px-2 py-1.5 text-left font-medium text-white"
+                          : "block w-full px-2 py-1.5 text-left text-zinc-600"
+                      }
+                    >
+                      {tab.label}
+                    </button>
                   ))}
-                </fieldset>
-
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-zinc-700">
-                    Link To Your Instagram
-                  </span>
-                  <input
-                    name="instagram"
-                    type="url"
-                    required
-                    placeholder="https://instagram.com/yourhandle"
-                    className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </label>
-
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-medium text-zinc-700">
-                    Anything Else? <span className="font-normal text-zinc-400">(optional)</span>
-                  </span>
-                  <textarea
-                    name="message"
-                    rows={4}
-                    placeholder="Tell me about your vision, timeline, references..."
-                    className="w-full resize-none rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  />
-                </label>
-
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm text-green-700">
-                    {bookingSent ? "Request sent — talk soon!" : ""}
-                  </p>
-                  <button
-                    type="submit"
-                    className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                  >
-                    SUBMIT
-                  </button>
                 </div>
-              </form>
+              </aside>
+
+              <main className="min-w-0 flex-1 px-6 py-6 sm:px-10 sm:py-8">
+                <div
+                  role="tablist"
+                  aria-label="Mail sections"
+                  className="mb-5 flex flex-wrap gap-2 text-sm text-zinc-600 sm:hidden"
+                >
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeTab === tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={
+                        activeTab === tab.id
+                          ? "rounded-md bg-blue-500 px-2 py-1.5 font-medium text-white"
+                          : "px-2 py-1.5 text-zinc-600"
+                      }
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                {activeTab === "book" ? (
+                  <BookShootForm
+                    bookingSent={bookingSent}
+                    setBookingSent={setBookingSent}
+                  />
+                ) : (
+                  <GeneralInquiriesForm
+                    contactSent={contactSent}
+                    onSubmit={(event) => handleGeneralSubmit(event, setContactSent)}
+                  />
+                )}
+              </main>
             </div>
           </div>
         </motion.div>
