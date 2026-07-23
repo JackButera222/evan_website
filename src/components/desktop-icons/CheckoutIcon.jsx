@@ -29,6 +29,7 @@ function CheckoutIcon({ placement, viewport, onClick }) {
       size={{ width, height }}
       bounds=".desktop-drag-bounds"
       enableResizing={false}
+      style={{ zIndex: dragging ? 500 : undefined }}
       onDragStart={() => {
         wasDraggedRef.current = false;
       }}

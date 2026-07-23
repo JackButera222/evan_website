@@ -24,6 +24,7 @@ function MailIcon({ placement, viewport, onClick }) {
       size={{ width, height }}
       bounds=".desktop-drag-bounds"
       enableResizing={false}
+      style={{ zIndex: dragging ? 500 : undefined }}
       onDragStart={() => { wasDraggedRef.current = false; }}
       onDrag={(_event, data) => {
         if (Math.hypot(data.x - pos.x, data.y - pos.y) > 8) {
