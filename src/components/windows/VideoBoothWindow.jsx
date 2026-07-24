@@ -535,7 +535,14 @@ export function VideoBoothExperience({
             }`}
             aria-label={`Play ${v.name}`}
           >
-            <video src={v.src} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+            <video
+              src={v.src}
+              muted
+              playsInline
+              preload="metadata"
+              className="h-full w-full object-cover"
+              onLoadedMetadata={(e) => { e.currentTarget.currentTime = 0.1; }}
+            />
             <span className="absolute inset-0 flex items-center justify-center text-white/90 text-lg drop-shadow">▶</span>
           </button>
         ))}
@@ -549,7 +556,14 @@ export function VideoBoothExperience({
             }`}
             aria-label={`View ${c.name}`}
           >
-            <video src={c.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+            <video
+              src={c.url}
+              muted
+              playsInline
+              preload="metadata"
+              className="h-full w-full object-cover"
+              onLoadedMetadata={(e) => { e.currentTarget.currentTime = 0.1; }}
+            />
             <span className="absolute inset-0 flex items-center justify-center text-white/90 text-lg drop-shadow">▶</span>
           </button>
         ))}

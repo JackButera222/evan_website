@@ -16,10 +16,10 @@ const MOBILE_REF = { w: 375, h: 812 };
 const MOBILE_POS = {
   quicktime: { x: 26, y: 40 },
   checkout: { x: 248, y: 120 }, // IAC Pack
-  snake: { x: 221, y: 290 }, // 2048
-  mail: { x: 41, y: 313 }, // hit me up
+  snake: { x: 221, y: 330 }, // 2048
+  mail: { x: 41, y: 350 }, // hit me up
   map: { x: 65, y: 618 }, // Shoot Map
-  boothWidget: { x: 133, y: 441 },
+  boothWidget: { x: 133, y: 500 },
 };
 
 function getMobileLayout(vw, vh) {
