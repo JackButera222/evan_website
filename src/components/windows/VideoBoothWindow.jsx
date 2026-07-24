@@ -373,18 +373,18 @@ export function VideoBoothExperience({
         />
         <span className="h-3.5 w-3.5 rounded-full border border-yellow-200/50 bg-yellow-400" />
         <span className="h-3.5 w-3.5 rounded-full border border-green-300/50 bg-green-500" />
-        <div className="ml-3 text-sm font-medium text-white/85">Video Booth</div>
+        <div className="ml-3 text-sm font-medium text-white/85">Short Form Content Booth</div>
         {recBadge}
       </div>
     ) : (
       <div className="pb-title-bar flex h-11 touch-none cursor-grab items-center gap-2 border-b border-white/10 bg-zinc-900 px-4 active:cursor-grabbing">
-        <button type="button" aria-label="Close Video Booth" onClick={onClose}
+        <button type="button" aria-label="Close Short Form Content Booth" onClick={onClose}
           className="window-control w-3.5 h-3.5 rounded-full bg-red-500 border border-red-300/50 hover:bg-red-400" />
         <button type="button" aria-label="Minimize"
           className="window-control w-3.5 h-3.5 rounded-full bg-yellow-400 border border-yellow-200/50" />
         <button type="button" aria-label="Zoom"
           className="window-control w-3.5 h-3.5 rounded-full bg-green-500 border border-green-300/50" />
-        <div className="ml-3 text-sm font-medium text-white/85">Video Booth</div>
+        <div className="ml-3 text-sm font-medium text-white/85">Short Form Content Booth</div>
         {recBadge}
       </div>
     );
@@ -523,7 +523,7 @@ export function VideoBoothExperience({
           }`}
           aria-label="Live camera"
         >
-          📷
+          🎥
         </button>
         {boothVideos.map((v, i) => (
           <button
