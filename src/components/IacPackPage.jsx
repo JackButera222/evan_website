@@ -8,11 +8,6 @@ import tHuggy from "../assets/iacpack/testimonial-huggyduzit.webp";
 import tCon from "../assets/iacpack/testimonial-con.webp";
 import tDtrel from "../assets/iacpack/testimonial-dtrel.webp";
 
-// GoHighLevel-hosted checkout (Stripe under the hood). NOTE: this lives on
-// the old GHL site — if tripodvawn.com is ever pointed at this app, swap
-// this for a direct Stripe Payment Link.
-const CHECKOUT_URL = "https://tripodvawn.com/checkout";
-
 const trackCheckout = () =>
   window.fbq?.("track", "InitiateCheckout", { content_name: "IAC Pack", value: 100, currency: "USD" });
 
@@ -71,11 +66,28 @@ const faqs = [
 // /contact: Mojave wallpaper + menu bar, one big Mac-style window.
 function IacPackPage() {
   const [now, setNow] = useState(() => new Date());
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState(null);
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(new Date()), 1_000);
     return () => window.clearInterval(id);
   }, []);
+
+  const startCheckout = async () => {
+    trackCheckout();
+    setCheckoutError(null);
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch("/api/create-checkout-session", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error ?? "Checkout failed");
+      window.location.href = data.url;
+    } catch {
+      setCheckoutError("Something went wrong starting checkout — please try again or message me directly.");
+      setCheckoutLoading(false);
+    }
+  };
 
   const isNight = now.getHours() < 6 || now.getHours() >= 18;
   const menuDateTime = [
@@ -148,18 +160,22 @@ function IacPackPage() {
                     Instant download · Lifetime access
                   </p>
                   <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <a
-                      href={CHECKOUT_URL}
-                      onClick={trackCheckout}
-                      className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500"
+                    <button
+                      type="button"
+                      onClick={startCheckout}
+                      disabled={checkoutLoading}
+                      className="rounded-full bg-blue-600 px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 disabled:opacity-60"
                     >
-                      GET — $100
-                    </a>
+                      {checkoutLoading ? "Redirecting…" : "GET — $100"}
+                    </button>
                     <span className="text-sm text-zinc-400">
                       <s>$180 value</s>
                     </span>
                     <span className="text-xs text-zinc-400">Secure checkout via Stripe</span>
                   </div>
+                  {checkoutError && (
+                    <p className="mt-2 text-xs text-red-600">{checkoutError}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -259,13 +275,17 @@ function IacPackPage() {
 
               {/* Bottom CTA */}
               <div className="mt-10 flex flex-col items-center gap-2 border-t border-zinc-200 pt-8">
-                <a
-                  href={CHECKOUT_URL}
-                  onClick={trackCheckout}
-                  className="rounded-lg bg-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500"
+                <button
+                  type="button"
+                  onClick={startCheckout}
+                  disabled={checkoutLoading}
+                  className="rounded-lg bg-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 disabled:opacity-60"
                 >
-                  BUY NOW — $100
-                </a>
+                  {checkoutLoading ? "Redirecting…" : "BUY NOW — $100"}
+                </button>
+                {checkoutError && (
+                  <p className="text-xs text-red-600">{checkoutError}</p>
+                )}
                 <p className="text-xs text-zinc-400">
                   Questions first?{" "}
                   <a href="/contact" className="text-blue-600 underline-offset-2 hover:underline">

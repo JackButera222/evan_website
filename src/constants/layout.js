@@ -20,6 +20,7 @@ const MOBILE_POS = {
   mail: { x: 41, y: 350 }, // hit me up
   map: { x: 65, y: 618 }, // Shoot Map
   boothWidget: { x: 133, y: 500 },
+  bookingNote: { x: 200, y: 280 }, // sticky note
 };
 
 function getMobileLayout(vw, vh) {
@@ -46,6 +47,9 @@ function getMobileLayout(vw, vh) {
     iconSize,
   });
 
+  const noteW = Math.min(140, vw - 32);
+  const noteH = 120;
+
   return {
     quicktime: { x: sx(MOBILE_POS.quicktime.x, qt), y: sy(MOBILE_POS.quicktime.y, qt), width: qt, height: qt },
     checkout: icon("checkout"),
@@ -57,6 +61,12 @@ function getMobileLayout(vw, vh) {
       y: sy(MOBILE_POS.boothWidget.y, widgetH),
       width: widgetW,
       height: widgetH,
+    },
+    bookingNote: {
+      x: sx(MOBILE_POS.bookingNote.x, noteW),
+      y: sy(MOBILE_POS.bookingNote.y, noteH),
+      width: noteW,
+      height: noteH,
     },
   };
 }
@@ -104,6 +114,12 @@ export function getDesktopLayout(viewportSize, isMobile) {
   const widgetX = Math.round(vw * 0.58);
   const widgetY = Math.max(top, Math.round(vh * 0.35));
 
+  // Booking note sticky note in upper-right area
+  const noteW = 140;
+  const noteH = 120;
+  const noteX = Math.min(vw - margin - noteW, Math.round(vw * 0.72));
+  const noteY = Math.max(top, Math.round(vh * 0.22));
+
   const layout = {
     quicktime: {
       x: quicktimeX,
@@ -144,6 +160,12 @@ export function getDesktopLayout(viewportSize, isMobile) {
       y: widgetY,
       width: widgetW,
       height: widgetH,
+    },
+    bookingNote: {
+      x: noteX,
+      y: noteY,
+      width: noteW,
+      height: noteH,
     },
   };
 

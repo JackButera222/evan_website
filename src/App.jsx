@@ -6,6 +6,7 @@ import { getWindowProps } from "./utils/window";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ContactPage from "./components/ContactPage";
 import IacPackPage from "./components/IacPackPage";
+import OrderConfirmationPage from "./components/OrderConfirmationPage";
 import VideosPage from "./components/VideosPage";
 import GlobalPreview from "./components/GlobalPreview";
 import LockScreen from "./components/LockScreen";
@@ -14,6 +15,7 @@ import CheckoutIcon from "./components/desktop-icons/CheckoutIcon";
 import QuickTimeWindow from "./components/desktop-icons/QuickTimeWindow";
 import SnakeIcon from "./components/desktop-icons/SnakeIcon";
 import MailIcon from "./components/desktop-icons/MailIcon";
+import BookingNote from "./components/desktop-icons/BookingNote";
 import VideoBoothWidget from "./components/desktop-icons/VideoBoothWidget";
 import FinderWindow from "./components/windows/FinderWindow";
 import PhotosWindow from "./components/windows/PhotosWindow";
@@ -339,6 +341,16 @@ function AppInner() {
         }}
       />
 
+      <BookingNote
+        placement={desktopLayout.bookingNote}
+        viewport={viewportSize}
+        onClick={() => {
+          setContactsOpen(true);
+          setContactSent(false);
+          setBookingSent(false);
+        }}
+      />
+
       <VideoBoothWidget
         placement={desktopLayout.boothWidget}
         viewport={viewportSize}
@@ -493,6 +505,8 @@ export default function App() {
         <ContactPage />
       ) : path === "/iacpack" ? (
         <IacPackPage />
+      ) : path === "/order-confirmation" ? (
+        <OrderConfirmationPage />
       ) : path === "/videos" ? (
         <VideosPage />
       ) : (
