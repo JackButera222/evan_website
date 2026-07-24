@@ -15,7 +15,6 @@ import CheckoutIcon from "./components/desktop-icons/CheckoutIcon";
 import QuickTimeWindow from "./components/desktop-icons/QuickTimeWindow";
 import SnakeIcon from "./components/desktop-icons/SnakeIcon";
 import MailIcon from "./components/desktop-icons/MailIcon";
-import BookingNote from "./components/desktop-icons/BookingNote";
 import VideoBoothWidget from "./components/desktop-icons/VideoBoothWidget";
 import FinderWindow from "./components/windows/FinderWindow";
 import PhotosWindow from "./components/windows/PhotosWindow";
@@ -341,15 +340,6 @@ function AppInner() {
         }}
       />
 
-      <BookingNote
-        placement={desktopLayout.bookingNote}
-        viewport={viewportSize}
-        onClick={() => {
-          setContactsOpen(true);
-          setContactSent(false);
-          setBookingSent(false);
-        }}
-      />
 
       <VideoBoothWidget
         placement={desktopLayout.boothWidget}

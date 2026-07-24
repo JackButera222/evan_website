@@ -20,7 +20,6 @@ const MOBILE_POS = {
   mail: { x: 41, y: 350 }, // hit me up
   map: { x: 65, y: 618 }, // Shoot Map
   boothWidget: { x: 133, y: 500 },
-  bookingNote: { x: 200, y: 280 }, // sticky note
 };
 
 function getMobileLayout(vw, vh) {
@@ -61,13 +60,7 @@ function getMobileLayout(vw, vh) {
       y: sy(MOBILE_POS.boothWidget.y, widgetH),
       width: widgetW,
       height: widgetH,
-    },
-    bookingNote: {
-      x: sx(MOBILE_POS.bookingNote.x, noteW),
-      y: sy(MOBILE_POS.bookingNote.y, noteH),
-      width: noteW,
-      height: noteH,
-    },
+    }
   };
 }
 
@@ -160,12 +153,6 @@ export function getDesktopLayout(viewportSize, isMobile) {
       y: widgetY,
       width: widgetW,
       height: widgetH,
-    },
-    bookingNote: {
-      x: noteX,
-      y: noteY,
-      width: noteW,
-      height: noteH,
     },
   };
 
