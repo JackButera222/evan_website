@@ -80,6 +80,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           from: process.env.CONTACT_FROM_EMAIL ?? "TripodVawn <onboarding@resend.dev>",
           to: [email],
+          reply_to: process.env.CONTACT_TO_EMAIL ?? "tripodvawn@gmail.com",
           subject: "Your Independent Artist Content Pack",
           text: [
             "Thanks for grabbing the Independent Artist Content Pack!",
