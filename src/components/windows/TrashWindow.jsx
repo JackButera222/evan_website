@@ -36,25 +36,14 @@ function TrashWindow({ isOpen, onClose, galleryPhotos, getWindowProps }) {
           <div className="ml-3 text-sm font-medium text-white/85">Trash</div>
         </div>
 
-        <div className="trash-list min-h-0 flex-1 overflow-auto bg-zinc-100 text-zinc-900">
-          <div className="grid grid-cols-1 gap-3 p-4">
-            {/* {galleryPhotos.concat(galleryPhotos).map((photo, index) => (
-              <button
-                type="button"
-                key={`${photo.alt}-trash-${index}`}
-                className="group aspect-square overflow-hidden rounded-lg bg-zinc-200 shadow-sm ring-1 ring-zinc-900/10 transition-transform hover:scale-[1.02] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-              >
-                <img
-                  src={photo.thumb ?? photo.src}
-                  alt={photo.alt}
-                  loading="lazy"
-                  decoding="async"
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  style={{ objectPosition: photo.position }}
-                />
-              </button>
-            ))} */}
-          </div>
+        <div className="trash-list flex min-h-0 flex-1 flex-col items-center justify-center gap-2 overflow-auto bg-zinc-100 p-4 text-center text-zinc-900">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-10 w-10 text-zinc-300">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-9 0 1 12a2 2 0 002 2h6a2 2 0 002-2l1-12" />
+          </svg>
+          <p className="text-sm font-medium text-zinc-500">The Trash is empty</p>
+          <p className="max-w-[220px] text-xs text-zinc-400">
+            Nothing's been thrown out — check back later.
+          </p>
         </div>
       </motion.div>
     </Rnd>
