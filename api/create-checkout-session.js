@@ -29,6 +29,7 @@ export default async function handler(req, res) {
   params.set("line_items[0][price_data][currency]", "usd");
   params.set("line_items[0][price_data][unit_amount]", String(amount));
   params.set("line_items[0][price_data][product_data][name]", PRODUCT_NAME);
+  params.set("allow_promotion_codes", "true");
 
   const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
     method: "POST",
