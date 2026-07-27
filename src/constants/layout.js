@@ -14,10 +14,10 @@ const QUICKTIME_SIZE = { desktop: 360, mobile: 216 };
 // under the dock or off-screen on other sizes).
 const MOBILE_REF = { w: 375, h: 812 };
 const MOBILE_POS = {
-  quicktime: { x: 26, y: 40 },
+  quicktime: { x: 26, y: 100 },
   checkout: { x: 248, y: 120 }, // IAC Pack
   snake: { x: 221, y: 330 }, // 2048
-  mail: { x: 41, y: 350 }, // hit me up
+  mail: { x: 41, y: 400 }, // hit me up
   map: { x: 65, y: 618 }, // Shoot Map
   boothWidget: { x: 133, y: 500 },
 };
